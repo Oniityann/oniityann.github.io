@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="##前言系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.  ##Runtime使用简介  运行时">
+<meta name="description" content="前言系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.  Runtime使用简介 运行时(Runt">
 <meta property="og:type" content="article">
 <meta property="og:title" content="利用 Runtime 修改 UITextfield 私有属性">
-<meta property="og:url" content="http://yoursite.com/2018/03/05/利用-Runtime-修改-UITextfield-私有属性/index.html">
+<meta property="og:url" content="http://yoursite.com/2016/03/05/利用-Runtime-修改-UITextfield-私有属性/index.html">
 <meta property="og:site_name" content="Oniityann">
-<meta property="og:description" content="##前言系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.  ##Runtime使用简介  运行时">
+<meta property="og:description" content="前言系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.  Runtime使用简介 运行时(Runt">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2016-03-05 下午12.14.35.png">
-<meta property="og:updated_time" content="2018-10-20T07:07:19.303Z">
+<meta property="og:updated_time" content="2018-10-20T07:23:51.121Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="利用 Runtime 修改 UITextfield 私有属性">
-<meta name="twitter:description" content="##前言系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.  ##Runtime使用简介  运行时">
+<meta name="twitter:description" content="前言系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.  Runtime使用简介 运行时(Runt">
 <meta name="twitter:image" content="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2016-03-05 下午12.14.35.png">
 
 
@@ -121,7 +121,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/05/利用-Runtime-修改-UITextfield-私有属性/">
+  <link rel="canonical" href="http://yoursite.com/2016/03/05/利用-Runtime-修改-UITextfield-私有属性/">
 
 
 
@@ -244,7 +244,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/05/利用-Runtime-修改-UITextfield-私有属性/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/03/05/利用-Runtime-修改-UITextfield-私有属性/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yinan Zheng">
@@ -273,8 +273,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-05T15:11:20+08:00">
-                2018-03-05
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-05T15:11:20+08:00">
+                2016-03-05
               </time>
             
 
@@ -333,35 +333,32 @@
       
 
       
-        <p>##前言<br>系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.<br>而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>系统自带UITextField的光标是默认深蓝色的, placeholder是灰色的, 在开发中, 一定程度上可能影像UI的美观程度, 所以我们需要自定义一个textField来完善界面.<br>而在textField自带方法和属性中是没有关于placeholder属性或是方法的, 仅有Attributes可以修改, 个人认为是没有runtime来的方便的.</p>
 <hr>
-<p>##Runtime使用简介</p>
-<blockquote>
+<h2 id="Runtime使用简介"><a href="#Runtime使用简介" class="headerlink" title="Runtime使用简介"></a>Runtime使用简介</h2><blockquote>
 <p>运行时(Runtime):<br>苹果官方的一套C语言库<br> 利用Runtime可以查看很多底层隐藏内容<br> 比如一些成员变量 / 方法</p>
 </blockquote>
 <hr>
-<p>##利用Runtime查看UITextField隐藏成员变量<br>首先, 需要在自定义UITextField头文件处导入:</p>
+<h2 id="利用Runtime查看UITextField隐藏成员变量"><a href="#利用Runtime查看UITextField隐藏成员变量" class="headerlink" title="利用Runtime查看UITextField隐藏成员变量"></a>利用Runtime查看UITextField隐藏成员变量</h2><p>首先, 需要在自定义UITextField头文件处导入:</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&lt;objc/runtime.h&gt;</span></span></span><br></pre></td></tr></table></figure>
 <p>在初始化方法中敲入如下代码:</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="keyword">void</span>)initialize &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//拷贝出所有成员变量列表</span></span><br><span class="line">    Ivar *ivars = class_copyIvarList([<span class="built_in">UITextField</span> <span class="keyword">class</span>], &amp;count);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//取出成员变量</span></span><br><span class="line">        Ivar ivar = *(ivars + i);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//打印成员变量名字</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s"</span>, ivar_getName(ivar));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//释放</span></span><br><span class="line">    free(ivars);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>此时要注意, 尽管在ARC模式下, 取出变量后要依然手动释放内存, 利用free()方法即可:<br><code>free(...)</code><br>运行程序后, 控制台会输出如下隐藏内容:<br><img src="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2016-03-05 下午12.14.35.png" alt="屏幕快照 2016-03-05 下午12.14.35"></p>
 <hr>
-<p>##修改placeholder的颜色</p>
-<p>###创建全局变量<br>根据控制台输出内容找到自己需要的成员变量后, 可以使用KVC修改<br>首先创建一个全局变量, 例如我们需要修改placeholder的颜色:</p>
+<h2 id="修改placeholder的颜色"><a href="#修改placeholder的颜色" class="headerlink" title="修改placeholder的颜色"></a>修改placeholder的颜色</h2><h3 id="创建全局变量"><a href="#创建全局变量" class="headerlink" title="创建全局变量"></a>创建全局变量</h3><p>根据控制台输出内容找到自己需要的成员变量后, 可以使用KVC修改<br>首先创建一个全局变量, 例如我们需要修改placeholder的颜色:</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span> *<span class="keyword">const</span> placeholderColorKeyPath = <span class="string">@"_placeholderLabel.textColor"</span>;</span><br></pre></td></tr></table></figure>
-<p>###通过KVC改写<br>然后通过KVC在第一响应方法中修改(<strong>注意是setValue: forKeyPath: 方法</strong>): </p>
+<h3 id="通过KVC改写"><a href="#通过KVC改写" class="headerlink" title="通过KVC改写"></a>通过KVC改写</h3><p>然后通过KVC在第一响应方法中修改(<strong>注意是setValue: forKeyPath: 方法</strong>): </p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)becomeFirstResponder &#123;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setValue:<span class="keyword">self</span>.textColor forKeyPath:placeholderColorKeyPath];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> becomeFirstResponder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)resignFirstResponder &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//修改占位文字颜色</span></span><br><span class="line">    [<span class="keyword">self</span> setValue:[<span class="built_in">UIColor</span> grayColor] forKeyPath:placeholderColorKeyPath];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> resignFirstResponder];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>此时再运行程序可以发现选中和未选中时的placeholder颜色变得不一样了.</p>
 <hr>
-<p>##修改输入框光标颜色<br>在textField中, 是没有indicator这个属性的, 光标颜色其实就是tintColor, 例如:</p>
+<h2 id="修改输入框光标颜色"><a href="#修改输入框光标颜色" class="headerlink" title="修改输入框光标颜色"></a>修改输入框光标颜色</h2><p>在textField中, 是没有indicator这个属性的, 光标颜色其实就是tintColor, 例如:</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//设置光标颜色和文字颜色一致</span></span><br><span class="line">    <span class="keyword">self</span>.tintColor = <span class="keyword">self</span>.textColor;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//在进入页面时是没有选中的要调用resign方法</span></span><br><span class="line">    [<span class="keyword">self</span> resignFirstResponder];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <hr>
-<p>##查看其它属性<br>同ivar一样, 可以使用runtime查看properties</p>
+<h2 id="查看其它属性"><a href="#查看其它属性" class="headerlink" title="查看其它属性"></a>查看其它属性</h2><p>同ivar一样, 可以使用runtime查看properties</p>
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="keyword">void</span>)initialize &#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    objc_property_t *properties = class_copyPropertyList([<span class="built_in">UITextField</span> <span class="keyword">class</span>], &amp;count);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        objc_property_t property = properties[i];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s"</span>, property_getName(property));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    free(properties);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><em>记住不要忘记free()方法</em></p>
 <hr>
-<p>##完整代码</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">"CustomField.h"</span></span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;objc/runtime.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span> *<span class="keyword">const</span> placeholderColorKeyPath = <span class="string">@"_placeholderLabel.textColor"</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">CustomField</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#if 0</span></span><br><span class="line">+ (<span class="keyword">void</span>)initialize &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//拷贝出所有成员变量列表</span></span><br><span class="line">    Ivar *ivars = class_copyIvarList([<span class="built_in">UITextField</span> <span class="keyword">class</span>], &amp;count);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//取出成员变量</span></span><br><span class="line">        Ivar ivar = *(ivars + i);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//打印成员变量名字</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s"</span>, ivar_getName(ivar));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//释放</span></span><br><span class="line">    free(ivars);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#endif</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#if 0</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> 找出系统隐藏属性</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">+ (<span class="keyword">void</span>)initialize &#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    objc_property_t *properties = class_copyPropertyList([<span class="built_in">UITextField</span> <span class="keyword">class</span>], &amp;count);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        objc_property_t property = properties[i];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s"</span>, property_getName(property));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    free(properties);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#endif</span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//设置光标颜色和文字颜色一致</span></span><br><span class="line">    <span class="keyword">self</span>.tintColor = <span class="keyword">self</span>.textColor;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> resignFirstResponder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)becomeFirstResponder &#123;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setValue:<span class="keyword">self</span>.textColor forKeyPath:placeholderColorKeyPath];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> becomeFirstResponder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)resignFirstResponder &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//修改占位文字颜色</span></span><br><span class="line">    [<span class="keyword">self</span> setValue:[<span class="built_in">UIColor</span> grayColor] forKeyPath:placeholderColorKeyPath];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> resignFirstResponder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<h2 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h2><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">"CustomField.h"</span></span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;objc/runtime.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span> *<span class="keyword">const</span> placeholderColorKeyPath = <span class="string">@"_placeholderLabel.textColor"</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">CustomField</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#if 0</span></span><br><span class="line">+ (<span class="keyword">void</span>)initialize &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//拷贝出所有成员变量列表</span></span><br><span class="line">    Ivar *ivars = class_copyIvarList([<span class="built_in">UITextField</span> <span class="keyword">class</span>], &amp;count);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//取出成员变量</span></span><br><span class="line">        Ivar ivar = *(ivars + i);</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//打印成员变量名字</span></span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s"</span>, ivar_getName(ivar));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//释放</span></span><br><span class="line">    free(ivars);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#endif</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#if 0</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> 找出系统隐藏属性</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">+ (<span class="keyword">void</span>)initialize &#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    objc_property_t *properties = class_copyPropertyList([<span class="built_in">UITextField</span> <span class="keyword">class</span>], &amp;count);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        objc_property_t property = properties[i];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s"</span>, property_getName(property));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    free(properties);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#endif</span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//设置光标颜色和文字颜色一致</span></span><br><span class="line">    <span class="keyword">self</span>.tintColor = <span class="keyword">self</span>.textColor;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> resignFirstResponder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)becomeFirstResponder &#123;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setValue:<span class="keyword">self</span>.textColor forKeyPath:placeholderColorKeyPath];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> becomeFirstResponder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)resignFirstResponder &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//修改占位文字颜色</span></span><br><span class="line">    [<span class="keyword">self</span> setValue:[<span class="built_in">UIColor</span> grayColor] forKeyPath:placeholderColorKeyPath];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> resignFirstResponder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -386,18 +383,14 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/05/iOS-App-状态恢复/" rel="next" title="iOS App 状态恢复">
-                <i class="fa fa-chevron-left"></i> iOS App 状态恢复
-              </a>
-            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/04/20/数据结构与算法基础/" rel="prev" title="数据结构与算法基础">
-                数据结构与算法基础 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/03/14/用-NSCalendar-处理类似微博发帖时间并封装/" rel="prev" title="用 NSCalendar 处理类似微博发帖时间并封装">
+                用 NSCalendar 处理类似微博发帖时间并封装 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -450,8 +443,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -502,6 +504,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Runtime使用简介"><span class="nav-number">2.</span> <span class="nav-text">Runtime使用简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用Runtime查看UITextField隐藏成员变量"><span class="nav-number">3.</span> <span class="nav-text">利用Runtime查看UITextField隐藏成员变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改placeholder的颜色"><span class="nav-number">4.</span> <span class="nav-text">修改placeholder的颜色</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建全局变量"><span class="nav-number">4.1.</span> <span class="nav-text">创建全局变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过KVC改写"><span class="nav-number">4.2.</span> <span class="nav-text">通过KVC改写</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改输入框光标颜色"><span class="nav-number">5.</span> <span class="nav-text">修改输入框光标颜色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看其它属性"><span class="nav-number">6.</span> <span class="nav-text">查看其它属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完整代码"><span class="nav-number">7.</span> <span class="nav-text">完整代码</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
