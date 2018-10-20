@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言最近项目需求加上状态恢复, 记得之前在书上看过, 这次单独抽出这个功能实现详细梳理一下, 方便自己温习一下, 也方便不知道的 developer 学习.   状态恢复?举个栗子: 在使用名字为 A 的 app 时, 从列表页面进入详情页面, 这时你不想看了, 点击 Home 键, 回到后台, 打开 B 开始玩. 过了一段时间之后, 由于 A 没有写后台运行的功能, 这时, 系统会关闭 A, 再">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS App 状态恢复">
+<meta property="og:url" content="http://yoursite.com/2017/01/05/iOS-App-状态恢复/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="前言最近项目需求加上状态恢复, 记得之前在书上看过, 这次单独抽出这个功能实现详细梳理一下, 方便自己温习一下, 也方便不知道的 developer 学习.   状态恢复?举个栗子: 在使用名字为 A 的 app 时, 从列表页面进入详情页面, 这时你不想看了, 点击 Home 键, 回到后台, 打开 B 开始玩. 过了一段时间之后, 由于 A 没有写后台运行的功能, 这时, 系统会关闭 A, 再">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/WechatIMG7444.jpeg">
+<meta property="og:updated_time" content="2018-10-20T07:07:03.377Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS App 状态恢复">
+<meta name="twitter:description" content="前言最近项目需求加上状态恢复, 记得之前在书上看过, 这次单独抽出这个功能实现详细梳理一下, 方便自己温习一下, 也方便不知道的 developer 学习.   状态恢复?举个栗子: 在使用名字为 A 的 app 时, 从列表页面进入详情页面, 这时你不想看了, 点击 Home 键, 回到后台, 打开 B 开始玩. 过了一段时间之后, 由于 A 没有写后台运行的功能, 这时, 系统会关闭 A, 再">
+<meta name="twitter:image" content="http://oupcsiea7.bkt.clouddn.com/WechatIMG7444.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/01/05/iOS-App-状态恢复/">
+
+
+
+
+
+  <title>iOS App 状态恢复 | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/05/iOS-App-状态恢复/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS App 状态恢复</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-01-05T17:59:31+08:00">
+                2017-01-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/小技巧/" itemprop="url" rel="index">
+                    <span itemprop="name">小技巧</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近项目需求加上状态恢复, 记得之前在书上看过, 这次单独抽出这个功能实现详细梳理一下, 方便自己温习一下, 也方便不知道的 developer 学习. </p>
+<hr>
+<h2 id="状态恢复"><a href="#状态恢复" class="headerlink" title="状态恢复?"></a>状态恢复?</h2><p>举个栗子:</p>
+<p>在使用名字为 A 的 app 时, 从列表页面进入详情页面, 这时你不想看了, 点击 Home 键, 回到后台, 打开 B 开始玩. 过了一段时间之后, 由于 A 没有写后台运行的功能, 这时, 系统会关闭 A, 再打开时, 你看到的是之前进入的详情页面.</p>
+<p>系统一点的话说就是, 系统在进入后台时会保存 app 的层次结构, 在下一次进入的时候会恢复这个结构中所有的 controller. 系统在终止之前会遍历结构中每一个节点, 恢复标识, 类, 保存的数据. 在终止应用之后, 系统会把这些信息存储在系统文件中.</p>
+<hr>
+<h2 id="恢复标识"><a href="#恢复标识" class="headerlink" title="恢复标识"></a>恢复标识</h2><p>一般和对象的类名相同, 其类被称为恢复类.</p>
+<hr>
+<p>##实现</p>
+<p>下面通过一个 demo 演示状态恢复的实现, 这个 demo 是一个保存联系人信息的 demo. 以下代码以 demo 中控制器为例. 建议 demo 和本文一起看, 更好理解.</p>
+<p><strong><a href="https://github.com/Oniityann/YNStateRestorationDemo" target="_blank" rel="noopener">demo地址</a></strong></p>
+<p>###1. 开启</p>
+<p>默认情况下, app 的状态恢复是关闭的, 需要我们手动开启.<br>在 AppDelegate.m 中手动打开:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#pragma mark - open state restoration</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 和NSCoding协议方法有点像, encode, decode</span></span><br><span class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application shouldSaveApplicationState:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application shouldRestoreApplicationState:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>系统在保存 app 状态时, 会先从 root VC 去查询是否有<code>restorationIdentifier</code>属性, 如果有, 则保存状态, 继续查询其子控制器, 有则保存. 直到找不到带有<code>restorationIdentifier</code>的子控制器, 系统会停止保存其与其子控制器的状态.</p>
+<p>画个图解释一下:<br><img src="http://oupcsiea7.bkt.clouddn.com/WechatIMG7444.jpeg" alt="状态恢复示意图"></p>
+<p>上图三级 VC 即使有<code>restorationIdentifier</code>也不会恢复.</p>
+<p><code>application:willFinishLaunchingWithOptions:</code>方法会在启用状态恢复之前调用, 我们需要将触发启用方法之前的代码写在这个方法中.</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application willFinishLaunchingWithOptions:(<span class="built_in">NSDictionary</span> *)launchOptions &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.window = [[<span class="built_in">UIWindow</span> alloc] init];</span><br><span class="line">    <span class="keyword">self</span>.window.frame = [<span class="built_in">UIScreen</span> mainScreen].bounds;</span><br><span class="line">    <span class="keyword">self</span>.window.backgroundColor = [<span class="built_in">UIColor</span> whiteColor];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后为根视图控制器添加恢复标识:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application didFinishLaunchingWithOptions:(<span class="built_in">NSDictionary</span> *)launchOptions &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 如果没有触发恢复, 则重新设置根控制器</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">self</span>.window.rootViewController) &#123;</span><br><span class="line">        </span><br><span class="line">        YNMainTableController *table = [[YNMainTableController alloc] init];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">UINavigationController</span> *nav = [[<span class="built_in">UINavigationController</span> alloc] initWithRootViewController:table];</span><br><span class="line">        </span><br><span class="line">        nav.restorationIdentifier = <span class="built_in">NSStringFromClass</span>([nav <span class="keyword">class</span>]);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.window.rootViewController = nav;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span>.window makeKeyAndVisible];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="2-为子控制器实现"><a href="#2-为子控制器实现" class="headerlink" title="2. 为子控制器实现"></a>2. 为子控制器实现</h3><h4 id="a-设置恢复标识和恢复类"><a href="#a-设置恢复标识和恢复类" class="headerlink" title="a. 设置恢复标识和恢复类"></a>a. 设置恢复标识和恢复类</h4><p>在一级控制器初始化方法中为其设置:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#pragma mark - initial</span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)init &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> init];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置恢复标识和恢复类</span></span><br><span class="line">        <span class="keyword">self</span>.restorationIdentifier = <span class="built_in">NSStringFromClass</span>([<span class="keyword">self</span> <span class="keyword">class</span>]);</span><br><span class="line">        <span class="keyword">self</span>.restorationClass = [<span class="keyword">self</span> <span class="keyword">class</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在子控制器中设置:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">instancetype</span>)initWithNewItem:(<span class="built_in">BOOL</span>)isNew &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithNibName:<span class="literal">nil</span> bundle:<span class="literal">nil</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 设置恢复类和恢复标识</span></span><br><span class="line">        <span class="keyword">self</span>.restorationIdentifier = <span class="built_in">NSStringFromClass</span>([<span class="keyword">self</span> <span class="keyword">class</span>]);</span><br><span class="line">        <span class="keyword">self</span>.restorationClass = [<span class="keyword">self</span> <span class="keyword">class</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (isNew) &#123;</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">UIBarButtonItem</span> *doneItem = [[<span class="built_in">UIBarButtonItem</span> alloc] initWithBarButtonSystemItem:<span class="built_in">UIBarButtonSystemItemDone</span> target:<span class="keyword">self</span> action:<span class="keyword">@selector</span>(save:)];</span><br><span class="line">            <span class="keyword">self</span>.navigationItem.rightBarButtonItem = doneItem;</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">UIBarButtonItem</span> *cancelItem = [[<span class="built_in">UIBarButtonItem</span> alloc] initWithBarButtonSystemItem:<span class="built_in">UIBarButtonSystemItemCancel</span> target:<span class="keyword">self</span> action:<span class="keyword">@selector</span>(cancel:)];</span><br><span class="line">            <span class="keyword">self</span>.navigationItem.leftBarButtonItem = cancelItem;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果是模态推出带有<code>navigationController</code>的控制器, 需要为这个 nav 设置恢复标识:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)addNewItem:(<span class="keyword">id</span>)sender &#123;</span><br><span class="line">    </span><br><span class="line">    YNCustomItem *item = [[YNItemHandler sharedStore] createItem];</span><br><span class="line">    </span><br><span class="line">    YNSonViewController *sonVC = [YNSonViewController newItem:<span class="literal">YES</span>];</span><br><span class="line">    sonVC.item = item;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UINavigationController</span> *nav = [[<span class="built_in">UINavigationController</span> alloc] initWithRootViewController:sonVC];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 为 UINavigationController 设置恢复类</span></span><br><span class="line">    nav.restorationIdentifier = <span class="built_in">NSStringFromClass</span>([nav <span class="keyword">class</span>]);</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> presentViewController:nav animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="b-遵循恢复协议"><a href="#b-遵循恢复协议" class="headerlink" title="b. 遵循恢复协议"></a>b. 遵循恢复协议</h4><p>需要状态恢复的控制器需要遵循<code>&lt;UIViewControllerRestoration&gt;</code>协议:</p>
+<p>一级视图控制器中:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#pragma mark - view controller restoration</span></span><br><span class="line"></span><br><span class="line">+ (<span class="built_in">UIViewController</span> *)viewControllerWithRestorationIdentifierPath:(<span class="built_in">NSArray</span> *)identifierComponents coder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    <span class="keyword">return</span> [[<span class="keyword">self</span> alloc] init];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样, 二级视图控制器中, demo 中添加新联系人信息和查看联系人信息调用的是同一个控制器, 初始化方法为自己封装的方法<code>newItem:(BOOL)isNew</code>, isNew 为 NO 时, 查看联系人, 为 YES 时, 新建联系人. 此时有两种情况:</p>
+<ol>
+<li><p>新建联系人:</p>
+<p> 在恢复状态时<code>newItem:(BOOL)isNew</code>参数传入 YES</p>
+</li>
+<li><p>查看联系人:</p>
+<p> 参数传入 NO</p>
+</li>
+</ol>
+<p>那么如何判断传入什么参数呢? 通过</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="built_in">UIViewController</span> *)viewControllerWithRestorationIdentifierPath:(<span class="built_in">NSArray</span> *)identifierComponents coder:(<span class="built_in">NSCoder</span> *)coder;</span><br></pre></td></tr></table></figure>
+<p>方法中的<code>identifierComponents</code>来判断, <code>identifierComponents</code>存储了当前视图控制器及其所有上级视图控制器的恢复标识. 那么现在我们来看一下:</p>
+<ol>
+<li>新建联系人程序中的恢复标识有:<ol>
+<li>root VC 的 nav 恢复标识</li>
+<li>二级 VC 的 nav 恢复标识(没有一级 VC 的标识是因为 二级 VC 是由一级 VC 的 nav 模态出来的)</li>
+<li>二级 VC 自身的恢复标识</li>
+</ol>
+</li>
+<li>查看联系人的恢复标识有:<ol>
+<li>根 VC 的 nav 恢复标识</li>
+<li>二级 VC 自身的恢复标识(没有一级的和上面同理)</li>
+</ol>
+</li>
+</ol>
+<p>所以新建联系人的 VC 的<code>identifierComponents</code>的个数为3, 查看联系人的为2个. 那么则可以判断参数如何传递:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#pragma mark - view controller restoration</span></span><br><span class="line"></span><br><span class="line">+ (<span class="built_in">UIViewController</span> *)viewControllerWithRestorationIdentifierPath:(<span class="built_in">NSArray</span> *)identifierComponents coder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">BOOL</span> isNew = <span class="literal">NO</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (identifierComponents.count == <span class="number">3</span>) &#123;</span><br><span class="line">        isNew = <span class="literal">YES</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [[<span class="keyword">self</span> alloc] initWithNewItem:isNew];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="c-为-nav-设置恢复类"><a href="#c-为-nav-设置恢复类" class="headerlink" title="c. 为 nav 设置恢复类"></a>c. 为 nav 设置恢复类</h4><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果某个对象没有设置恢复类, 那么系统会通过 AppDelegate 来创建</span></span><br><span class="line">- (<span class="built_in">UIViewController</span> *)application:(<span class="built_in">UIApplication</span> *)application viewControllerWithRestorationIdentifierPath:(<span class="built_in">NSArray</span> *)identifierComponents coder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UINavigationController</span> *nav = [[<span class="built_in">UINavigationController</span> alloc] init];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 恢复标识路径中最后一个对象就是 nav 的恢复标识</span></span><br><span class="line">    nav.restorationIdentifier = [identifierComponents lastObject];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (identifierComponents.count == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.window.rootViewController = nav;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> nav;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此, 控制器的状态恢复已完成, 但是现实的数据还需要做持久化处理, 否则只是恢复了一个没有数据的控制器.</p>
+<h4 id="d-数据持久化"><a href="#d-数据持久化" class="headerlink" title="d. 数据持久化"></a>d. 数据持久化</h4><p>使二级页面详情页需要的数据保存:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)encodeRestorableStateWithCoder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    [coder encodeObject:<span class="keyword">self</span>.item.itemKey forKey:kRestorationKey];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 保存 textField 中的文本, 以便恢复更改后的文本</span></span><br><span class="line">    <span class="keyword">self</span>.item.name = <span class="keyword">self</span>.nameField.text;</span><br><span class="line">    <span class="keyword">self</span>.item.phoneNumber = [<span class="keyword">self</span>.phoneField.text integerValue];</span><br><span class="line">    <span class="keyword">self</span>.item.sex = <span class="keyword">self</span>.sexField.text;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 存入本地</span></span><br><span class="line">    [[YNItemHandler sharedStore] saveItems];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">super</span> encodeRestorableStateWithCoder:coder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)decodeRestorableStateWithCoder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSString</span> *itemKey = [coder decodeObjectForKey:kRestorationKey];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (YNCustomItem *item <span class="keyword">in</span> [[YNItemHandler sharedStore] allItems]) &#123;</span><br><span class="line">        <span class="keyword">if</span> ([item.itemKey isEqualToString:itemKey]) &#123;</span><br><span class="line">            <span class="keyword">self</span>.item = item;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"name:%@, phone:%ld, sex:%@"</span>, <span class="keyword">self</span>.item.name, <span class="keyword">self</span>.item.phoneNumber, <span class="keyword">self</span>.item.sex);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">super</span> decodeRestorableStateWithCoder:coder];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>二级页面状态恢复完成, 这时候测试(测试方法: 运行后, cmd + shift + h回到桌面, Xcode停止运行, 然后再运行), 重新打开项目, 发现视图控制器状态是恢复了, 但是数据还是空白. 然后打上断点看了下周期, 把数据获取方法写在<code>viewWillAppear:</code>里就好了.</p>
+<h4 id="e-记录-tableview-状态"><a href="#e-记录-tableview-状态" class="headerlink" title="e. 记录 tableview 状态"></a>e. 记录 tableview 状态</h4><p>为一级 VC 设置其 tableView 的恢复标识:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.navigationItem.title = <span class="string">@"State Restoration"</span>;</span><br><span class="line">    <span class="keyword">self</span>.navigationItem.rightBarButtonItem = [[<span class="built_in">UIBarButtonItem</span> alloc] initWithBarButtonSystemItem:<span class="built_in">UIBarButtonSystemItemAdd</span> target:<span class="keyword">self</span> action:<span class="keyword">@selector</span>(addNewItem:)];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span>.tableView registerNib:[<span class="built_in">UINib</span> nibWithNibName:<span class="built_in">NSStringFromClass</span>([YNTableViewCell <span class="keyword">class</span>]) bundle:<span class="literal">nil</span>] forCellReuseIdentifier:kCellIdentifier];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 给 tableView 设置恢复标识, tableView 自动保存的 contentOffset 会恢复其滚动位置</span></span><br><span class="line">    <span class="keyword">self</span>.tableView.restorationIdentifier = kTableViewIdentifier;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>记录 tableView 是否处于 editing 状态:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 记录 tableView 是否处于编辑状态</span></span><br><span class="line">- (<span class="keyword">void</span>)encodeRestorableStateWithCoder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    [coder encodeBool:<span class="keyword">self</span>.isEditing forKey:kTableViewEditingKey];</span><br><span class="line">    [<span class="keyword">super</span> encodeRestorableStateWithCoder:coder];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)decodeRestorableStateWithCoder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    <span class="keyword">self</span>.editing = [coder decodeBoolForKey:kTableViewEditingKey];</span><br><span class="line">    [<span class="keyword">super</span> decodeRestorableStateWithCoder:coder];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过<code>&lt;UIDataSourceModelAssociation&gt;</code>协议使视图对象在恢复时关联正确的 model 对象. 当保存状态时, 其会根据 indexPath 保存一个唯一标识.</p>
+<p>实现<code>&lt;UIDataSourceModelAssociation&gt;</code>协议方法:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">NSString</span> *)modelIdentifierForElementAtIndexPath:(<span class="built_in">NSIndexPath</span> *)idx inView:(<span class="built_in">UIView</span> *)view &#123;</span><br><span class="line">    <span class="built_in">NSString</span> *identifier = <span class="literal">nil</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (idx &amp;&amp; view) &#123;</span><br><span class="line">        YNCustomItem *item = [[YNItemHandler sharedStore] allItems][idx.row];</span><br><span class="line">        identifier = item.itemKey;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> identifier;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSIndexPath</span> *)indexPathForElementWithModelIdentifier:(<span class="built_in">NSString</span> *)identifier inView:(<span class="built_in">UIView</span> *)view &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSIndexPath</span> *indexPath = <span class="literal">nil</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (identifier &amp;&amp; view) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">for</span> (YNCustomItem *item <span class="keyword">in</span> [[YNItemHandler sharedStore] allItems]) &#123;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> ([identifier isEqualToString:item.itemKey]) &#123;</span><br><span class="line">                <span class="built_in">NSInteger</span> row = [[[YNItemHandler sharedStore] allItems] indexOfObjectIdenticalTo:item];</span><br><span class="line">                indexPath = [<span class="built_in">NSIndexPath</span> indexPathForRow:row inSection:<span class="number">0</span>];</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> indexPath;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后记得在进入后台前持久化当前的 item(实际开发中记得用 cache(项目里使用 YYCache) 或者 db(项目里使用 FMDB) 去即时持久化视图数据, 是一个比较稳妥的方案):</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)applicationDidEnterBackground:(<span class="built_in">UIApplication</span> *)application &#123;</span><br><span class="line">    <span class="built_in">BOOL</span> success = [[YNItemHandler sharedStore] saveItems];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (success) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"成功保存所有项目"</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"保存项目失败"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此, 状态恢复基本使用已经实现.</p>
+<hr>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><ol>
+<li>添加 n 个新的联系人, 滑动列表到测试位置, 让 tableView 进入到编辑状态. 按下<code>cmd + shift + h</code>进入 home, 用 Xcode 结束程序<code>cmd+.</code>, 再次运行看看是否在最后滑动位置, 或者是否处于编辑状态.</li>
+<li>恢复编辑状态, 随便进入一个联系人详情, 重复上面的操作, 看看进入程序之后是否处于上次退出前的详情页面.</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/14/用-NSCalendar-处理类似微博发帖时间并封装/" rel="next" title="用 NSCalendar 处理类似微博发帖时间并封装">
+                <i class="fa fa-chevron-left"></i> 用 NSCalendar 处理类似微博发帖时间并封装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/05/利用-Runtime-修改-UITextfield-私有属性/" rel="prev" title="利用 Runtime 修改 UITextfield 私有属性">
+                利用 Runtime 修改 UITextfield 私有属性 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#状态恢复"><span class="nav-number">2.</span> <span class="nav-text">状态恢复?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#恢复标识"><span class="nav-number">3.</span> <span class="nav-text">恢复标识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-为子控制器实现"><span class="nav-number">3.1.</span> <span class="nav-text">2. 为子控制器实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a-设置恢复标识和恢复类"><span class="nav-number">3.1.1.</span> <span class="nav-text">a. 设置恢复标识和恢复类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b-遵循恢复协议"><span class="nav-number">3.1.2.</span> <span class="nav-text">b. 遵循恢复协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#c-为-nav-设置恢复类"><span class="nav-number">3.1.3.</span> <span class="nav-text">c. 为 nav 设置恢复类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#d-数据持久化"><span class="nav-number">3.1.4.</span> <span class="nav-text">d. 数据持久化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#e-记录-tableview-状态"><span class="nav-number">3.1.5.</span> <span class="nav-text">e. 记录 tableview 状态</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">4.</span> <span class="nav-text">测试</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
