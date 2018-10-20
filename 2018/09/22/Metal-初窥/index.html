@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS Graphics,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="渲染顶点 (vertice, vertex)一个顶点就是两个或多个的线, 曲线, 集合图形的焦点. 一个 3D 渲染器将会通过 model loader 代码去阅读这些顶点, 这些代码解析了顶点的列表. 然后渲染器会传递这些顶点到 GPU, shader (着色器, 流处理器) 方法会去处理这些顶点, 去创建最终的图片或者纹理, 然后会重新传递到 CPU, 以便在屏幕上展示.  渲染通道 (Ren">
+<meta name="keywords" content="iOS Graphics">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Metal 初窥">
+<meta property="og:url" content="http://yoursite.com/2018/09/22/Metal-初窥/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="渲染顶点 (vertice, vertex)一个顶点就是两个或多个的线, 曲线, 集合图形的焦点. 一个 3D 渲染器将会通过 model loader 代码去阅读这些顶点, 这些代码解析了顶点的列表. 然后渲染器会传递这些顶点到 GPU, shader (着色器, 流处理器) 方法会去处理这些顶点, 去创建最终的图片或者纹理, 然后会重新传递到 CPU, 以便在屏幕上展示.  渲染通道 (Ren">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-09-10%20%E4%B8%8B%E5%8D%889.14.30.png">
+<meta property="og:updated_time" content="2018-10-20T18:33:48.214Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Metal 初窥">
+<meta name="twitter:description" content="渲染顶点 (vertice, vertex)一个顶点就是两个或多个的线, 曲线, 集合图形的焦点. 一个 3D 渲染器将会通过 model loader 代码去阅读这些顶点, 这些代码解析了顶点的列表. 然后渲染器会传递这些顶点到 GPU, shader (着色器, 流处理器) 方法会去处理这些顶点, 去创建最终的图片或者纹理, 然后会重新传递到 CPU, 以便在屏幕上展示.  渲染通道 (Ren">
+<meta name="twitter:image" content="http://oupcsiea7.bkt.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-09-10%20%E4%B8%8B%E5%8D%889.14.30.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/22/Metal-初窥/">
+
+
+
+
+
+  <title>Metal 初窥 | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/22/Metal-初窥/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Metal 初窥</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-22T15:20:36+08:00">
+                2018-09-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Metal/" itemprop="url" rel="index">
+                    <span itemprop="name">Metal</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="渲染"><a href="#渲染" class="headerlink" title="渲染"></a>渲染</h2><h3 id="顶点-vertice-vertex"><a href="#顶点-vertice-vertex" class="headerlink" title="顶点 (vertice, vertex)"></a>顶点 (vertice, vertex)</h3><p>一个顶点就是两个或多个的线, 曲线, 集合图形的焦点.</p>
+<p>一个 3D 渲染器将会通过 <code>model loader</code> 代码去阅读这些顶点, 这些代码解析了顶点的列表. 然后渲染器会传递这些顶点到 GPU, <code>shader (着色器, 流处理器)</code> 方法会去处理这些顶点, 去创建最终的图片或者纹理, 然后会重新传递到 CPU, 以便在屏幕上展示. </p>
+<p><strong>渲染通道 (Rendering Pipeline)</strong> 是一个传送到 CPU 的命令表. 渲染通道包含了可编程和不可编程的方法, 前者, 一般被认为是<strong>顶点方法 (vertex functions)</strong> 和<strong>碎片方法 (fragment functions)</strong>, 是你可以手动影响你最终你看见的渲染的模型的方法.</p>
+<h3 id="帧"><a href="#帧" class="headerlink" title="帧"></a>帧</h3><p>每个静态图像都被认为是一个 <code>frame (帧)</code>, 图片出现的速率叫做<strong>帧率</strong>.</p>
+<h3 id="Metal-处理序列"><a href="#Metal-处理序列" class="headerlink" title="Metal 处理序列"></a>Metal 处理序列</h3><p><img src="http://oupcsiea7.bkt.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-09-10%20%E4%B8%8B%E5%8D%889.14.30.png" alt="屏幕快照 2018-09-10 下午9.14.30"></p>
+<h2 id="MetalKit"><a href="#MetalKit" class="headerlink" title="MetalKit"></a>MetalKit</h2><p>MetalKit 有一个自己的视图 — <code>MTKView</code>。<br>MTKView 在 MacOS 上是 <code>NSView</code> 的子类，在 iOS 上是 <code>UIView</code> 的子类。</p>
+<p>检测是否有合适的 GPU：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">guard</span> <span class="keyword">let</span> device = device <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">fatalError</span>(<span class="string">"GPU is not supported"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建一个 MTKView：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> frame = <span class="type">CGRect</span>(x: <span class="number">75</span>/<span class="number">2.0</span>, y: <span class="number">96</span>, width: <span class="number">300</span>, height: <span class="number">300</span>)</span><br><span class="line"><span class="keyword">let</span> view = <span class="type">MTKView</span>(frame: frame, device: device)</span><br><span class="line">view.clearColor = <span class="type">MTLClearColor</span>(red: <span class="number">1</span>, green: <span class="number">1</span>, blue: <span class="number">0.8</span>, alpha: <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p><code>MTKClearColor</code> 代表了一个 RGBA 色值。色值被存储在 <code>clearColor</code> 中, 用这个值设置 MTKView。</p>
+<p>创建一个 <code>MTLCommandQueue</code> 对象:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">guard</span> <span class="keyword">let</span> commandQueue = device.makeCommandQueue() <span class="keyword">else</span> &#123; </span><br><span class="line">    <span class="built_in">fatalError</span>(<span class="string">"Could not create a command queue"</span>) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Device</code> 和 <code>Command</code> 需要在一开始就设置, 设置一次, 各处使用.</p>
+<h3 id="The-Model-Load-a-model"><a href="#The-Model-Load-a-model" class="headerlink" title="The Model - Load a model"></a>The Model - Load a model</h3><p><code>Model I/O</code> 是一个整合 Metal 和 SceneKit 的框架. 它的主要目的是加载 3D 模型, 设置 <code>data buffer</code> 以便渲染.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建一个网格数据内存管理器</span></span><br><span class="line"><span class="keyword">let</span> allocator = <span class="type">MTKMeshBufferAllocator</span>(device: device)</span><br><span class="line"><span class="comment">// 2. Model I/O 创建一个有着特定大小的球体</span></span><br><span class="line"><span class="comment">// 并且返回一个 MDLMesh 对象, buffers 中有着所有的顶点信息</span></span><br><span class="line"><span class="keyword">let</span> mdlMesh = <span class="type">MDLMesh</span>(sphereWithExtent: [<span class="number">0.75</span>, <span class="number">0.75</span>, <span class="number">0.75</span>], segments: [<span class="number">100</span>, <span class="number">100</span>], inwardNormals: <span class="literal">false</span>, geometryType: .triangles, allocator: allocator)</span><br><span class="line"><span class="comment">// 3. 为了让 Metal 可以使用这些网格, 从一个 Model I/O mesh 转换成一个 MetalKit mesh</span></span><br><span class="line"><span class="keyword">let</span> mesh = <span class="keyword">try</span>! <span class="type">MTKMesh</span>(mesh: mdlMesh, device: device)</span><br></pre></td></tr></table></figure>
+<h3 id="Shader-Functions"><a href="#Shader-Functions" class="headerlink" title="Shader Functions"></a>Shader Functions</h3><p><code>Shader Functions</code> 是跑在 GPU 上的一小段代码, 用 Metal Shading Language (着色语言) 来写它们, 是一段 C++ 的代码子集.</p>
+<p>通常情况下, 你会为 shader functions 创建一个独立的文件, 后缀为 <code>.metal</code></p>
+<p>The vertex function is where you usually manipulate vertex positions and the fragment function is where you specify the pixel color.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> shader = <span class="string">"""</span></span><br><span class="line"><span class="string">#include &lt;metal_stdlib&gt; \n</span></span><br><span class="line"><span class="string">using namespace metal;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">struct VertexIn &#123;</span></span><br><span class="line"><span class="string">  float4 position [[ attribute(0) ]];</span></span><br><span class="line"><span class="string">&#125;;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">vertex float4 vertex_main(const VertexIn vertex_in [[ stage_in ]]) &#123;</span></span><br><span class="line"><span class="string">  return vertex_in.position;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">fragment float4 fragment_main() &#123;</span></span><br><span class="line"><span class="string">  return float4(1, 0, 0, 1);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建一个包含 shader 中两个方法的 Metal 库</span></span><br><span class="line"><span class="keyword">let</span> library = <span class="keyword">try</span> device.makeLibrary(source: shader, options: <span class="literal">nil</span>) </span><br><span class="line"><span class="keyword">let</span> vertexFunction = library.makeFunction(name: <span class="string">"vertex_main"</span>) </span><br><span class="line"><span class="keyword">let</span> fragmentFunction = library.makeFunction(name: <span class="string">"fragment_main"</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>The compiler will check that these functions exist and make them available to a pipeline descriptor (描述符号).</p>
+</blockquote>
+<h3 id="The-Pipeline-State-Setup-the-pipeline"><a href="#The-Pipeline-State-Setup-the-pipeline" class="headerlink" title="The Pipeline State - Setup the pipeline"></a>The Pipeline State - Setup the pipeline</h3><p>在 Metal 中, 你为 GPU 设置一个通道状态, 通过这是这种状态, 你告诉 GPU, 除非状态改变, 什么都不会改变, 并且 GPU 可以运行更高效。通道状态包含了所有 CPU 需要的信息, 例如, 它需要用到的像素格式化和它是否需要渲染深度, 此外, 它也持有你创建的顶点和碎片方法。</p>
+<p>然而, 你不直接创建通道状态, 而是通过创建一个 descriptor 来创建它。descriptor 持有了所有通道需要知道的东西, 并且, 为了那些特殊的渲染场景, 你仅仅是改变那些必要的属性即可：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个 pipeline descriptor</span></span><br><span class="line"><span class="keyword">let</span> descriptor = <span class="type">MTLRenderPipelineDescriptor</span>()</span><br><span class="line"><span class="comment">// 设置像素格式化</span></span><br><span class="line"><span class="comment">// .bgra8Unorm: Ordinary format with four 8-bit normalized unsigned integer components in BGRA order.</span></span><br><span class="line">descriptor.colorAttachments[<span class="number">0</span>].pixelFormat = .bgra8Unorm</span><br><span class="line">descriptor.vertexFunction = vertexFunction</span><br><span class="line">descriptor.fragmentFunction = fragmentFunction</span><br><span class="line"><span class="comment">// MTKMetalVertexDescriptorFromModelIO(_:)</span></span><br><span class="line"><span class="comment">// 返回一个部分被转换的 Metal 顶点描述符号</span></span><br><span class="line">descriptor.vertexDescriptor = <span class="type">MTKMetalVertexDescriptorFromModelIO</span>(mesh.vertexDescriptor)</span><br></pre></td></tr></table></figure>
+<p>vertex descriptor 描述了那些顶点如何在 Metal buffer 中被布局的。<br>当 Model I/O 加载球体网格的时候, 会自动创建顶点描述符号。<br>通过 descriptor 创建 pipeline state:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> pipelineState = <span class="keyword">try</span> device.makeRenderPipelineState(descriptor: descriptor)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Creating a pipeline state takes valuable processing time, so all of the above should be a one-time setup. In a real app, you might create several pipeline states to call different shading functions or use different vertex layouts.</p>
+</blockquote>
+<h3 id="Rendering"><a href="#Rendering" class="headerlink" title="Rendering"></a>Rendering</h3><p>MTKView 有一个代理方法, 可以运行每一帧。</p>
+<blockquote>
+<p>MTKView provides a render pass descriptor and a drawable.</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">guard</span> <span class="keyword">let</span> commandBuffer = commandQueue.makeCommandBuffer(),</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> descriptor = view.currentRenderPassDescriptor,</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> renderEncoder =</span><br><span class="line">  commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)</span><br><span class="line">  <span class="keyword">else</span> &#123; <span class="built_in">fatalError</span>() &#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS-Graphics/" rel="tag"># iOS Graphics</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/20/数据结构与算法基础/" rel="next" title="数据结构与算法基础">
+                <i class="fa fa-chevron-left"></i> 数据结构与算法基础
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#渲染"><span class="nav-number">1.</span> <span class="nav-text">渲染</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#顶点-vertice-vertex"><span class="nav-number">1.1.</span> <span class="nav-text">顶点 (vertice, vertex)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#帧"><span class="nav-number">1.2.</span> <span class="nav-text">帧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Metal-处理序列"><span class="nav-number">1.3.</span> <span class="nav-text">Metal 处理序列</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MetalKit"><span class="nav-number">2.</span> <span class="nav-text">MetalKit</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#The-Model-Load-a-model"><span class="nav-number">2.1.</span> <span class="nav-text">The Model - Load a model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Shader-Functions"><span class="nav-number">2.2.</span> <span class="nav-text">Shader Functions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-Pipeline-State-Setup-the-pipeline"><span class="nav-number">2.3.</span> <span class="nav-text">The Pipeline State - Setup the pipeline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rendering"><span class="nav-number">2.4.</span> <span class="nav-text">Rendering</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

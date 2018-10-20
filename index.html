@@ -206,6 +206,16 @@
           </a>
         </li>
       
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
 
       
     </ul>
@@ -225,6 +235,182 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/22/Metal-初窥/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/22/Metal-初窥/" itemprop="url">Metal 初窥</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-22T15:20:36+08:00">
+                2018-09-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Metal/" itemprop="url" rel="index">
+                    <span itemprop="name">Metal</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="渲染"><a href="#渲染" class="headerlink" title="渲染"></a>渲染</h2><h3 id="顶点-vertice-vertex"><a href="#顶点-vertice-vertex" class="headerlink" title="顶点 (vertice, vertex)"></a>顶点 (vertice, vertex)</h3><p>一个顶点就是两个或多个的线, 曲线, 集合图形的焦点.</p>
+<p>一个 3D 渲染器将会通过 <code>model loader</code> 代码去阅读这些顶点, 这些代码解析了顶点的列表. 然后渲染器会传递这些顶点到 GPU, <code>shader (着色器, 流处理器)</code> 方法会去处理这些顶点, 去创建最终的图片或者纹理, 然后会重新传递到 CPU, 以便在屏幕上展示. </p>
+<p><strong>渲染通道 (Rendering Pipeline)</strong> 是一个传送到 CPU 的命令表. 渲染通道包含了可编程和不可编程的方法, 前者, 一般被认为是<strong>顶点方法 (vertex functions)</strong> 和<strong>碎片方法 (fragment functions)</strong>, 是你可以手动影响你最终你看见的渲染的模型的方法.</p>
+<h3 id="帧"><a href="#帧" class="headerlink" title="帧"></a>帧</h3><p>每个静态图像都被认为是一个 <code>frame (帧)</code>, 图片出现的速率叫做<strong>帧率</strong>.</p>
+<h3 id="Metal-处理序列"><a href="#Metal-处理序列" class="headerlink" title="Metal 处理序列"></a>Metal 处理序列</h3><p><img src="http://oupcsiea7.bkt.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-09-10%20%E4%B8%8B%E5%8D%889.14.30.png" alt="屏幕快照 2018-09-10 下午9.14.30"></p>
+<h2 id="MetalKit"><a href="#MetalKit" class="headerlink" title="MetalKit"></a>MetalKit</h2><p>MetalKit 有一个自己的视图 — <code>MTKView</code>。<br>MTKView 在 MacOS 上是 <code>NSView</code> 的子类，在 iOS 上是 <code>UIView</code> 的子类。</p>
+<p>检测是否有合适的 GPU：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">guard</span> <span class="keyword">let</span> device = device <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">fatalError</span>(<span class="string">"GPU is not supported"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建一个 MTKView：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> frame = <span class="type">CGRect</span>(x: <span class="number">75</span>/<span class="number">2.0</span>, y: <span class="number">96</span>, width: <span class="number">300</span>, height: <span class="number">300</span>)</span><br><span class="line"><span class="keyword">let</span> view = <span class="type">MTKView</span>(frame: frame, device: device)</span><br><span class="line">view.clearColor = <span class="type">MTLClearColor</span>(red: <span class="number">1</span>, green: <span class="number">1</span>, blue: <span class="number">0.8</span>, alpha: <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p><code>MTKClearColor</code> 代表了一个 RGBA 色值。色值被存储在 <code>clearColor</code> 中, 用这个值设置 MTKView。</p>
+<p>创建一个 <code>MTLCommandQueue</code> 对象:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">guard</span> <span class="keyword">let</span> commandQueue = device.makeCommandQueue() <span class="keyword">else</span> &#123; </span><br><span class="line">    <span class="built_in">fatalError</span>(<span class="string">"Could not create a command queue"</span>) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Device</code> 和 <code>Command</code> 需要在一开始就设置, 设置一次, 各处使用.</p>
+<h3 id="The-Model-Load-a-model"><a href="#The-Model-Load-a-model" class="headerlink" title="The Model - Load a model"></a>The Model - Load a model</h3><p><code>Model I/O</code> 是一个整合 Metal 和 SceneKit 的框架. 它的主要目的是加载 3D 模型, 设置 <code>data buffer</code> 以便渲染.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建一个网格数据内存管理器</span></span><br><span class="line"><span class="keyword">let</span> allocator = <span class="type">MTKMeshBufferAllocator</span>(device: device)</span><br><span class="line"><span class="comment">// 2. Model I/O 创建一个有着特定大小的球体</span></span><br><span class="line"><span class="comment">// 并且返回一个 MDLMesh 对象, buffers 中有着所有的顶点信息</span></span><br><span class="line"><span class="keyword">let</span> mdlMesh = <span class="type">MDLMesh</span>(sphereWithExtent: [<span class="number">0.75</span>, <span class="number">0.75</span>, <span class="number">0.75</span>], segments: [<span class="number">100</span>, <span class="number">100</span>], inwardNormals: <span class="literal">false</span>, geometryType: .triangles, allocator: allocator)</span><br><span class="line"><span class="comment">// 3. 为了让 Metal 可以使用这些网格, 从一个 Model I/O mesh 转换成一个 MetalKit mesh</span></span><br><span class="line"><span class="keyword">let</span> mesh = <span class="keyword">try</span>! <span class="type">MTKMesh</span>(mesh: mdlMesh, device: device)</span><br></pre></td></tr></table></figure>
+<h3 id="Shader-Functions"><a href="#Shader-Functions" class="headerlink" title="Shader Functions"></a>Shader Functions</h3><p><code>Shader Functions</code> 是跑在 GPU 上的一小段代码, 用 Metal Shading Language (着色语言) 来写它们, 是一段 C++ 的代码子集.</p>
+<p>通常情况下, 你会为 shader functions 创建一个独立的文件, 后缀为 <code>.metal</code></p>
+<p>The vertex function is where you usually manipulate vertex positions and the fragment function is where you specify the pixel color.</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> shader = <span class="string">"""</span></span><br><span class="line"><span class="string">#include &lt;metal_stdlib&gt; \n</span></span><br><span class="line"><span class="string">using namespace metal;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">struct VertexIn &#123;</span></span><br><span class="line"><span class="string">  float4 position [[ attribute(0) ]];</span></span><br><span class="line"><span class="string">&#125;;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">vertex float4 vertex_main(const VertexIn vertex_in [[ stage_in ]]) &#123;</span></span><br><span class="line"><span class="string">  return vertex_in.position;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">fragment float4 fragment_main() &#123;</span></span><br><span class="line"><span class="string">  return float4(1, 0, 0, 1);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建一个包含 shader 中两个方法的 Metal 库</span></span><br><span class="line"><span class="keyword">let</span> library = <span class="keyword">try</span> device.makeLibrary(source: shader, options: <span class="literal">nil</span>) </span><br><span class="line"><span class="keyword">let</span> vertexFunction = library.makeFunction(name: <span class="string">"vertex_main"</span>) </span><br><span class="line"><span class="keyword">let</span> fragmentFunction = library.makeFunction(name: <span class="string">"fragment_main"</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>The compiler will check that these functions exist and make them available to a pipeline descriptor (描述符号).</p>
+</blockquote>
+<h3 id="The-Pipeline-State-Setup-the-pipeline"><a href="#The-Pipeline-State-Setup-the-pipeline" class="headerlink" title="The Pipeline State - Setup the pipeline"></a>The Pipeline State - Setup the pipeline</h3><p>在 Metal 中, 你为 GPU 设置一个通道状态, 通过这是这种状态, 你告诉 GPU, 除非状态改变, 什么都不会改变, 并且 GPU 可以运行更高效。通道状态包含了所有 CPU 需要的信息, 例如, 它需要用到的像素格式化和它是否需要渲染深度, 此外, 它也持有你创建的顶点和碎片方法。</p>
+<p>然而, 你不直接创建通道状态, 而是通过创建一个 descriptor 来创建它。descriptor 持有了所有通道需要知道的东西, 并且, 为了那些特殊的渲染场景, 你仅仅是改变那些必要的属性即可：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个 pipeline descriptor</span></span><br><span class="line"><span class="keyword">let</span> descriptor = <span class="type">MTLRenderPipelineDescriptor</span>()</span><br><span class="line"><span class="comment">// 设置像素格式化</span></span><br><span class="line"><span class="comment">// .bgra8Unorm: Ordinary format with four 8-bit normalized unsigned integer components in BGRA order.</span></span><br><span class="line">descriptor.colorAttachments[<span class="number">0</span>].pixelFormat = .bgra8Unorm</span><br><span class="line">descriptor.vertexFunction = vertexFunction</span><br><span class="line">descriptor.fragmentFunction = fragmentFunction</span><br><span class="line"><span class="comment">// MTKMetalVertexDescriptorFromModelIO(_:)</span></span><br><span class="line"><span class="comment">// 返回一个部分被转换的 Metal 顶点描述符号</span></span><br><span class="line">descriptor.vertexDescriptor = <span class="type">MTKMetalVertexDescriptorFromModelIO</span>(mesh.vertexDescriptor)</span><br></pre></td></tr></table></figure>
+<p>vertex descriptor 描述了那些顶点如何在 Metal buffer 中被布局的。<br>当 Model I/O 加载球体网格的时候, 会自动创建顶点描述符号。<br>通过 descriptor 创建 pipeline state:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> pipelineState = <span class="keyword">try</span> device.makeRenderPipelineState(descriptor: descriptor)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Creating a pipeline state takes valuable processing time, so all of the above should be a one-time setup. In a real app, you might create several pipeline states to call different shading functions or use different vertex layouts.</p>
+</blockquote>
+<h3 id="Rendering"><a href="#Rendering" class="headerlink" title="Rendering"></a>Rendering</h3><p>MTKView 有一个代理方法, 可以运行每一帧。</p>
+<blockquote>
+<p>MTKView provides a render pass descriptor and a drawable.</p>
+</blockquote>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">guard</span> <span class="keyword">let</span> commandBuffer = commandQueue.makeCommandBuffer(),</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> descriptor = view.currentRenderPassDescriptor,</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> renderEncoder =</span><br><span class="line">  commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)</span><br><span class="line">  <span class="keyword">else</span> &#123; <span class="built_in">fatalError</span>() &#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -727,6 +913,298 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/21/ReactiveCocoa-Quick-Search/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/04/21/ReactiveCocoa-Quick-Search/" itemprop="url">ReactiveCocoa Quick Search</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-21T02:15:07+08:00">
+                2017-04-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/ReactiveCocoa/" itemprop="url" rel="index">
+                    <span itemprop="name">ReactiveCocoa</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="ReactiveCocoa-常用-API"><a href="#ReactiveCocoa-常用-API" class="headerlink" title="ReactiveCocoa 常用 API"></a>ReactiveCocoa 常用 API</h1><h2 id="常见类"><a href="#常见类" class="headerlink" title="常见类"></a>常见类</h2><h3 id="RACSiganl-信号类。"><a href="#RACSiganl-信号类。" class="headerlink" title="RACSiganl 信号类。"></a>RACSiganl 信号类。</h3><ol>
+<li>RACEmptySignal：空信号，用来实现 RACSignal 的 +empty 方法；</li>
+<li>RACReturnSignal：一元信号，用来实现 RACSignal 的 +return: 方法；</li>
+<li>RACDynamicSignal：动态信号，使用一个 block - 来实现订阅行为，我们在使用 RACSignal 的 +createSignal: 方法时创建的就是该类的实例；</li>
+<li>RACErrorSignal：错误信号，用来实现 RACSignal 的 +error: 方法；</li>
+<li>RACChannelTerminal：通道终端，代表 RACChannel 的一个终端，用来实现双向绑定。</li>
+</ol>
+<hr>
+<h3 id="RACSubscriber-订阅者"><a href="#RACSubscriber-订阅者" class="headerlink" title="RACSubscriber 订阅者"></a>RACSubscriber 订阅者</h3><hr>
+<h3 id="RACDisposable-用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。"><a href="#RACDisposable-用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。" class="headerlink" title="RACDisposable 用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。"></a>RACDisposable 用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。</h3><ol>
+<li>RACSerialDisposable：作为 disposable 的容器使用，可以包含一个 disposable 对象，并且允许将这个 disposable 对象通过原子操作交换出来；</li>
+<li>RACKVOTrampoline：代表一次 KVO 观察，并且可以用来停止观察；</li>
+<li>RACCompoundDisposable：它可以包含多个 disposable 对象，并且支持手动添加和移除 disposable 对象。</li>
+<li>RACScopedDisposable：当它被 dealloc 的时候调用本身的 -dispose 方法。</li>
+</ol>
+<hr>
+<h3 id="RACSubject-信号提供者，自己可以充当信号，又能发送信号。"><a href="#RACSubject-信号提供者，自己可以充当信号，又能发送信号。" class="headerlink" title="RACSubject 信号提供者，自己可以充当信号，又能发送信号。"></a>RACSubject 信号提供者，自己可以充当信号，又能发送信号。</h3><ol>
+<li>RACGroupedSignal：分组信号，用来实现 RACSignal 的分组功能。</li>
+<li>RACBehaviorSubject：重演最后值的信号，当被订阅时，会向订阅者发送它最后接收到的值。</li>
+<li>RACReplaySubject：重演信号，保存发送过的值，当被订阅时，会向订阅者重新发送这些值。</li>
+</ol>
+<hr>
+<h3 id="RACTuple-元组类"><a href="#RACTuple-元组类" class="headerlink" title="RACTuple 元组类"></a>RACTuple 元组类</h3><p>类似 NSArray，用来包装值。</p>
+<hr>
+<h3 id="RACSequence"><a href="#RACSequence" class="headerlink" title="RACSequence"></a>RACSequence</h3><p>RAC 中的集合类</p>
+<hr>
+<h3 id="RACCommand"><a href="#RACCommand" class="headerlink" title="RACCommand"></a>RACCommand</h3><p>RAC中用于处理事件的类, 可以把事件如何处理,事件中的数据如何传递，包装到这个类中，他可以很方便的监控事件的执行过程。</p>
+<hr>
+<h3 id="RACMulticastConnection"><a href="#RACMulticastConnection" class="headerlink" title="RACMulticastConnection"></a>RACMulticastConnection</h3><p>用于当一个信号，被多次订阅时，为了保证创建信号时，避免多次调用创建信号中的block，造成副作用，可以使用这个类处理。</p>
+<hr>
+<h3 id="RACScheduler-RAC中的队列，用GCD封装的。"><a href="#RACScheduler-RAC中的队列，用GCD封装的。" class="headerlink" title="RACScheduler RAC中的队列，用GCD封装的。"></a>RACScheduler RAC中的队列，用GCD封装的。</h3><ol>
+<li>RACImmediateScheduler：立即执行调度的任务，这是唯一一个支持同步执行的调度器；</li>
+<li>RACQueueScheduler：一个抽象的队列调度器，在一个 GCD 串行列队中异步调度所有任务；</li>
+<li>RACTargetQueueScheduler：继承自 RACQueueScheduler ，在一个以一个任意的 GCD 队列为 target 的串行队列中异步调度所有任务；</li>
+<li>RACSubscriptionScheduler：一个只用来调度订阅的调度器。</li>
+</ol>
+<hr>
+<h2 id="常见用法"><a href="#常见用法" class="headerlink" title="常见用法"></a>常见用法</h2><ol>
+<li>rac_signalForSelector:fromProtocol：代替代理。</li>
+<li>rac_valuesAndChangesForKeyPath：KVO。</li>
+<li>rac_signalForControlEvents：监听事件。</li>
+<li>rac_addObserverForName：代替通知。</li>
+<li>rac_textSignal：监听文本框文字改变。</li>
+<li>rac_liftSelector:withSignalsFromArray:Signals：当传入的 Signals(信号数组)，每一个 signal 都至少 sendNext 过一次，就会去触发第一个selector参数的方法。</li>
+</ol>
+<hr>
+<h2 id="常见宏"><a href="#常见宏" class="headerlink" title="常见宏"></a>常见宏</h2><ol>
+<li>RAC(TARGET, [KEYPATH, [NIL_VALUE]])：用于给某个对象的某个属性绑定</li>
+<li>RACObserve(self, name)：监听某个对象的某个属性,返回的是信号。</li>
+<li>@weakify(Obj) 和 @strongify(Obj)</li>
+<li>RACTuplePack：把数据包装成RACTuple（元组类）</li>
+<li>RACTupleUnpack：把RACTuple（元组类）解包成对应的数据</li>
+<li>RACChannelTo 用于双向绑定的一个终端</li>
+</ol>
+<hr>
+<h2 id="常用操作方法"><a href="#常用操作方法" class="headerlink" title="常用操作方法"></a>常用操作方法</h2><ol>
+<li>flattenMap map 用于把源信号内容映射成新的内容。</li>
+<li>concat 组合 按一定顺序拼接信号，当多个信号发出的时候，有顺序的接收信号。</li>
+<li>then 用于连接两个信号，当第一个信号完成，才会连接then返回的信号。</li>
+<li>merge 把多个信号合并为一个信号，任何一个信号有新值的时候就会调用。</li>
+<li>zipWith 把两个信号压缩成一个信号，只有当两个信号同时发出信号内容时，并且把两个信号的内容合并成一个元组，才会触发压缩流的next事件。</li>
+<li>combineLatest：将多个信号合并起来，并且拿到各个信号的最新的值,必须每个合并的signal至少都有过一次sendNext，才会触发合并的信号。</li>
+<li>reduce：聚合，用于信号发出的内容是元组，把信号发出元组的值聚合成一个值。</li>
+<li>filter：过滤信号，使用它可以获取满足条件的信号。</li>
+<li>ignore：忽略完某些值的信号。</li>
+<li>distinctUntilChanged：当上一次的值和当前的值有明显的变化就会发出信号，否则会被忽略掉。</li>
+<li>take：从开始一共取N次的信号。</li>
+<li>takeLast：取最后N次的信号，前提条件，订阅者必须调用完成，因为只有完成，就知道总共有多少信号。</li>
+<li>takeUntil：获取信号直到某个信号执行完成。</li>
+<li>skip：跳过几个信号，不接受。</li>
+<li>switchToLatest：用于 signalOfSignals（信号的信号），有时候信号也会发出信号，会在 signalOfSignals 中，获取 signalOfSignals 发送的最新信号。</li>
+<li>doNext: 执行 Next 之前，会先执行这个 Block。</li>
+<li>doCompleted：执行 sendCompleted 之前，会先执行这个 Block。</li>
+<li>timeout：超时，可以让一个信号在一定的时间后，自动报错。</li>
+<li>interval：定时，每隔一段时间发出信号。</li>
+<li>delay：延迟发送 next。</li>
+<li>retry：重试，只要失败，就会重新执行创建信号中的block，直到成功。</li>
+<li>replay：重放，当一个信号被多次订阅,反复播放内容。</li>
+<li>throttle：节流，当某个信号发送比较频繁时，可以使用节流，在某一段时间不发送信号内容，过了一段时间获取信号的最新内容发出。</li>
+</ol>
+<hr>
+<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><h3 id="rac-prepareForReuseSignal-需要复用时用、"><a href="#rac-prepareForReuseSignal-需要复用时用、" class="headerlink" title="rac_prepareForReuseSignal - 需要复用时用、"></a>rac_prepareForReuseSignal - 需要复用时用、</h3><p>相关UI：MKAnnotationView、UICollectionReusableView、UITableViewCell、UITableViewHeaderFooterView</p>
+<hr>
+<h3 id="rac-buttonClickedSignal-点击事件触发信号"><a href="#rac-buttonClickedSignal-点击事件触发信号" class="headerlink" title="rac_buttonClickedSignal - 点击事件触发信号"></a>rac_buttonClickedSignal - 点击事件触发信号</h3><p>相关UI：UIActionSheet、UIAlertView</p>
+<hr>
+<h3 id="rac-command-button类、刷新类相关命令替换"><a href="#rac-command-button类、刷新类相关命令替换" class="headerlink" title="rac_command - button类、刷新类相关命令替换"></a>rac_command - button类、刷新类相关命令替换</h3><p>相关UI：UIBarButtonItem、UIButton、UIRefreshControl</p>
+<hr>
+<h3 id="rac-signalForControlEvents-control-event-触发"><a href="#rac-signalForControlEvents-control-event-触发" class="headerlink" title="rac_signalForControlEvents - control event 触发"></a>rac_signalForControlEvents - control event 触发</h3><p>相关UI：UIControl</p>
+<hr>
+<h3 id="rac-gestureSignal-UIGestureRecognizer-事件处理信号"><a href="#rac-gestureSignal-UIGestureRecognizer-事件处理信号" class="headerlink" title="rac_gestureSignal - UIGestureRecognizer 事件处理信号"></a>rac_gestureSignal - UIGestureRecognizer 事件处理信号</h3><p>相关UI：UIGestureRecognizer</p>
+<hr>
+<h3 id="rac-imageSelectedSignal-选择图片的信号"><a href="#rac-imageSelectedSignal-选择图片的信号" class="headerlink" title="rac_imageSelectedSignal - 选择图片的信号"></a>rac_imageSelectedSignal - 选择图片的信号</h3><p>相关UI：UIImagePickerController</p>
+<hr>
+<h3 id="rac-textSignal"><a href="#rac-textSignal" class="headerlink" title="rac_textSignal"></a>rac_textSignal</h3><p>相关UI：UITextField、UITextView</p>
+<hr>
+<h3 id="可实现双向绑定的相关API"><a href="#可实现双向绑定的相关API" class="headerlink" title="可实现双向绑定的相关API"></a>可实现双向绑定的相关API</h3><h4 id="rac-channelForControlEvents-key-nilValue"><a href="#rac-channelForControlEvents-key-nilValue" class="headerlink" title="rac_channelForControlEvents: key: nilValue:"></a>rac_channelForControlEvents: key: nilValue:</h4><p>相关UI：UIControl类</p>
+<h4 id="rac-newDateChannelWithNilValue"><a href="#rac-newDateChannelWithNilValue" class="headerlink" title="rac_newDateChannelWithNilValue:"></a>rac_newDateChannelWithNilValue:</h4><p>相关UI：UIDatePicker</p>
+<h4 id="rac-newSelectedSegmentIndexChannelWithNilValue"><a href="#rac-newSelectedSegmentIndexChannelWithNilValue" class="headerlink" title="rac_newSelectedSegmentIndexChannelWithNilValue:"></a>rac_newSelectedSegmentIndexChannelWithNilValue:</h4><p>相关UI：UISegmentedControl</p>
+<h4 id="rac-newValueChannelWithNilValue"><a href="#rac-newValueChannelWithNilValue" class="headerlink" title="rac_newValueChannelWithNilValue:"></a>rac_newValueChannelWithNilValue:</h4><p>相关UI：UISlider、UIStepper</p>
+<h4 id="rac-newOnChannel"><a href="#rac-newOnChannel" class="headerlink" title="rac_newOnChannel"></a>rac_newOnChannel</h4><p>相关UI：UISwitch</p>
+<h4 id="rac-newTextChannel"><a href="#rac-newTextChannel" class="headerlink" title="rac_newTextChannel"></a>rac_newTextChannel</h4><p>相关UI：UITextField</p>
+<hr>
+<h2 id="Foundation-Category-（常用汇总）"><a href="#Foundation-Category-（常用汇总）" class="headerlink" title="Foundation - Category （常用汇总）"></a>Foundation - Category （常用汇总）</h2><h3 id="NSArray"><a href="#NSArray" class="headerlink" title="NSArray:"></a>NSArray:</h3><p>rac_sequence：信号集合</p>
+<hr>
+<h3 id="NSData"><a href="#NSData" class="headerlink" title="NSData:"></a>NSData:</h3><p>rac_readContentsOfURL: options: scheduler：比 OC 多出线程设置</p>
+<hr>
+<h3 id="NSDictionary"><a href="#NSDictionary" class="headerlink" title="NSDictionary:"></a>NSDictionary:</h3><ol>
+<li>rac_sequence</li>
+<li>rac_keySequence：key 集合</li>
+<li><p>rac_valueSequence：value 集合</p>
+<hr>
+<h3 id="NSEnumerator"><a href="#NSEnumerator" class="headerlink" title="NSEnumerator:"></a>NSEnumerator:</h3></li>
+</ol>
+<p>rac_sequence</p>
+<hr>
+<h3 id="NSFileHandle"><a href="#NSFileHandle" class="headerlink" title="NSFileHandle:"></a>NSFileHandle:</h3><p>rac_readInBackground</p>
+<hr>
+<h3 id="NSIndexSet"><a href="#NSIndexSet" class="headerlink" title="NSIndexSet:"></a>NSIndexSet:</h3><p>rac_sequence</p>
+<hr>
+<h3 id="NSInvocation"><a href="#NSInvocation" class="headerlink" title="NSInvocation:"></a>NSInvocation:</h3><ol>
+<li>rac_setArgument:atIndex：设置参数</li>
+<li>rac_argumentAtIndex：取某个参数</li>
+<li>rac_returnValue：所关联方法的返回值</li>
+</ol>
+<hr>
+<h3 id="NSNotificationCenter"><a href="#NSNotificationCenter" class="headerlink" title="NSNotificationCenter:"></a>NSNotificationCenter:</h3><p>rac_addObserverForName:object：注册通知</p>
+<hr>
+<h3 id="NSObject"><a href="#NSObject" class="headerlink" title="NSObject:"></a>NSObject:</h3><ol>
+<li>rac_willDeallocSignal：对象销毁时发动的信号</li>
+<li>rac_description：debug用</li>
+<li>rac_observeKeyPath:options:observer:block：监听某个事件</li>
+<li>rac_liftSelector:withSignals：全部信号都 next 在执行</li>
+<li>rac_signalForSelector：代替某个方法</li>
+<li>rac_signalForSelector:fromProtocol：代替代理</li>
+</ol>
+<hr>
+<h3 id="NSOrderedSet"><a href="#NSOrderedSet" class="headerlink" title="NSOrderedSet:"></a>NSOrderedSet:</h3><p>rac_sequence</p>
+<hr>
+<h3 id="NSSet"><a href="#NSSet" class="headerlink" title="NSSet:"></a>NSSet:</h3><p>rac_sequence</p>
+<hr>
+<h3 id="NSString"><a href="#NSString" class="headerlink" title="NSString:"></a>NSString:</h3><ol>
+<li>rac_keyPathComponents：获取一个路径所有的部分。</li>
+<li>rac_keyPathByDeletingLastKeyPathComponent：删除路径最后一部分。</li>
+<li>rac_keyPathByDeletingFirstKeyPathComponent：删除路径第一部分。</li>
+<li>rac_sequence：character。</li>
+<li>rac_readContentsOfURL:usedEncoding:scheduler：多线程调用。</li>
+</ol>
+<hr>
+<h3 id="NSURLConnection"><a href="#NSURLConnection" class="headerlink" title="NSURLConnection:"></a>NSURLConnection:</h3><p>rac_sendAsynchronousRequest：发起异步请求。</p>
+<hr>
+<h3 id="NSUserDefaults"><a href="#NSUserDefaults" class="headerlink" title="NSUserDefaults:"></a>NSUserDefaults:</h3><p>rac_channelTerminalForKey：用于双向绑定。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/05/iOS-App-状态恢复/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1116,6 +1594,195 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/Core-Graphics-基本绘制操作/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/05/21/Core-Graphics-基本绘制操作/" itemprop="url">Core Graphics 基本绘制操作</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-21T12:29:02+08:00">
+                2016-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Core-Graphics/" itemprop="url" rel="index">
+                    <span itemprop="name">Core Graphics</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Core-Graphics-vs-UIKit"><a href="#Core-Graphics-vs-UIKit" class="headerlink" title="Core Graphics vs. UIKit"></a>Core Graphics vs. UIKit</h2><table>
+<thead>
+<tr>
+<th>Core Graphics</th>
+<th>UIKit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基于 C 的 API</td>
+<td>UIBezierPath 类</td>
+</tr>
+<tr>
+<td>面向过程</td>
+<td>面向对象</td>
+</tr>
+<tr>
+<td>UIKit 绘制的基石</td>
+<td>构建在 Core Graphics 之上</td>
+</tr>
+<tr>
+<td>可以通过参数接收 Context 绘制</td>
+<td>只能基于当前 Context 绘制</td>
+</tr>
+</tbody>
+</table>
+<h2 id="坐标系"><a href="#坐标系" class="headerlink" title="坐标系"></a>坐标系</h2><blockquote>
+<p>UIKit 坐标系和数学坐标系相反<br>Core Graphics 默认坐标系和数学坐标系一样<br>一般基于 UIKit 坐标系进行绘制</p>
+</blockquote>
+<p>坐标系转换:</p>
+<p>Swift:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">context?.translateBy(x: <span class="number">0</span>, y: bounds.height)</span><br><span class="line">context?.scaleBy(x: <span class="number">1.0</span>, y: -<span class="number">1.0</span>)</span><br></pre></td></tr></table></figure>
+<p>OC:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CGContextTranslateCTM</span>(context, <span class="number">0</span>, bounds.size.height)</span><br><span class="line"><span class="built_in">CGContextScaleCTM</span>(context, <span class="number">1.0</span>, <span class="number">-1.0</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="绘制过程"><a href="#绘制过程" class="headerlink" title="绘制过程"></a>绘制过程</h2><blockquote>
+<ol>
+<li>获取上下文</li>
+<li>设置区域</li>
+<li>绘制所需图形</li>
+<li>设置填充或线条颜色</li>
+<li>填充或绘制线条</li>
+</ol>
+</blockquote>
+<h2 id="绘制代码"><a href="#绘制代码" class="headerlink" title="绘制代码"></a>绘制代码</h2><h3 id="椭圆形"><a href="#椭圆形" class="headerlink" title="椭圆形"></a>椭圆形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeEllipse</span><span class="params">(<span class="number">_</span> context: CGContext?, <span class="number">_</span> rect: CGRect)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 获取图形上下文</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> rectangle = <span class="type">CGRect</span>(x: <span class="number">20</span>, y: <span class="number">30</span>, width: <span class="number">280</span>, height: <span class="number">260</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加椭圆</span></span><br><span class="line">    context?.addEllipse(<span class="keyword">in</span>: rectangle)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置填充颜色</span></span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.orange.cgColor)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 填充路径</span></span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="圆形和空心圆"><a href="#圆形和空心圆" class="headerlink" title="圆形和空心圆"></a>圆形和空心圆</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawCircle</span><span class="params">(<span class="number">_</span> context: CGContext?, at point: CGPoint)</span></span> &#123;</span><br><span class="line">    <span class="keyword">let</span> context = <span class="type">UIGraphicsGetCurrentContext</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> radius: <span class="type">CGFloat</span> = <span class="number">20.0</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制圆</span></span><br><span class="line">    context?.addArc(center: point, radius: radius, startAngle: <span class="number">0</span>, endAngle: <span class="type">CGFloat</span>(<span class="type">Double</span>.pi * <span class="number">2</span>), clockwise: <span class="literal">true</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置线条宽度颜色</span></span><br><span class="line">    context?.setStrokeColor(<span class="type">UIColor</span>.blue.cgColor)</span><br><span class="line">    context?.setLineWidth(<span class="number">3.0</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制空心圆</span></span><br><span class="line">    context?.strokePath()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制小圆形</span></span><br><span class="line">    context?.addArc(center: point, radius: radius/<span class="number">2</span>, startAngle: <span class="number">0</span>, endAngle: <span class="type">CGFloat</span>(<span class="type">Double</span>.pi * <span class="number">2</span>), clockwise: <span class="literal">false</span>)</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.blue.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="三角形"><a href="#三角形" class="headerlink" title="三角形"></a>三角形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawTriangle</span><span class="params">(<span class="number">_</span> context: CGContext?)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 创建一个新的路径</span></span><br><span class="line">    context?.beginPath()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加起始点</span></span><br><span class="line">    context?.move(to: <span class="type">CGPoint</span>(x: <span class="number">160</span>, y: <span class="number">140</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加线条</span></span><br><span class="line">    context?.addLine(to: <span class="type">CGPoint</span>(x: <span class="number">190</span>, y: <span class="number">190</span>))</span><br><span class="line">    context?.addLine(to: <span class="type">CGPoint</span>(x: <span class="number">130</span>, y: <span class="number">190</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 关闭并终止当前路径的子路径</span></span><br><span class="line">    context?.closePath()</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.brown.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="矩形"><a href="#矩形" class="headerlink" title="矩形"></a>矩形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawRectangle</span><span class="params">(<span class="number">_</span> context: CGContext?)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> rectangle = <span class="type">CGRect</span>(x: <span class="number">100</span>, y: <span class="number">225</span>, width: <span class="number">120</span>, height: <span class="number">15</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加矩形路径</span></span><br><span class="line">    context?.addRect(rectangle)</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.red.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong><a href="https://zh.wikipedia.org/wiki/%E8%B2%9D%E8%8C%B2%E6%9B%B2%E7%B7%9A" target="_blank" rel="noopener">贝塞尔曲线参考</a></strong></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/03/14/用-NSCalendar-处理类似微博发帖时间并封装/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1435,6 +2102,147 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/01/21/Math-Function-速查/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/01/21/Math-Function-速查/" itemprop="url">Math Function 速查</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-01-21T14:31:19+08:00">
+                2016-01-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/DataStructure-Algorithm/" itemprop="url" rel="index">
+                    <span itemprop="name">DataStructure&Algorithm</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">rand() ----随机数</span><br><span class="line"></span><br><span class="line">abs() / labs() ----整数绝对值</span><br><span class="line"></span><br><span class="line">fabs() / fabsf() / fabsl() ----浮点数绝对值</span><br><span class="line"></span><br><span class="line">floor() / floorf() / floorl() ----向下取整</span><br><span class="line"></span><br><span class="line">ceil() / ceilf() / ceill() ----向上取整</span><br><span class="line"></span><br><span class="line">round() / roundf() / roundl() ----四舍五入</span><br><span class="line"></span><br><span class="line">sqrt() / sqrtf() / sqrtl() ----求平方根</span><br><span class="line"></span><br><span class="line">fmax() / fmaxf() / fmaxl() ----求最大值</span><br><span class="line"></span><br><span class="line">fmin() / fminf() / fminl() ----求最小值</span><br><span class="line"></span><br><span class="line">hypot() / hypotf() / hypotl() ----求直角三角形斜边的长度</span><br><span class="line"></span><br><span class="line">fmod() / fmodf() / fmodl() ----求两数整除后的余数</span><br><span class="line"></span><br><span class="line">modf() / modff() / modfl() ----浮点数分解为整数和小数</span><br><span class="line"></span><br><span class="line">frexp() / frexpf() / frexpl() ----浮点数分解尾数和二为底的指数</span><br><span class="line"></span><br><span class="line">sin() / sinf() / sinl() ----求正弦值</span><br><span class="line"></span><br><span class="line">sinh() / sinhf() / sinhl() ----求双曲正弦值</span><br><span class="line"></span><br><span class="line">cos() / cosf() / cosl() ----求余弦值</span><br><span class="line"></span><br><span class="line">cosh() / coshf() / coshl() ----求双曲余弦值</span><br><span class="line"></span><br><span class="line">tan() / tanf() / tanl() ----求正切值</span><br><span class="line"></span><br><span class="line">tanh() / tanhf() / tanhl() ----求双曲正切值</span><br><span class="line"></span><br><span class="line">asin() / asinf() / asinl() ----求反正弦值</span><br><span class="line"></span><br><span class="line">asinh() / asinhf() / asinhl() ----求反双曲正弦值</span><br><span class="line"></span><br><span class="line">acos() / acosf() / acosl() ----求反余弦值</span><br><span class="line"></span><br><span class="line">acosh() / acoshf() / acoshl() ----求反双曲余弦值</span><br><span class="line"></span><br><span class="line">atan() / atanf() / atanl() ----求反正切值</span><br><span class="line"></span><br><span class="line">atan2() / atan2f() / atan2l() ----求坐标值的反正切值</span><br><span class="line"></span><br><span class="line">atanh() / atanhf() / atanhl() ----求反双曲正切值</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -1481,7 +2289,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1492,7 +2300,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1503,7 +2311,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="RAC,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="ReactiveCocoa 常用 API常见类RACSiganl 信号类。 RACEmptySignal：空信号，用来实现 RACSignal 的 +empty 方法； RACReturnSignal：一元信号，用来实现 RACSignal 的 +return: 方法； RACDynamicSignal：动态信号，使用一个 block - 来实现订阅行为，我们在使用 RACSignal 的 +cr">
+<meta name="keywords" content="RAC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ReactiveCocoa Quick Search">
+<meta property="og:url" content="http://yoursite.com/2017/04/21/ReactiveCocoa-Quick-Search/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="ReactiveCocoa 常用 API常见类RACSiganl 信号类。 RACEmptySignal：空信号，用来实现 RACSignal 的 +empty 方法； RACReturnSignal：一元信号，用来实现 RACSignal 的 +return: 方法； RACDynamicSignal：动态信号，使用一个 block - 来实现订阅行为，我们在使用 RACSignal 的 +cr">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-20T18:33:42.779Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ReactiveCocoa Quick Search">
+<meta name="twitter:description" content="ReactiveCocoa 常用 API常见类RACSiganl 信号类。 RACEmptySignal：空信号，用来实现 RACSignal 的 +empty 方法； RACReturnSignal：一元信号，用来实现 RACSignal 的 +return: 方法； RACDynamicSignal：动态信号，使用一个 block - 来实现订阅行为，我们在使用 RACSignal 的 +cr">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/21/ReactiveCocoa-Quick-Search/">
+
+
+
+
+
+  <title>ReactiveCocoa Quick Search | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/21/ReactiveCocoa-Quick-Search/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ReactiveCocoa Quick Search</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-21T02:15:07+08:00">
+                2017-04-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/ReactiveCocoa/" itemprop="url" rel="index">
+                    <span itemprop="name">ReactiveCocoa</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="ReactiveCocoa-常用-API"><a href="#ReactiveCocoa-常用-API" class="headerlink" title="ReactiveCocoa 常用 API"></a>ReactiveCocoa 常用 API</h1><h2 id="常见类"><a href="#常见类" class="headerlink" title="常见类"></a>常见类</h2><h3 id="RACSiganl-信号类。"><a href="#RACSiganl-信号类。" class="headerlink" title="RACSiganl 信号类。"></a>RACSiganl 信号类。</h3><ol>
+<li>RACEmptySignal：空信号，用来实现 RACSignal 的 +empty 方法；</li>
+<li>RACReturnSignal：一元信号，用来实现 RACSignal 的 +return: 方法；</li>
+<li>RACDynamicSignal：动态信号，使用一个 block - 来实现订阅行为，我们在使用 RACSignal 的 +createSignal: 方法时创建的就是该类的实例；</li>
+<li>RACErrorSignal：错误信号，用来实现 RACSignal 的 +error: 方法；</li>
+<li>RACChannelTerminal：通道终端，代表 RACChannel 的一个终端，用来实现双向绑定。</li>
+</ol>
+<hr>
+<h3 id="RACSubscriber-订阅者"><a href="#RACSubscriber-订阅者" class="headerlink" title="RACSubscriber 订阅者"></a>RACSubscriber 订阅者</h3><hr>
+<h3 id="RACDisposable-用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。"><a href="#RACDisposable-用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。" class="headerlink" title="RACDisposable 用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。"></a>RACDisposable 用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。</h3><ol>
+<li>RACSerialDisposable：作为 disposable 的容器使用，可以包含一个 disposable 对象，并且允许将这个 disposable 对象通过原子操作交换出来；</li>
+<li>RACKVOTrampoline：代表一次 KVO 观察，并且可以用来停止观察；</li>
+<li>RACCompoundDisposable：它可以包含多个 disposable 对象，并且支持手动添加和移除 disposable 对象。</li>
+<li>RACScopedDisposable：当它被 dealloc 的时候调用本身的 -dispose 方法。</li>
+</ol>
+<hr>
+<h3 id="RACSubject-信号提供者，自己可以充当信号，又能发送信号。"><a href="#RACSubject-信号提供者，自己可以充当信号，又能发送信号。" class="headerlink" title="RACSubject 信号提供者，自己可以充当信号，又能发送信号。"></a>RACSubject 信号提供者，自己可以充当信号，又能发送信号。</h3><ol>
+<li>RACGroupedSignal：分组信号，用来实现 RACSignal 的分组功能。</li>
+<li>RACBehaviorSubject：重演最后值的信号，当被订阅时，会向订阅者发送它最后接收到的值。</li>
+<li>RACReplaySubject：重演信号，保存发送过的值，当被订阅时，会向订阅者重新发送这些值。</li>
+</ol>
+<hr>
+<h3 id="RACTuple-元组类"><a href="#RACTuple-元组类" class="headerlink" title="RACTuple 元组类"></a>RACTuple 元组类</h3><p>类似 NSArray，用来包装值。</p>
+<hr>
+<h3 id="RACSequence"><a href="#RACSequence" class="headerlink" title="RACSequence"></a>RACSequence</h3><p>RAC 中的集合类</p>
+<hr>
+<h3 id="RACCommand"><a href="#RACCommand" class="headerlink" title="RACCommand"></a>RACCommand</h3><p>RAC中用于处理事件的类, 可以把事件如何处理,事件中的数据如何传递，包装到这个类中，他可以很方便的监控事件的执行过程。</p>
+<hr>
+<h3 id="RACMulticastConnection"><a href="#RACMulticastConnection" class="headerlink" title="RACMulticastConnection"></a>RACMulticastConnection</h3><p>用于当一个信号，被多次订阅时，为了保证创建信号时，避免多次调用创建信号中的block，造成副作用，可以使用这个类处理。</p>
+<hr>
+<h3 id="RACScheduler-RAC中的队列，用GCD封装的。"><a href="#RACScheduler-RAC中的队列，用GCD封装的。" class="headerlink" title="RACScheduler RAC中的队列，用GCD封装的。"></a>RACScheduler RAC中的队列，用GCD封装的。</h3><ol>
+<li>RACImmediateScheduler：立即执行调度的任务，这是唯一一个支持同步执行的调度器；</li>
+<li>RACQueueScheduler：一个抽象的队列调度器，在一个 GCD 串行列队中异步调度所有任务；</li>
+<li>RACTargetQueueScheduler：继承自 RACQueueScheduler ，在一个以一个任意的 GCD 队列为 target 的串行队列中异步调度所有任务；</li>
+<li>RACSubscriptionScheduler：一个只用来调度订阅的调度器。</li>
+</ol>
+<hr>
+<h2 id="常见用法"><a href="#常见用法" class="headerlink" title="常见用法"></a>常见用法</h2><ol>
+<li>rac_signalForSelector:fromProtocol：代替代理。</li>
+<li>rac_valuesAndChangesForKeyPath：KVO。</li>
+<li>rac_signalForControlEvents：监听事件。</li>
+<li>rac_addObserverForName：代替通知。</li>
+<li>rac_textSignal：监听文本框文字改变。</li>
+<li>rac_liftSelector:withSignalsFromArray:Signals：当传入的 Signals(信号数组)，每一个 signal 都至少 sendNext 过一次，就会去触发第一个selector参数的方法。</li>
+</ol>
+<hr>
+<h2 id="常见宏"><a href="#常见宏" class="headerlink" title="常见宏"></a>常见宏</h2><ol>
+<li>RAC(TARGET, [KEYPATH, [NIL_VALUE]])：用于给某个对象的某个属性绑定</li>
+<li>RACObserve(self, name)：监听某个对象的某个属性,返回的是信号。</li>
+<li>@weakify(Obj) 和 @strongify(Obj)</li>
+<li>RACTuplePack：把数据包装成RACTuple（元组类）</li>
+<li>RACTupleUnpack：把RACTuple（元组类）解包成对应的数据</li>
+<li>RACChannelTo 用于双向绑定的一个终端</li>
+</ol>
+<hr>
+<h2 id="常用操作方法"><a href="#常用操作方法" class="headerlink" title="常用操作方法"></a>常用操作方法</h2><ol>
+<li>flattenMap map 用于把源信号内容映射成新的内容。</li>
+<li>concat 组合 按一定顺序拼接信号，当多个信号发出的时候，有顺序的接收信号。</li>
+<li>then 用于连接两个信号，当第一个信号完成，才会连接then返回的信号。</li>
+<li>merge 把多个信号合并为一个信号，任何一个信号有新值的时候就会调用。</li>
+<li>zipWith 把两个信号压缩成一个信号，只有当两个信号同时发出信号内容时，并且把两个信号的内容合并成一个元组，才会触发压缩流的next事件。</li>
+<li>combineLatest：将多个信号合并起来，并且拿到各个信号的最新的值,必须每个合并的signal至少都有过一次sendNext，才会触发合并的信号。</li>
+<li>reduce：聚合，用于信号发出的内容是元组，把信号发出元组的值聚合成一个值。</li>
+<li>filter：过滤信号，使用它可以获取满足条件的信号。</li>
+<li>ignore：忽略完某些值的信号。</li>
+<li>distinctUntilChanged：当上一次的值和当前的值有明显的变化就会发出信号，否则会被忽略掉。</li>
+<li>take：从开始一共取N次的信号。</li>
+<li>takeLast：取最后N次的信号，前提条件，订阅者必须调用完成，因为只有完成，就知道总共有多少信号。</li>
+<li>takeUntil：获取信号直到某个信号执行完成。</li>
+<li>skip：跳过几个信号，不接受。</li>
+<li>switchToLatest：用于 signalOfSignals（信号的信号），有时候信号也会发出信号，会在 signalOfSignals 中，获取 signalOfSignals 发送的最新信号。</li>
+<li>doNext: 执行 Next 之前，会先执行这个 Block。</li>
+<li>doCompleted：执行 sendCompleted 之前，会先执行这个 Block。</li>
+<li>timeout：超时，可以让一个信号在一定的时间后，自动报错。</li>
+<li>interval：定时，每隔一段时间发出信号。</li>
+<li>delay：延迟发送 next。</li>
+<li>retry：重试，只要失败，就会重新执行创建信号中的block，直到成功。</li>
+<li>replay：重放，当一个信号被多次订阅,反复播放内容。</li>
+<li>throttle：节流，当某个信号发送比较频繁时，可以使用节流，在某一段时间不发送信号内容，过了一段时间获取信号的最新内容发出。</li>
+</ol>
+<hr>
+<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><h3 id="rac-prepareForReuseSignal-需要复用时用、"><a href="#rac-prepareForReuseSignal-需要复用时用、" class="headerlink" title="rac_prepareForReuseSignal - 需要复用时用、"></a>rac_prepareForReuseSignal - 需要复用时用、</h3><p>相关UI：MKAnnotationView、UICollectionReusableView、UITableViewCell、UITableViewHeaderFooterView</p>
+<hr>
+<h3 id="rac-buttonClickedSignal-点击事件触发信号"><a href="#rac-buttonClickedSignal-点击事件触发信号" class="headerlink" title="rac_buttonClickedSignal - 点击事件触发信号"></a>rac_buttonClickedSignal - 点击事件触发信号</h3><p>相关UI：UIActionSheet、UIAlertView</p>
+<hr>
+<h3 id="rac-command-button类、刷新类相关命令替换"><a href="#rac-command-button类、刷新类相关命令替换" class="headerlink" title="rac_command - button类、刷新类相关命令替换"></a>rac_command - button类、刷新类相关命令替换</h3><p>相关UI：UIBarButtonItem、UIButton、UIRefreshControl</p>
+<hr>
+<h3 id="rac-signalForControlEvents-control-event-触发"><a href="#rac-signalForControlEvents-control-event-触发" class="headerlink" title="rac_signalForControlEvents - control event 触发"></a>rac_signalForControlEvents - control event 触发</h3><p>相关UI：UIControl</p>
+<hr>
+<h3 id="rac-gestureSignal-UIGestureRecognizer-事件处理信号"><a href="#rac-gestureSignal-UIGestureRecognizer-事件处理信号" class="headerlink" title="rac_gestureSignal - UIGestureRecognizer 事件处理信号"></a>rac_gestureSignal - UIGestureRecognizer 事件处理信号</h3><p>相关UI：UIGestureRecognizer</p>
+<hr>
+<h3 id="rac-imageSelectedSignal-选择图片的信号"><a href="#rac-imageSelectedSignal-选择图片的信号" class="headerlink" title="rac_imageSelectedSignal - 选择图片的信号"></a>rac_imageSelectedSignal - 选择图片的信号</h3><p>相关UI：UIImagePickerController</p>
+<hr>
+<h3 id="rac-textSignal"><a href="#rac-textSignal" class="headerlink" title="rac_textSignal"></a>rac_textSignal</h3><p>相关UI：UITextField、UITextView</p>
+<hr>
+<h3 id="可实现双向绑定的相关API"><a href="#可实现双向绑定的相关API" class="headerlink" title="可实现双向绑定的相关API"></a>可实现双向绑定的相关API</h3><h4 id="rac-channelForControlEvents-key-nilValue"><a href="#rac-channelForControlEvents-key-nilValue" class="headerlink" title="rac_channelForControlEvents: key: nilValue:"></a>rac_channelForControlEvents: key: nilValue:</h4><p>相关UI：UIControl类</p>
+<h4 id="rac-newDateChannelWithNilValue"><a href="#rac-newDateChannelWithNilValue" class="headerlink" title="rac_newDateChannelWithNilValue:"></a>rac_newDateChannelWithNilValue:</h4><p>相关UI：UIDatePicker</p>
+<h4 id="rac-newSelectedSegmentIndexChannelWithNilValue"><a href="#rac-newSelectedSegmentIndexChannelWithNilValue" class="headerlink" title="rac_newSelectedSegmentIndexChannelWithNilValue:"></a>rac_newSelectedSegmentIndexChannelWithNilValue:</h4><p>相关UI：UISegmentedControl</p>
+<h4 id="rac-newValueChannelWithNilValue"><a href="#rac-newValueChannelWithNilValue" class="headerlink" title="rac_newValueChannelWithNilValue:"></a>rac_newValueChannelWithNilValue:</h4><p>相关UI：UISlider、UIStepper</p>
+<h4 id="rac-newOnChannel"><a href="#rac-newOnChannel" class="headerlink" title="rac_newOnChannel"></a>rac_newOnChannel</h4><p>相关UI：UISwitch</p>
+<h4 id="rac-newTextChannel"><a href="#rac-newTextChannel" class="headerlink" title="rac_newTextChannel"></a>rac_newTextChannel</h4><p>相关UI：UITextField</p>
+<hr>
+<h2 id="Foundation-Category-（常用汇总）"><a href="#Foundation-Category-（常用汇总）" class="headerlink" title="Foundation - Category （常用汇总）"></a>Foundation - Category （常用汇总）</h2><h3 id="NSArray"><a href="#NSArray" class="headerlink" title="NSArray:"></a>NSArray:</h3><p>rac_sequence：信号集合</p>
+<hr>
+<h3 id="NSData"><a href="#NSData" class="headerlink" title="NSData:"></a>NSData:</h3><p>rac_readContentsOfURL: options: scheduler：比 OC 多出线程设置</p>
+<hr>
+<h3 id="NSDictionary"><a href="#NSDictionary" class="headerlink" title="NSDictionary:"></a>NSDictionary:</h3><ol>
+<li>rac_sequence</li>
+<li>rac_keySequence：key 集合</li>
+<li><p>rac_valueSequence：value 集合</p>
+<hr>
+<h3 id="NSEnumerator"><a href="#NSEnumerator" class="headerlink" title="NSEnumerator:"></a>NSEnumerator:</h3></li>
+</ol>
+<p>rac_sequence</p>
+<hr>
+<h3 id="NSFileHandle"><a href="#NSFileHandle" class="headerlink" title="NSFileHandle:"></a>NSFileHandle:</h3><p>rac_readInBackground</p>
+<hr>
+<h3 id="NSIndexSet"><a href="#NSIndexSet" class="headerlink" title="NSIndexSet:"></a>NSIndexSet:</h3><p>rac_sequence</p>
+<hr>
+<h3 id="NSInvocation"><a href="#NSInvocation" class="headerlink" title="NSInvocation:"></a>NSInvocation:</h3><ol>
+<li>rac_setArgument:atIndex：设置参数</li>
+<li>rac_argumentAtIndex：取某个参数</li>
+<li>rac_returnValue：所关联方法的返回值</li>
+</ol>
+<hr>
+<h3 id="NSNotificationCenter"><a href="#NSNotificationCenter" class="headerlink" title="NSNotificationCenter:"></a>NSNotificationCenter:</h3><p>rac_addObserverForName:object：注册通知</p>
+<hr>
+<h3 id="NSObject"><a href="#NSObject" class="headerlink" title="NSObject:"></a>NSObject:</h3><ol>
+<li>rac_willDeallocSignal：对象销毁时发动的信号</li>
+<li>rac_description：debug用</li>
+<li>rac_observeKeyPath:options:observer:block：监听某个事件</li>
+<li>rac_liftSelector:withSignals：全部信号都 next 在执行</li>
+<li>rac_signalForSelector：代替某个方法</li>
+<li>rac_signalForSelector:fromProtocol：代替代理</li>
+</ol>
+<hr>
+<h3 id="NSOrderedSet"><a href="#NSOrderedSet" class="headerlink" title="NSOrderedSet:"></a>NSOrderedSet:</h3><p>rac_sequence</p>
+<hr>
+<h3 id="NSSet"><a href="#NSSet" class="headerlink" title="NSSet:"></a>NSSet:</h3><p>rac_sequence</p>
+<hr>
+<h3 id="NSString"><a href="#NSString" class="headerlink" title="NSString:"></a>NSString:</h3><ol>
+<li>rac_keyPathComponents：获取一个路径所有的部分。</li>
+<li>rac_keyPathByDeletingLastKeyPathComponent：删除路径最后一部分。</li>
+<li>rac_keyPathByDeletingFirstKeyPathComponent：删除路径第一部分。</li>
+<li>rac_sequence：character。</li>
+<li>rac_readContentsOfURL:usedEncoding:scheduler：多线程调用。</li>
+</ol>
+<hr>
+<h3 id="NSURLConnection"><a href="#NSURLConnection" class="headerlink" title="NSURLConnection:"></a>NSURLConnection:</h3><p>rac_sendAsynchronousRequest：发起异步请求。</p>
+<hr>
+<h3 id="NSUserDefaults"><a href="#NSUserDefaults" class="headerlink" title="NSUserDefaults:"></a>NSUserDefaults:</h3><p>rac_channelTerminalForKey：用于双向绑定。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RAC/" rel="tag"># RAC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/05/iOS-App-状态恢复/" rel="next" title="iOS App 状态恢复">
+                <i class="fa fa-chevron-left"></i> iOS App 状态恢复
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/20/数据结构与算法基础/" rel="prev" title="数据结构与算法基础">
+                数据结构与算法基础 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ReactiveCocoa-常用-API"><span class="nav-number">1.</span> <span class="nav-text">ReactiveCocoa 常用 API</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#常见类"><span class="nav-number">1.1.</span> <span class="nav-text">常见类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RACSiganl-信号类。"><span class="nav-number">1.1.1.</span> <span class="nav-text">RACSiganl 信号类。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACSubscriber-订阅者"><span class="nav-number">1.1.2.</span> <span class="nav-text">RACSubscriber 订阅者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACDisposable-用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。"><span class="nav-number">1.1.3.</span> <span class="nav-text">RACDisposable 用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACSubject-信号提供者，自己可以充当信号，又能发送信号。"><span class="nav-number">1.1.4.</span> <span class="nav-text">RACSubject 信号提供者，自己可以充当信号，又能发送信号。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACTuple-元组类"><span class="nav-number">1.1.5.</span> <span class="nav-text">RACTuple 元组类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACSequence"><span class="nav-number">1.1.6.</span> <span class="nav-text">RACSequence</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACCommand"><span class="nav-number">1.1.7.</span> <span class="nav-text">RACCommand</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACMulticastConnection"><span class="nav-number">1.1.8.</span> <span class="nav-text">RACMulticastConnection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RACScheduler-RAC中的队列，用GCD封装的。"><span class="nav-number">1.1.9.</span> <span class="nav-text">RACScheduler RAC中的队列，用GCD封装的。</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见用法"><span class="nav-number">1.2.</span> <span class="nav-text">常见用法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常见宏"><span class="nav-number">1.3.</span> <span class="nav-text">常见宏</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常用操作方法"><span class="nav-number">1.4.</span> <span class="nav-text">常用操作方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UI"><span class="nav-number">1.5.</span> <span class="nav-text">UI</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#rac-prepareForReuseSignal-需要复用时用、"><span class="nav-number">1.5.1.</span> <span class="nav-text">rac_prepareForReuseSignal - 需要复用时用、</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rac-buttonClickedSignal-点击事件触发信号"><span class="nav-number">1.5.2.</span> <span class="nav-text">rac_buttonClickedSignal - 点击事件触发信号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rac-command-button类、刷新类相关命令替换"><span class="nav-number">1.5.3.</span> <span class="nav-text">rac_command - button类、刷新类相关命令替换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rac-signalForControlEvents-control-event-触发"><span class="nav-number">1.5.4.</span> <span class="nav-text">rac_signalForControlEvents - control event 触发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rac-gestureSignal-UIGestureRecognizer-事件处理信号"><span class="nav-number">1.5.5.</span> <span class="nav-text">rac_gestureSignal - UIGestureRecognizer 事件处理信号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rac-imageSelectedSignal-选择图片的信号"><span class="nav-number">1.5.6.</span> <span class="nav-text">rac_imageSelectedSignal - 选择图片的信号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rac-textSignal"><span class="nav-number">1.5.7.</span> <span class="nav-text">rac_textSignal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#可实现双向绑定的相关API"><span class="nav-number">1.5.8.</span> <span class="nav-text">可实现双向绑定的相关API</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#rac-channelForControlEvents-key-nilValue"><span class="nav-number">1.5.8.1.</span> <span class="nav-text">rac_channelForControlEvents: key: nilValue:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rac-newDateChannelWithNilValue"><span class="nav-number">1.5.8.2.</span> <span class="nav-text">rac_newDateChannelWithNilValue:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rac-newSelectedSegmentIndexChannelWithNilValue"><span class="nav-number">1.5.8.3.</span> <span class="nav-text">rac_newSelectedSegmentIndexChannelWithNilValue:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rac-newValueChannelWithNilValue"><span class="nav-number">1.5.8.4.</span> <span class="nav-text">rac_newValueChannelWithNilValue:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rac-newOnChannel"><span class="nav-number">1.5.8.5.</span> <span class="nav-text">rac_newOnChannel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rac-newTextChannel"><span class="nav-number">1.5.8.6.</span> <span class="nav-text">rac_newTextChannel</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Foundation-Category-（常用汇总）"><span class="nav-number">1.6.</span> <span class="nav-text">Foundation - Category （常用汇总）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NSArray"><span class="nav-number">1.6.1.</span> <span class="nav-text">NSArray:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSData"><span class="nav-number">1.6.2.</span> <span class="nav-text">NSData:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSDictionary"><span class="nav-number">1.6.3.</span> <span class="nav-text">NSDictionary:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSEnumerator"><span class="nav-number">1.6.4.</span> <span class="nav-text">NSEnumerator:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSFileHandle"><span class="nav-number">1.6.5.</span> <span class="nav-text">NSFileHandle:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSIndexSet"><span class="nav-number">1.6.6.</span> <span class="nav-text">NSIndexSet:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSInvocation"><span class="nav-number">1.6.7.</span> <span class="nav-text">NSInvocation:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSNotificationCenter"><span class="nav-number">1.6.8.</span> <span class="nav-text">NSNotificationCenter:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSObject"><span class="nav-number">1.6.9.</span> <span class="nav-text">NSObject:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSOrderedSet"><span class="nav-number">1.6.10.</span> <span class="nav-text">NSOrderedSet:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSSet"><span class="nav-number">1.6.11.</span> <span class="nav-text">NSSet:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSString"><span class="nav-number">1.6.12.</span> <span class="nav-text">NSString:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSURLConnection"><span class="nav-number">1.6.13.</span> <span class="nav-text">NSURLConnection:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NSUserDefaults"><span class="nav-number">1.6.14.</span> <span class="nav-text">NSUserDefaults:</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
