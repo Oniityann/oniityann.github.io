@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="UI,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本地识别二维码CIDetecor 首先要识别本地二维码, webView 基本知识几条 js 语句的问题.创建 QRCodeDetector 类:  1234567891011121314151617181920#import &quot;YNQRCodeDetector.h&quot;@implementation YNQRCodeDetector+ (CIQRCodeFeature *)yn_detectQRCo">
+<meta name="keywords" content="UI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebView 长按识别二维码和点击查看大图">
+<meta property="og:url" content="http://yoursite.com/2017/06/21/WebView-长按识别二维码和点击查看大图/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="本地识别二维码CIDetecor 首先要识别本地二维码, webView 基本知识几条 js 语句的问题.创建 QRCodeDetector 类:  1234567891011121314151617181920#import &quot;YNQRCodeDetector.h&quot;@implementation YNQRCodeDetector+ (CIQRCodeFeature *)yn_detectQRCo">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-20T18:42:15.017Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WebView 长按识别二维码和点击查看大图">
+<meta name="twitter:description" content="本地识别二维码CIDetecor 首先要识别本地二维码, webView 基本知识几条 js 语句的问题.创建 QRCodeDetector 类:  1234567891011121314151617181920#import &quot;YNQRCodeDetector.h&quot;@implementation YNQRCodeDetector+ (CIQRCodeFeature *)yn_detectQRCo">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/06/21/WebView-长按识别二维码和点击查看大图/">
+
+
+
+
+
+  <title>WebView 长按识别二维码和点击查看大图 | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/21/WebView-长按识别二维码和点击查看大图/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WebView 长按识别二维码和点击查看大图</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-21T12:40:58+08:00">
+                2017-06-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/小技巧/" itemprop="url" rel="index">
+                    <span itemprop="name">小技巧</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="本地识别二维码"><a href="#本地识别二维码" class="headerlink" title="本地识别二维码"></a>本地识别二维码</h2><h3 id="CIDetecor"><a href="#CIDetecor" class="headerlink" title="CIDetecor"></a>CIDetecor</h3><ol>
+<li>首先要识别本地二维码, webView 基本知识几条 js 语句的问题.<br>创建 QRCodeDetector 类:</li>
+</ol>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">"YNQRCodeDetector.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">YNQRCodeDetector</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="built_in">CIQRCodeFeature</span> *)yn_detectQRCodeWithImage:(<span class="built_in">UIImage</span> *)image &#123;</span><br><span class="line">    <span class="comment">// 1. 创建上下文</span></span><br><span class="line">    <span class="built_in">CIContext</span> *context = [[<span class="built_in">CIContext</span> alloc] init];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 创建探测器</span></span><br><span class="line">    <span class="built_in">CIDetector</span> *detector = [<span class="built_in">CIDetector</span> detectorOfType:<span class="built_in">CIDetectorTypeQRCode</span> context:context options:@&#123;<span class="built_in">CIDetectorAccuracy</span>: <span class="built_in">CIDetectorAccuracyLow</span>&#125;];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 识别图片获取图片特征</span></span><br><span class="line">    <span class="built_in">CIImage</span> *imageCI = [[<span class="built_in">CIImage</span> alloc] initWithImage:image];</span><br><span class="line">    <span class="built_in">NSArray</span>&lt;<span class="built_in">CIFeature</span> *&gt; *features = [detector featuresInImage:imageCI];</span><br><span class="line">    <span class="built_in">CIQRCodeFeature</span> *codeF = (<span class="built_in">CIQRCodeFeature</span> *)features.firstObject;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> codeF;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>在本地 imageView 中添加手势, 处理二维码识别的链接, 有二维码显示保存和识别, 没有只显示保存</li>
+</ol>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)imageLongPress &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UIAlertController</span> *ac = [<span class="built_in">UIAlertController</span> alertControllerWithTitle:<span class="literal">nil</span> message:<span class="literal">nil</span> preferredStyle:<span class="built_in">UIAlertControllerStyleActionSheet</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">CIQRCodeFeature</span> *codeF = [YNQRCodeDetector yn_detectQRCodeWithImage:<span class="keyword">self</span>.imageView.image];</span><br><span class="line">    </span><br><span class="line">    [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"取消"</span> style:<span class="built_in">UIAlertActionStyleCancel</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;]];</span><br><span class="line">    </span><br><span class="line">    [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"保存图片"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">        [<span class="keyword">self</span> savePicture];</span><br><span class="line">    &#125;]];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (codeF.messageString) &#123;</span><br><span class="line">        </span><br><span class="line">        [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"识别二维码"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">            <span class="comment">// 内置浏览器打开网页</span></span><br><span class="line">            SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[<span class="built_in">NSURL</span> URLWithString:codeF.messageString]];</span><br><span class="line">            [<span class="keyword">self</span> presentViewController:safariVC animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">        &#125;]];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> presentViewController:ac animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>保存图片没什么好说的, 记得 iOS 10 以后手动开启相册权限</li>
+</ol>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)savePicture &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.imageView.image == <span class="literal">nil</span>) &#123;</span><br><span class="line"><span class="comment">//        [SVProgressHUD showErrorWithStatus:@"图片还未加载"];</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">UIImageWriteToSavedPhotosAlbum</span>(<span class="keyword">self</span>.imageView.image, <span class="keyword">self</span>, <span class="keyword">@selector</span>(image:didFinishSavingWithError:contextInfo:), <span class="literal">nil</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)image:(<span class="built_in">UIImage</span> *)image</span><br><span class="line">didFinishSavingWithError:(<span class="built_in">NSError</span> *)error</span><br><span class="line">  contextInfo:(<span class="keyword">void</span> *)contextInfo &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        </span><br><span class="line"><span class="comment">//        [SVProgressHUD showErrorWithStatus:@"保存失败"];</span></span><br><span class="line">        </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        </span><br><span class="line"><span class="comment">//        [SVProgressHUD showSuccessWithStatus:@"保存成功"];</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="WebView上的一些处理"><a href="#WebView上的一些处理" class="headerlink" title="WebView上的一些处理"></a>WebView上的一些处理</h2><h3 id="WebView添加长按手势"><a href="#WebView添加长按手势" class="headerlink" title="WebView添加长按手势"></a>WebView添加长按手势</h3><p>因为项目需求, 需要改的地方太多了, 我直接写在自定义 WebView 里面了, 直接替换 webView 即可. 因为公司需求的 web 没有过于复杂的功能, 直接写在自定义 webView 就行.</p>
+<p>自定义 webView 添加长按手势:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">instancetype</span>)init &#123;</span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> init];</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        [<span class="keyword">self</span> basicConfigure];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithFrame:(<span class="built_in">CGRect</span>)frame &#123;</span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithFrame:frame];</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        [<span class="keyword">self</span> basicConfigure];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)basicConfigure &#123;</span><br><span class="line">    <span class="keyword">self</span>.delegate = <span class="keyword">self</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UILongPressGestureRecognizer</span> *longPress = [[<span class="built_in">UILongPressGestureRecognizer</span> alloc] initWithTarget:<span class="keyword">self</span> action:<span class="keyword">@selector</span>(longPressWebPic:)];</span><br><span class="line">    longPress.delegate = <span class="keyword">self</span>;</span><br><span class="line">    [<span class="keyword">self</span> addGestureRecognizer:longPress];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)longPressWebPic:(<span class="built_in">UILongPressGestureRecognizer</span> *)recognizer &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (recognizer.state != <span class="built_in">UIGestureRecognizerStateBegan</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 获取点击区域坐标, 通过坐标得到图片</span></span><br><span class="line">    <span class="built_in">CGPoint</span> touchPoint = [recognizer locationInView:<span class="keyword">self</span>];</span><br><span class="line">    <span class="built_in">NSString</span> *imgURL = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"document.elementFromPoint(%f, %f).src"</span>, touchPoint.x, touchPoint.y];</span><br><span class="line">    <span class="built_in">NSString</span> *urlToSave = [<span class="keyword">self</span> stringByEvaluatingJavaScriptFromString:imgURL];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (urlToSave.length == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"><span class="comment">//    ENLog(@"%@", urlToSave);</span></span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> imageWithUrl:urlToSave];</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="下载图片"><a href="#下载图片" class="headerlink" title="下载图片"></a>下载图片</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 因为做了个 demo 不想引用三方, 可以用 sdImageDownloader 替代</span></span><br><span class="line">- (<span class="keyword">void</span>)imageWithUrl:(<span class="built_in">NSString</span> *)imageUrl &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在子线程中下载图片, 不在子线程中下载图片会造成主线程阻塞, 导致 alertController 需要很久时间才弹出    </span></span><br><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>), ^&#123;</span><br><span class="line">        <span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:imageUrl];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLSessionConfiguration</span> * configuration = [<span class="built_in">NSURLSessionConfiguration</span> defaultSessionConfiguration];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sessionWithConfiguration:configuration delegate:<span class="keyword">self</span> delegateQueue:[<span class="built_in">NSOperationQueue</span> new]];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLRequest</span> *imgRequest = [<span class="built_in">NSURLRequest</span> requestWithURL:url cachePolicy:<span class="built_in">NSURLRequestReturnCacheDataElseLoad</span> timeoutInterval:<span class="number">30.0</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLSessionDownloadTask</span>  *task = [session downloadTaskWithRequest:imgRequest completionHandler:^(<span class="built_in">NSURL</span> * _Nullable location, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">            <span class="keyword">if</span> (error) &#123;</span><br><span class="line">                <span class="keyword">return</span> ;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">NSData</span> *imageData = [<span class="built_in">NSData</span> dataWithContentsOfURL:location];</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 在主线程中配置 UI 显示相关操作</span></span><br><span class="line">            <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">                </span><br><span class="line">                <span class="built_in">UIImage</span> *image = [<span class="built_in">UIImage</span> imageWithData:imageData];</span><br><span class="line">                </span><br><span class="line">                <span class="built_in">UIAlertController</span> *ac = [<span class="built_in">UIAlertController</span> alertControllerWithTitle:<span class="literal">nil</span> message:<span class="literal">nil</span> preferredStyle:<span class="built_in">UIAlertControllerStyleActionSheet</span>];</span><br><span class="line">                </span><br><span class="line">                <span class="built_in">CIQRCodeFeature</span> *codeF = [YNQRCodeDetector yn_detectQRCodeWithImage:image];</span><br><span class="line">                </span><br><span class="line">                [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"取消"</span> style:<span class="built_in">UIAlertActionStyleCancel</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">                    </span><br><span class="line">                &#125;]];</span><br><span class="line">                </span><br><span class="line">                [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"保存图片"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">                    [<span class="keyword">self</span> savePicture:image];</span><br><span class="line">                &#125;]];</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> (codeF.messageString) &#123;</span><br><span class="line">                    </span><br><span class="line">                    [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"识别二维码"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">                        </span><br><span class="line">                        SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[<span class="built_in">NSURL</span> URLWithString:codeF.messageString]];</span><br><span class="line">                        [[<span class="keyword">self</span> currentViewController] presentViewController:safariVC animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">                    &#125;]];</span><br><span class="line">                    </span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 直接用 webView 模态出控制器</span></span><br><span class="line">                [[<span class="keyword">self</span> currentViewController] presentViewController:ac animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">            &#125;);   </span><br><span class="line">        &#125;];</span><br><span class="line">        </span><br><span class="line">        [task resume];</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="获取最上层控制器"><a href="#获取最上层控制器" class="headerlink" title="获取最上层控制器"></a>获取最上层控制器</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">UIViewController</span> *)currentViewController &#123;</span><br><span class="line">    <span class="built_in">UIWindow</span> *keyWindow  = [<span class="built_in">UIApplication</span> sharedApplication].keyWindow;</span><br><span class="line">    <span class="built_in">UIViewController</span> *vc = keyWindow.rootViewController;</span><br><span class="line">    <span class="keyword">while</span> (vc.presentedViewController) &#123;</span><br><span class="line">        vc = vc.presentedViewController;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> ([vc isKindOfClass:[<span class="built_in">UINavigationController</span> <span class="keyword">class</span>]]) &#123;</span><br><span class="line">            vc = [(<span class="built_in">UINavigationController</span> *)vc visibleViewController];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([vc isKindOfClass:[<span class="built_in">UITabBarController</span> <span class="keyword">class</span>]]) &#123;</span><br><span class="line">            vc = [(<span class="built_in">UITabBarController</span> *)vc selectedViewController];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> vc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">UINavigationController</span> *)currentNavigationController &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> currentViewController].navigationController;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="处理-WebView-代理方法"><a href="#处理-WebView-代理方法" class="headerlink" title="处理 WebView 代理方法"></a>处理 WebView 代理方法</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)webViewDidFinishLoad:(<span class="built_in">UIWebView</span> *)webView &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 屏蔽网页自带操作</span></span><br><span class="line">    [<span class="keyword">self</span> stringByEvaluatingJavaScriptFromString:<span class="string">@"document.documentElement.style.webkitUserSelect='none';"</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSString</span> * jsCallBack = <span class="string">@"window.getSelection().removeAllRanges();"</span>;</span><br><span class="line">    [webView stringByEvaluatingJavaScriptFromString:jsCallBack];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//js方法遍历图片添加点击事件 返回图片个数</span></span><br><span class="line">    <span class="keyword">static</span>  <span class="built_in">NSString</span> * <span class="keyword">const</span> jsGetImages =</span><br><span class="line">    <span class="string">@"function getImages()&#123;\</span></span><br><span class="line"><span class="string">    var objs = document.getElementsByTagName(\"img\");\</span></span><br><span class="line"><span class="string">    for(var i=0;i&lt;objs.length;i++)&#123;\</span></span><br><span class="line"><span class="string">    objs[i].onclick=function()&#123;\</span></span><br><span class="line"><span class="string">    document.location=\"myweb:imageClick:\"+this.src;\</span></span><br><span class="line"><span class="string">    &#125;;\</span></span><br><span class="line"><span class="string">    &#125;;\</span></span><br><span class="line"><span class="string">    return objs.length;\</span></span><br><span class="line"><span class="string">    &#125;;"</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 获取图片链接</span></span><br><span class="line">    [webView stringByEvaluatingJavaScriptFromString:jsGetImages];<span class="comment">//注入js方法</span></span><br><span class="line">    [webView stringByEvaluatingJavaScriptFromString:<span class="string">@"getImages()"</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)webView:(<span class="built_in">UIWebView</span> *)webView shouldStartLoadWithRequest:(<span class="built_in">NSURLRequest</span> *)request navigationType:(<span class="built_in">UIWebViewNavigationType</span>)navigationType &#123;</span><br><span class="line">    <span class="comment">// 将url转换为string</span></span><br><span class="line">    <span class="built_in">NSString</span> *requestString = [[request URL] absoluteString];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 判断创建的字符串内容是否以pic:字符开始</span></span><br><span class="line">    <span class="keyword">if</span> ([requestString hasPrefix:<span class="string">@"myweb:imageClick:"</span>]) &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *imageUrl = [requestString substringFromIndex:<span class="string">@"myweb:imageClick:"</span>.length];</span><br><span class="line">        ENLog(<span class="string">@"------%@"</span>, imageUrl);</span><br><span class="line">        <span class="comment">// 点击网页图片查看大图</span></span><br><span class="line">        ShowBigPicController *sb = [[ShowBigPicController alloc] init];</span><br><span class="line">        sb.imageURL = imageUrl;</span><br><span class="line">        [[<span class="keyword">self</span> currentViewController] presentViewController:sb animated:<span class="literal">NO</span> completion:<span class="literal">nil</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="Demo-地址"><a href="#Demo-地址" class="headerlink" title="Demo 地址"></a>Demo 地址</h2><p><strong><a href="https://github.com/Oniityann/YNQRCodeWebView" target="_blank" rel="noopener">YNQRCodeWebView</a></strong></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/UI/" rel="tag"># UI</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/21/ReactiveCocoa-Quick-Search/" rel="next" title="ReactiveCocoa Quick Search">
+                <i class="fa fa-chevron-left"></i> ReactiveCocoa Quick Search
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/20/数据结构与算法基础/" rel="prev" title="数据结构与算法基础">
+                数据结构与算法基础 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#本地识别二维码"><span class="nav-number">1.</span> <span class="nav-text">本地识别二维码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CIDetecor"><span class="nav-number">1.1.</span> <span class="nav-text">CIDetecor</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebView上的一些处理"><span class="nav-number">2.</span> <span class="nav-text">WebView上的一些处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebView添加长按手势"><span class="nav-number">2.1.</span> <span class="nav-text">WebView添加长按手势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#下载图片"><span class="nav-number">2.2.</span> <span class="nav-text">下载图片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取最上层控制器"><span class="nav-number">2.3.</span> <span class="nav-text">获取最上层控制器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理-WebView-代理方法"><span class="nav-number">2.4.</span> <span class="nav-text">处理 WebView 代理方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Demo-地址"><span class="nav-number">3.</span> <span class="nav-text">Demo 地址</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
