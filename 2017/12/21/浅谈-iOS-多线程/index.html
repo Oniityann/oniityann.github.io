@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Multi-thread,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言在移动端开发中不可避免的会接触到多线程。从用户使用体验角度来讲，也不可避免的会接触到多线程的操作。 多线程基础什么是线程线程，也被称为轻量级进程，是程序执行的最小单元。一个标准的线程由线程 ID、当前指令指针、寄存器和堆栈组成。一个进程由一到多个线程组成，线程之间又共享程序的内存空间和一些进程级资源。 线程和进程的关系：  线程调度优先级当线程数小于处理器核心数量时，是真正的并发，当大于的时候">
+<meta name="keywords" content="Multi-thread">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈 iOS 多线程">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/浅谈-iOS-多线程/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="前言在移动端开发中不可避免的会接触到多线程。从用户使用体验角度来讲，也不可避免的会接触到多线程的操作。 多线程基础什么是线程线程，也被称为轻量级进程，是程序执行的最小单元。一个标准的线程由线程 ID、当前指令指针、寄存器和堆栈组成。一个进程由一到多个线程组成，线程之间又共享程序的内存空间和一些进程级资源。 线程和进程的关系：  线程调度优先级当线程数小于处理器核心数量时，是真正的并发，当大于的时候">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/Progress & Thread.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/Thread unlock.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/Thread locked.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/GCDBarrier.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/GCDSemaphore.png">
+<meta property="og:updated_time" content="2018-10-22T18:58:24.633Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈 iOS 多线程">
+<meta name="twitter:description" content="前言在移动端开发中不可避免的会接触到多线程。从用户使用体验角度来讲，也不可避免的会接触到多线程的操作。 多线程基础什么是线程线程，也被称为轻量级进程，是程序执行的最小单元。一个标准的线程由线程 ID、当前指令指针、寄存器和堆栈组成。一个进程由一到多个线程组成，线程之间又共享程序的内存空间和一些进程级资源。 线程和进程的关系：  线程调度优先级当线程数小于处理器核心数量时，是真正的并发，当大于的时候">
+<meta name="twitter:image" content="http://oupcsiea7.bkt.clouddn.com/Progress & Thread.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/21/浅谈-iOS-多线程/">
+
+
+
+
+
+  <title>浅谈 iOS 多线程 | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/浅谈-iOS-多线程/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈 iOS 多线程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-21T00:32:54+08:00">
+                2017-12-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Thread/" itemprop="url" rel="index">
+                    <span itemprop="name">Thread</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在移动端开发中不可避免的会接触到多线程。从用户使用体验角度来讲，也不可避免的会接触到多线程的操作。</p>
+<h2 id="多线程基础"><a href="#多线程基础" class="headerlink" title="多线程基础"></a>多线程基础</h2><h3 id="什么是线程"><a href="#什么是线程" class="headerlink" title="什么是线程"></a>什么是线程</h3><p>线程，也被称为轻量级进程，是程序执行的最小单元。一个标准的线程由线程 ID、当前指令指针、寄存器和堆栈组成。一个进程由一到多个线程组成，线程之间又共享程序的内存空间和一些进程级资源。</p>
+<p>线程和进程的关系：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/Progress &amp; Thread.png" alt="Progress _ Thread"></p>
+<h3 id="线程调度优先级"><a href="#线程调度优先级" class="headerlink" title="线程调度优先级"></a>线程调度优先级</h3><p>当线程数小于处理器核心数量时，是真正的并发，当大于的时候，线程的并发会受到一定阻碍。这可能也是为什么 Intel 即将要推出的 i7 - 9700k 是 8 核心 8 线程的原因，而不是 i7 - 8700k 那样拥有超线程技术的 6 核心 12 线程的 CPU。</p>
+<p>在单核处理多线程的情况下，并发操作是模拟出来的一种状态，操作系统会让这些线程轮流执行一段时间，时间短到足以看起来这些线程是在同步执行的。这种行为称为线程调度。在线程调度中是有优先级调度的，高优先级的先执行，低优先级的线程通常要等到系统已经没有高优先级的可执行线程存在时才会开始执行，这也是为什么 GCD 会提供 Background、utility 等优先级选项。</p>
+<p>除了用户手动控制线程的优先级，操作系统还会自动调整线程优先级。频繁进入等待状态的线程被称为 <strong>IO 密集型线程</strong>，很少等待，处理耗时操作长时间占用时间片的线程一般称为 <strong>CPU 密集型线程</strong>，IO 密集型线程比 CPU 密集型线程在线程优先级的调整中，更容易获得优先级的提升。</p>
+<p>在线程调度中存在一种<em>饿死</em>现象。饿死现象是说，这个线程的优先级较低，而在它之前又有一个耗时的线程执行，导致它无法执行，最后饿死。为了避免这种情况，调度系统通常会提升那些等待时间过长线程的优先级，提升到足够让它执行的程度。</p>
+<h2 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h2><h3 id="数据竞争"><a href="#数据竞争" class="headerlink" title="数据竞争"></a>数据竞争</h3><p>举个例子，线程 1 有一个变量 i，并且在做 i += 1 的操作，线程 2 同时对这个变量做 i -= 1 的操作，线程 1、2 是并发执行的，这时就会发生竞争关系。</p>
+<h3 id="同步和锁"><a href="#同步和锁" class="headerlink" title="同步和锁"></a>同步和锁</h3><p>同步，指在一个线程操作一个数据未结束时，其他线程不得对同一个数据进行访问。为了避免多个线程同事读写一个数据而产生不可预知的结果，我们要将各个线程对这个数据的访问进行同步。</p>
+<p>同步最常见的方法是使用锁。每个线程在访问数据之前会先获取锁，并在访问之后释放锁。在锁已经被占用时，试图获取锁，线程会等待到锁重新可用。</p>
+<h4 id="信号量（Semaphore）"><a href="#信号量（Semaphore）" class="headerlink" title="信号量（Semaphore）"></a>信号量（Semaphore）</h4><p>在 iOS 中，信号量主要表现方式为 <code>dispatch_semaphore_t</code>，最终会调用 <code>sem_wait</code> 方法。<br>和 dispatch_semaphore 相关的函数有三个，创建信号，等待信号，发送信号。<br>信号量是允许并发访问的，可以由一个线程获取，另一个线程释放。</p>
+<h4 id="互斥量（Mutex）"><a href="#互斥量（Mutex）" class="headerlink" title="互斥量（Mutex）"></a>互斥量（Mutex）</h4><p>互斥量仅允许一个线程访问。互斥量和信号量不同的是，互斥量要求哪个线程获取了，哪个线程就要负责去释放。<br>在 iOS 中，<code>pthread_mutex</code> 可以作为互斥锁。<code>pthread_mutex</code> 不是使用忙等，会阻塞线程并进行等待。它本身拥有设置协议的功能，通过设置协议来解决优先级反转的问题：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pthread_mutexattr_setprotocol(<span class="keyword">pthread_mutexattr_t</span> *attr, <span class="keyword">int</span> protocol)</span><br></pre></td></tr></table></figure>
+<p><code>NSLock</code> 也是互斥锁，只不过是用 OC 的方式暴露出来，内部封装了一个 <code>pthread_mutex</code>。在 YYKit 源码中，ibireme 大佬频繁使用 <code>pthread_mutex</code> 而不是 NSLock，是应为 NSLock 是 OC 类，在使用时会经过消息转发，方法调用等操作，比 pthread 略慢。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> lock = <span class="type">NSLock</span>()</span><br><span class="line">lock.lock()</span><br><span class="line"><span class="comment">// Todo</span></span><br><span class="line">lock.unlock()</span><br></pre></td></tr></table></figure>
+<p><code>@synchronized(Obj)</code> 也是一种便捷的互斥锁创建方式，同事它也是一个递归锁。</p>
+<h4 id="读写锁（Read-Write-Lock）"><a href="#读写锁（Read-Write-Lock）" class="headerlink" title="读写锁（Read-Write Lock）"></a>读写锁（Read-Write Lock）</h4><p>读写锁，在对文件进行操作的时候，写操作是排他的，一旦有多个线程对同一个文件进行写操作，后果不可估量，但读是可以的，多个线程读取时没有问题的。</p>
+<ol>
+<li>当读写锁被一个线程以读模式占用的时候，写操作的其他线程会被阻塞，读操作的其他线程还可以继续进行</li>
+<li>当读写锁被一个线程以写模式占用的时候，写操作的其他线程会被阻塞，读操作的其他线程也被阻塞</li>
+</ol>
+<p>在 iOS 中，读写锁主要变现为 <code>pthread_rwlock_t</code>。</p>
+<h4 id="条件变量（Condition-Variable）"><a href="#条件变量（Condition-Variable）" class="headerlink" title="条件变量（Condition Variable）"></a>条件变量（Condition Variable）</h4><p>条件变量，作用类似于一个栅栏。</p>
+<ol>
+<li>线程可以等待条件变量，一个条件变量可以被多个线程等待。</li>
+<li>线程可以唤醒条件变量，此时所有等待此变量的线程都会被唤醒。</li>
+</ol>
+<p>使用条件变量，可以让许多线程一起等待某个事件的发生，当事件发生时，所有线程可以恢复执行。</p>
+<p>在 iOS 中，<code>NSCondition</code> 表现为条件变量。</p>
+<blockquote>
+<p>介绍条件变量的文章非常多，但大多都对一个一个基本问题避而不谈:“为什么要用条件变量？它仅仅是控制了线程的执行顺序，用信号量或者互斥锁能不能模拟出类似效果？”</p>
+</blockquote>
+<blockquote>
+<p>网上的相关资料比较少，我简单说一下个人看法。信号量可以一定程度上替代 condition，但是互斥锁不行。在以上给出的生产者-消费者模式的代码中， pthread_cond_wait 方法的本质是锁的转移，消费者放弃锁，然后生产者获得锁，同理，pthread_cond_signal 则是一个锁从生产者到消费者转移的过程。</p>
+</blockquote>
+<p>参考链接：<a href="https://bestswifter.com/ios-lock/" target="_blank" rel="noopener">bestswifter iOS锁的博文</a>。</p>
+<h4 id="自旋锁（Spin-lock）"><a href="#自旋锁（Spin-lock）" class="headerlink" title="自旋锁（Spin lock）"></a>自旋锁（Spin lock）</h4><p>关于自旋锁，可以查阅 <a href="https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/" target="_blank" rel="noopener">ibirme 大佬的《不再安全的 OSSpinLock》</a></p>
+<h2 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h2><h3 id="创建"><a href="#创建" class="headerlink" title="创建"></a>创建</h3><p>Thread 创建有三种方式：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第一种，手动调用 start</span></span><br><span class="line"><span class="comment">// convenience init(target: Any, selector: Selector, object argument: Any?)</span></span><br><span class="line"><span class="keyword">let</span> thread = <span class="type">Thread</span>(target: <span class="keyword">self</span>, selector: #selector(thread1Action(<span class="number">_</span>:)), object: <span class="string">"Thread1"</span>)</span><br><span class="line">thread.name = <span class="string">"Background 1"</span></span><br><span class="line">thread.start()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第二种，类方法</span></span><br><span class="line"><span class="comment">// class func detachNewThreadSelector(_ selector: Selector, toTarget target: Any, with argument: Any?)</span></span><br><span class="line"><span class="type">Thread</span>.detachNewThreadSelector(#selector(thread2Action(<span class="number">_</span>:)), toTarget: <span class="keyword">self</span>, with: <span class="string">"Thread2"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第三种 performSelector</span></span><br><span class="line">performSelector(inBackground: #selector(thread3Action(<span class="number">_</span>:)), with: <span class="string">"Thread3"</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="线程安全-1"><a href="#线程安全-1" class="headerlink" title="线程安全"></a>线程安全</h3><p>在 OC 中可以添加 @synchronized() 方法方便的给线程加锁，但是 Swift 中，这个方法已经不存在。@synchronized 实际上在底层是调用了 <code>objc_sync_enter</code> 和 <code>objc_sync_exit</code> 方法以及一些异常处理。所以忽略异常问题可以简单实现一个 synchronized 方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">synchronized</span><span class="params">(<span class="number">_</span> lock: AnyObject, closure:<span class="params">()</span></span></span> -&gt; ()) &#123;</span><br><span class="line">    objc_sync_enter(lock)</span><br><span class="line">    closure()</span><br><span class="line">    objc_sync_exit(lock)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>经典的售票系统简单模拟：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@IBAction</span> <span class="function"><span class="keyword">func</span> <span class="title">saleTicket</span><span class="params">(<span class="number">_</span> sender: <span class="keyword">Any</span>)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    firstTicketWindow = <span class="type">Thread</span>(target: <span class="keyword">self</span>, selector: #selector(saleTicketAction), object: <span class="string">"Ticket Window 1"</span>)</span><br><span class="line">    firstTicketWindow.name = <span class="string">"Ticket Window 1"</span></span><br><span class="line">    </span><br><span class="line">    secondTicketWindow = <span class="type">Thread</span>(target: <span class="keyword">self</span>, selector: #selector(saleTicketAction), object: <span class="string">"Ticket Window 2"</span>)</span><br><span class="line">    secondTicketWindow.name = <span class="string">"Ticket Window 2"</span></span><br><span class="line">    </span><br><span class="line">    thirdTicketWindow = <span class="type">Thread</span>(target: <span class="keyword">self</span>, selector: #selector(saleTicketAction), object: <span class="string">"Ticket Window 3"</span>)</span><br><span class="line">    thirdTicketWindow.name = <span class="string">"Ticket Window 3"</span></span><br><span class="line">    </span><br><span class="line">    firstTicketWindow.start()</span><br><span class="line">    secondTicketWindow.start()</span><br><span class="line">    thirdTicketWindow.start()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@objc</span> <span class="function"><span class="keyword">func</span> <span class="title">saleTicketAction</span><span class="params">()</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> ticketCount &gt; <span class="number">0</span> &#123;</span><br><span class="line">        synchronized(<span class="keyword">self</span>) &#123;</span><br><span class="line">            <span class="type">Thread</span>.sleep(forTimeInterval: <span class="number">0.1</span>)</span><br><span class="line">            <span class="keyword">if</span> ticketCount &gt; <span class="number">0</span> &#123;</span><br><span class="line">                ticketCount -= <span class="number">1</span></span><br><span class="line">                <span class="built_in">print</span>(<span class="string">"\(Thread.current.name!) sold 1 ticket, \(self.ticketCount) remains."</span>)</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">"Tickets have been sold out."</span>)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时如果不加自己定义的 synchronized 方法，控制台会输出以下信息：<br><img src="http://oupcsiea7.bkt.clouddn.com/Thread unlock.png" alt="Thread unlock"><br>很明显的，票务系统已经错乱。</p>
+<p>如果加上 synchronized 方法，则会输出正确的信息：<br><img src="http://oupcsiea7.bkt.clouddn.com/Thread locked.png" alt="Thread locked"></p>
+<h3 id="线程间通信"><a href="#线程间通信" class="headerlink" title="线程间通信"></a>线程间通信</h3><p>在主线程上显示余票：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ticketCount &gt; <span class="number">0</span> &#123;</span><br><span class="line">    ticketCount -= <span class="number">1</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\(Thread.current.name!) sold 1 ticket, \(self.ticketCount) remains."</span>)</span><br><span class="line">                    </span><br><span class="line">    <span class="comment">// 主线程显示余票</span></span><br><span class="line">    <span class="keyword">self</span>.performSelector(onMainThread: #selector(showTicketNum), with: <span class="literal">nil</span>, waitUntilDone: <span class="literal">true</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@objc</span> <span class="function"><span class="keyword">func</span> <span class="title">showTicketNum</span><span class="params">()</span></span> &#123;</span><br><span class="line">    remainingLabel.text = <span class="string">"Ticket remains: \(ticketCount)"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Operation"><a href="#Operation" class="headerlink" title="Operation"></a>Operation</h2><p>Operation 是 Apple 对于 GCD 的封装，但是并不局限于 GCD 的先进先出队列。API 更加面向对象化，操作起来十分方便。</p>
+<h3 id="Operation-和-OperationQueue"><a href="#Operation-和-OperationQueue" class="headerlink" title="Operation 和 OperationQueue"></a>Operation 和 OperationQueue</h3><p>Operation 相当于 GCD 的任务， OperationQueue 相当于 GCD 的队列。<br>使用 Operation 实现多线程的具体步骤：</p>
+<ul>
+<li>将需要执行的操作封装到 Operation 对象中</li>
+<li>将 Operation 添加到 OperationQueue</li>
+</ul>
+<h3 id="创建-1"><a href="#创建-1" class="headerlink" title="创建"></a>创建</h3><p>一般情况下有三种使用方法：</p>
+<ul>
+<li>NSInvocaionOperation</li>
+</ul>
+<p>NSInvocation 在 Swift 中已被废除，因为它不是类型安全和 ARC 安全的。</p>
+<p>下面是 OC 实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)testNSInvocationOperation &#123;</span><br><span class="line">    <span class="built_in">NSInvocationOperation</span> *invocationOperation = [[<span class="built_in">NSInvocationOperation</span> alloc] initWithTarget:<span class="keyword">self</span> selector:<span class="keyword">@selector</span>(invocationOperation) object:<span class="literal">nil</span>];</span><br><span class="line">    [invocationOperation start];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)invocationOperation &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"NSInvocationOperation: %@"</span>, [<span class="built_in">NSThread</span> currentThread]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>BlockOperation</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> operation = <span class="type">BlockOperation</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"An block operation without being added in a queue, the thread is: \(Thread.current)"</span>)</span><br><span class="line">&#125;</span><br><span class="line">operation.start()</span><br></pre></td></tr></table></figure>
+<p>Block Operation 添加执行闭包：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> operation = <span class="type">BlockOperation</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Create a block operation in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">operation.addExecutionBlock &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"The block operation has add an execution block in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">operation.addExecutionBlock &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"The block operation has add an execution block in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">operation.start()</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Operation 子类</li>
+</ul>
+<p>Operation 子类需要创建一个继承于 Operation 的类，需要重写 <code>main()</code> 方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CustomOperation</span>: <span class="title">Operation</span> </span>&#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// Things to do</span></span><br><span class="line">        <span class="keyword">for</span> <span class="number">_</span> <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"Cunstom operation in thread: \(Thread.current)"</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> operation = <span class="type">CustomOperation</span>()</span><br><span class="line">operation.start()</span><br></pre></td></tr></table></figure>
+<h3 id="OperationQueue"><a href="#OperationQueue" class="headerlink" title="OperationQueue"></a>OperationQueue</h3><ul>
+<li><code>OperationQueue</code> 直接创建为子线程：<code>let queue = OperationQueue()</code>。</li>
+<li><code>OperationQueue</code> 获取主线程方法：<code>OperationQueue.main</code>。</li>
+</ul>
+<p><strong>将 Operation 添加到 Queue 中 会自动异步执行 Operation 中封装的操作，不需要再调用 Operation 的 start() 方法。</strong></p>
+<h4 id="使用-addOperation-方法把-Operation-添加到队列"><a href="#使用-addOperation-方法把-Operation-添加到队列" class="headerlink" title="使用 addOperation(_:) 方法把 Operation 添加到队列"></a>使用 <code>addOperation(_:)</code> 方法把 Operation 添加到队列</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> queue = <span class="type">OperationQueue</span>()</span><br><span class="line">        </span><br><span class="line"><span class="keyword">let</span> operation1 = <span class="type">BlockOperation</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Operation 1 has beed added in a queue, in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">        </span><br><span class="line"><span class="keyword">let</span> operation2 = <span class="type">BlockOperation</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Operation 2 has beed added in a queue, in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">        </span><br><span class="line"><span class="comment">// Operation1 和 Operation2 执行顺序是不固定的</span></span><br><span class="line">queue.addOperation(operation1)</span><br><span class="line">queue.addOperation(operation2)</span><br></pre></td></tr></table></figure>
+<h4 id="使用-addOperation-方法添加-Operation"><a href="#使用-addOperation-方法添加-Operation" class="headerlink" title="使用 addOperation {} 方法添加 Operation"></a>使用 <code>addOperation {}</code> 方法添加 Operation</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> queue = <span class="type">OperationQueue</span>()</span><br><span class="line">queue.addOperation &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="number">_</span> <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"A queue add operation with block in \(Thread.current)."</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="OperationQueue-线程间通信"><a href="#OperationQueue-线程间通信" class="headerlink" title="OperationQueue 线程间通信"></a>OperationQueue 线程间通信</h3><p>下面以一个伪下载图片的代码来模拟 Operation 线程间通信：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> downloadQueue = <span class="type">OperationQueue</span>()</span><br><span class="line"></span><br><span class="line">indicator.startAnimating()</span><br><span class="line"></span><br><span class="line">downloadQueue.addOperation &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="type">Thread</span>.sleep(forTimeInterval: <span class="number">1</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> imageURLString = <span class="string">"https://clutchpoints.com/wp-content/uploads/2018/09/lebron-james.png"</span></span><br><span class="line">    <span class="keyword">let</span> imageURL = <span class="type">URL</span>(string: imageURLString)</span><br><span class="line">    <span class="keyword">let</span> data = <span class="keyword">try</span>? <span class="type">Data</span>(contentsOf: imageURL!)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">guard</span> <span class="keyword">let</span> theData = data <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果没有图片数据，回到主线程停止 indicator</span></span><br><span class="line">        <span class="type">OperationQueue</span>.main.addOperation &#123;</span><br><span class="line">            <span class="keyword">self</span>.indicator.stopAnimating()</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Download failed."</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> image = <span class="type">UIImage</span>(data: theData)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 下载完图片回到主线程更新 UI  </span></span><br><span class="line">    <span class="type">OperationQueue</span>.main.addOperation &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> image = image &#123;</span><br><span class="line">            <span class="keyword">self</span>.imageView.image = image</span><br><span class="line">            <span class="keyword">self</span>.hideButton.isHidden = <span class="literal">false</span></span><br><span class="line">            <span class="keyword">self</span>.imageView.isHidden = <span class="literal">false</span></span><br><span class="line">            <span class="keyword">self</span>.indicator.stopAnimating()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="控制-OperationQueue-最大并发数"><a href="#控制-OperationQueue-最大并发数" class="headerlink" title="控制 OperationQueue 最大并发数"></a>控制 OperationQueue 最大并发数</h3><p>可以通过 <code>maxConcurrentOperationCount</code> 来控制并发数。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> queue = <span class="type">OperationQueue</span>()</span><br><span class="line">queue.maxConcurrentOperationCount = <span class="number">1</span></span><br><span class="line">queue.addOperation &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"First operation - max concurrent number in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">queue.addOperation &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Second operation - max concurrent number in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">queue.addOperation &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Third operation - max concurrent number in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br><span class="line">queue.addOperation &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Fourth operation - max concurrent number in \(Thread.current)."</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="依赖和完成监听"><a href="#依赖和完成监听" class="headerlink" title="依赖和完成监听"></a>依赖和完成监听</h3><p>你可以通过 Operation 的 <code>addDependency(_ op: Operation)</code> 方法来添加操作间的依赖关系：<br>例如 <code>operation2.addDependency(operation1)</code> 就是说 Operation1 执行完毕后 Operation2 才会执行。</p>
+<p>你也可以通过 <code>completionBlock</code> 属性来监听某个操作已经完成。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> queue = <span class="type">OperationQueue</span>()</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> flag = <span class="literal">false</span></span><br><span class="line"><span class="keyword">let</span> operation1 = <span class="type">BlockOperation</span> &#123;</span><br><span class="line">    <span class="comment">// 模拟一个操作是否成功</span></span><br><span class="line">    flag = <span class="literal">true</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Operation 1 in \(Thread.current)."</span>)</span><br><span class="line">    <span class="type">Thread</span>.sleep(forTimeInterval: <span class="number">2</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听 Operation 1 是否完成</span></span><br><span class="line">operation1.completionBlock = &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Operation 1 is completed."</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> operation2 = <span class="type">BlockOperation</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> flag &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Operation 2 in \(Thread.current)."</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Something went wrong."</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">operation2.addDependency(operation1)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 过两秒之后控制台才会打印 Operation1 完成和 Operation2 的执行信息</span></span><br><span class="line">queue.addOperation(operation1)</span><br><span class="line">queue.addOperation(operation2)</span><br></pre></td></tr></table></figure>
+<h3 id="取消-Operation"><a href="#取消-Operation" class="headerlink" title="取消 Operation"></a>取消 Operation</h3><p>可以通过 <strong>Operation 的 <code>cancel()</code> 方法</strong> 或 Queue 的 <code>cancelAllOperations()</code> 来取消 Operation。</p>
+<p>但，值得注意的是，<strong><code>cancel()</code> 方法，它做的唯一做的就是将 Operation 的 isCancelled 属性从 false 改为 true</strong>。由于它并不会真正去深入代码将具体执行的工作暂停，所以我们必须利用 <code>isCancelled</code> 属性的变化来暂停 main() 方法中的工作。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> queue = <span class="type">OperationQueue</span>()</span><br><span class="line">queue.addOperation &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ... <span class="number">100000000</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"i: \(i) in \(Thread.current)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">queue.cancelAllOperations()</span><br><span class="line">queue.addOperation &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Second operation in \(Thread.current)"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> operation = <span class="type">CustomOperation</span>()</span><br><span class="line"><span class="comment">// 将 isCancelled 属性更改为 true</span></span><br><span class="line">operation.cancel()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 控制台只会输出第二个 Operation 的执行信息。</span></span><br></pre></td></tr></table></figure>
+<h2 id="GCD"><a href="#GCD" class="headerlink" title="GCD"></a>GCD</h2><blockquote>
+<p>GCD（Grand Central Dispatch） 是 Apple 推荐的方式，它将线程管理推给了系统，用的是名为 dispatch queue 的队列。开发者只要定义每个线程需要执行的工作即可。所有的工作都是先进先出，每一个 block 运转速度极快（纳秒级别）。使用场景主要是为了追求高效处理大量并发数据，如图片异步加载、网络请求等。</p>
+</blockquote>
+<p><a href="https://github.com/apple/swift-evolution/blob/master/proposals/0088-libdispatch-for-swift3.md" target="_blank" rel="noopener">Dispatch 在 Swift 3 中的改变</a></p>
+<h3 id="任务和队列"><a href="#任务和队列" class="headerlink" title="任务和队列"></a>任务和队列</h3><ul>
+<li>Async：异步任务</li>
+<li>Sync：同步任务</li>
+</ul>
+<p>DispatchQueue 是一个类似线程的概念，这里称作对列队列是一个FIFO数据结构，意味着先提交到队列的任务会先开始执行）。DispatchQueue 背后是一个由系统管理的线程池。</p>
+<p>DispatchQueue 又分为串行队列和并发队列。</p>
+<p><strong>串行队列使用同步操作容易造成死锁，例如主线程进行同步操作 <code>DispatchQueue.main.sync {}</code>。</strong></p>
+<h3 id="创建队列"><a href="#创建队列" class="headerlink" title="创建队列"></a>创建队列</h3><h4 id="创建串行队列"><a href="#创建串行队列" class="headerlink" title="创建串行队列"></a>创建串行队列</h4><p>如果不设置 DispatchQueue 的 Attributes，那么默认就会创建串行队列。</p>
+<ul>
+<li>串行队列的同步操作：</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> queue = <span class="type">DispatchQueue</span>(label: <span class="string">"com.demo.Serial1"</span>)</span><br><span class="line"><span class="comment">// 串行队列做同步操作, 容易造成死锁, 不建议这样使用</span></span><br><span class="line">queue.sync &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Sync operation in a serial queue."</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>串行队列的异步操作：</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> queue = <span class="type">DispatchQueue</span>(label: <span class="string">"com.demo.Serial2"</span>)</span><br><span class="line"><span class="comment">// 串行队列做异步操作是顺序执行</span></span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"First i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Second i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="创建并发队列"><a href="#创建并发队列" class="headerlink" title="创建并发队列"></a>创建并发队列</h4><ul>
+<li>并发队列同步操作是顺序执行</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> label = <span class="string">"com.demo.Concurrent1"</span></span><br><span class="line"><span class="keyword">let</span> qos = <span class="type">DispatchQoS</span>.<span class="keyword">default</span></span><br><span class="line"><span class="keyword">let</span> attributes = <span class="type">DispatchQueue</span>.<span class="type">Attributes</span>.concurrent</span><br><span class="line"><span class="keyword">let</span> autoreleaseFrequency = <span class="type">DispatchQueue</span>.<span class="type">AutoreleaseFrequency</span>.never</span><br><span class="line"><span class="keyword">let</span> queue = <span class="type">DispatchQueue</span>(label: label, qos: qos, attributes: attributes, autoreleaseFrequency: autoreleaseFrequency, target: <span class="literal">nil</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 并发队列同步操作是顺序执行</span></span><br><span class="line">queue.sync &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"First sync i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">queue.sync &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Second sync i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>并发队列异步操作执行顺序不定</li>
+</ul>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> label = <span class="string">"com.demo.Concurrent2"</span></span><br><span class="line"><span class="keyword">let</span> attributes = <span class="type">DispatchQueue</span>.<span class="type">Attributes</span>.concurrent</span><br><span class="line"><span class="keyword">let</span> queue = <span class="type">DispatchQueue</span>(label: label, attributes: attributes)</span><br><span class="line">        </span><br><span class="line"><span class="comment">// 并发队列做异步操作执行顺序不固定</span></span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"First async i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Second async i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="创建主队列和全局队列"><a href="#创建主队列和全局队列" class="headerlink" title="创建主队列和全局队列"></a>创建主队列和全局队列</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> mainQueue = <span class="type">DispatchQueue</span>.main</span><br><span class="line"><span class="keyword">let</span> globalQueue = <span class="type">DispatchQueue</span>.global()</span><br><span class="line"><span class="keyword">let</span> globalQueueWithQos = <span class="type">DispatchQueue</span>.global(qos: .userInitiated)</span><br></pre></td></tr></table></figure>
+<h3 id="QoS"><a href="#QoS" class="headerlink" title="QoS"></a>QoS</h3><p>QoS 全称 <code>Quality of Service</code>，在 Swift 中是一个结构体，用来指定队列或任务的优先级。</p>
+<p>全局队列肯定是并发队列。如果不指定优先级，就是默认（default）优先级。另外还有 background，utility，user-Initiated，unspecified，user-Interactive。下面按照优先级顺序从低到高来排列：</p>
+<ul>
+<li>Background：用来处理特别耗时的后台操作，例如同步、备份数据。</li>
+<li>Utility：用来处理需要一点时间而又不需要立刻返回结果的操作。特别适用于异步操作，例如下载、导入数据。</li>
+<li>Default：默认优先级。一般来说开发者应该指定优先级。属于特殊情况。</li>
+<li>User-Initiated：用来处理用户触发的、需要立刻返回结果的操作。比如打开用户点击的文件。</li>
+<li>User-Interactive：用来处理用户交互的操作。一般用于主线程，如果不及时响应就可能阻塞主线程的操作。</li>
+<li>Unspecified：未确定优先级，由系统根据不同环境推断。比如使用过时的 API 不支持优先级，此时就可以设定为未确定优先级。属于特殊情况。</li>
+</ul>
+<h3 id="After-延迟"><a href="#After-延迟" class="headerlink" title="After 延迟"></a>After 延迟</h3><p>Swift 写法如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">super</span>.viewDidLoad()</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"View did load."</span>)</span><br><span class="line">    <span class="keyword">let</span> dispatchTime = <span class="type">DispatchTime</span>.now() + <span class="number">0.5</span></span><br><span class="line">    <span class="type">DispatchQueue</span>.main.asyncAfter(deadline: dispatchTime) &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"After 0.5 seconds."</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="线程间通信-1"><a href="#线程间通信-1" class="headerlink" title="线程间通信"></a>线程间通信</h3><p>模拟下载单张图片并在 imageView 上展示：</p>
+<p>使用 <code>DispatchQueue.global().async {}</code> 和 <code>DispatchQueue.main.async {}</code>。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@IBAction</span> <span class="function"><span class="keyword">func</span> <span class="title">downloadImage</span><span class="params">(<span class="number">_</span> sender: <span class="keyword">Any</span>)</span></span> &#123;</span><br><span class="line">    indicator1.startAnimating()</span><br><span class="line">    <span class="comment">// let queue = DispatchQueue.global(qos: .default)</span></span><br><span class="line">    <span class="type">DispatchQueue</span>.global().async &#123;</span><br><span class="line">        sleep(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">let</span> imageURL = <span class="type">URL</span>(string: <span class="keyword">self</span>.imageURLString1)</span><br><span class="line">        <span class="keyword">let</span> data = <span class="keyword">try</span>? <span class="type">Data</span>(contentsOf: imageURL!)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> theData = data <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">OperationQueue</span>.main.addOperation &#123;</span><br><span class="line">                <span class="keyword">self</span>.indicator1.stopAnimating()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"Download failed."</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">let</span> image = <span class="type">UIImage</span>(data: theData)</span><br><span class="line">        </span><br><span class="line">        <span class="type">DispatchQueue</span>.main.async &#123;</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">let</span> image = image &#123;</span><br><span class="line">                <span class="keyword">self</span>.imageView1.image = image</span><br><span class="line">                <span class="keyword">self</span>.hideButton.isHidden = <span class="literal">false</span></span><br><span class="line">                <span class="keyword">self</span>.imageView1.isHidden = <span class="literal">false</span></span><br><span class="line">                <span class="keyword">self</span>.indicator1.stopAnimating()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="DispatchGroup"><a href="#DispatchGroup" class="headerlink" title="DispatchGroup"></a>DispatchGroup</h3><p>组操作，用来管理一组任务的执行，然后监听任务都完成的事件。比如，多个网络请求同时发出去，等网络请求都完成后 reload UI。</p>
+<p>步骤：</p>
+<ol>
+<li>创建一个 DispatchGroup</li>
+<li>在并发队列中进行异步组操作</li>
+<li>通过 <code>group.notify {}</code> 来组合那些单个的组操作</li>
+</ol>
+<p>模拟多图下载操作：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@IBAction</span> <span class="function"><span class="keyword">func</span> <span class="title">downloadImagesInGroup</span><span class="params">(<span class="number">_</span> sender: <span class="keyword">Any</span>)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    indicator1.startAnimating()</span><br><span class="line">    indicator2.startAnimating()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> group = <span class="type">DispatchGroup</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> documentsPath = <span class="type">NSSearchPathForDirectoriesInDomains</span>(.documentDirectory, .userDomainMask, <span class="literal">true</span>).first</span><br><span class="line">    <span class="keyword">var</span> fileURL1 = <span class="type">URL</span>(fileURLWithPath: documentsPath!)</span><br><span class="line">    fileURL1 = fileURL1.appendingPathComponent(<span class="string">"LBJ1"</span>)</span><br><span class="line">    fileURL1 = fileURL1.appendingPathExtension(<span class="string">"png"</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> fileURL2 = <span class="type">URL</span>(fileURLWithPath: documentsPath!)</span><br><span class="line">    fileURL2 = fileURL2.appendingPathComponent(<span class="string">"LBJ2"</span>)</span><br><span class="line">    fileURL2 = fileURL2.appendingPathExtension(<span class="string">"jpg"</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 下载图片1</span></span><br><span class="line">    group.enter()</span><br><span class="line">    <span class="type">DispatchQueue</span>.global().async &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Begin to download image1."</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> imageURL = <span class="type">URL</span>(string: <span class="keyword">self</span>.imageURLString1)</span><br><span class="line">        <span class="keyword">let</span> data = <span class="keyword">try</span>? <span class="type">Data</span>(contentsOf: imageURL!)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> theData = data <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">DispatchQueue</span>.main.async &#123;</span><br><span class="line">                <span class="keyword">self</span>.indicator1.stopAnimating()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"Image 1 download failed."</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span>! theData.write(to: fileURL1, options: .atomic)</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Image1 downloaded."</span>)</span><br><span class="line">        sleep(<span class="number">1</span>)</span><br><span class="line">        group.leave()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 下载图片2</span></span><br><span class="line">    group.enter()</span><br><span class="line">    <span class="type">DispatchQueue</span>.global().async &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Begin to download image2."</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> imageURL = <span class="type">URL</span>(string: <span class="keyword">self</span>.imageURLString2)</span><br><span class="line">        <span class="keyword">let</span> data = <span class="keyword">try</span>? <span class="type">Data</span>(contentsOf: imageURL!)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> theData = data <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">DispatchQueue</span>.main.async &#123;</span><br><span class="line">                <span class="keyword">self</span>.indicator2.stopAnimating()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"Image 2 Download failed."</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span>! theData.write(to: fileURL2, options: .atomic)</span><br><span class="line">        </span><br><span class="line">        sleep(<span class="number">1</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Image2 downloaded."</span>)</span><br><span class="line">        group.leave()</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 在主线程展示</span></span><br><span class="line">    group.notify(queue: .main) &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> imageData1 = <span class="keyword">try</span>? <span class="type">Data</span>(contentsOf: fileURL1)</span><br><span class="line">        <span class="keyword">let</span> imageData2 = <span class="keyword">try</span>? <span class="type">Data</span>(contentsOf: fileURL2)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> theData1 = imageData1 <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> theData2 = imageData2 <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">let</span> image1 = <span class="type">UIImage</span>(data: theData1)</span><br><span class="line">        <span class="keyword">let</span> image2 = <span class="type">UIImage</span>(data: theData2)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">self</span>.imageView1.image = image1</span><br><span class="line">        <span class="keyword">self</span>.imageView2.image = image2</span><br><span class="line">        <span class="keyword">self</span>.imageView1.isHidden = <span class="literal">false</span></span><br><span class="line">        <span class="keyword">self</span>.imageView2.isHidden = <span class="literal">false</span></span><br><span class="line">        <span class="keyword">self</span>.indicator1.stopAnimating()</span><br><span class="line">        <span class="keyword">self</span>.indicator2.stopAnimating()</span><br><span class="line">        <span class="keyword">self</span>.hideButton.isHidden = <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="DispatchBarrier"><a href="#DispatchBarrier" class="headerlink" title="DispatchBarrier"></a>DispatchBarrier</h3><p>栅栏函数，函数之前的任务提交完了才会执行后续的任务：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> label = <span class="string">"com.demo.Concurrent3"</span></span><br><span class="line"><span class="keyword">let</span> queue = <span class="type">DispatchQueue</span>(label: label, attributes: .concurrent)</span><br><span class="line"></span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"First i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Second i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">queue.async(flags: .barrier) &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"This is a barrier."</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Third i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">queue.async &#123;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">0</span> ..&lt; <span class="number">2</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Fourth i: \(i)"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>控制台输出：<br><img src="http://oupcsiea7.bkt.clouddn.com/GCDBarrier.png" alt="GCDBarrier"></p>
+<p>由此可见，只有当 First 和 Second 执行完毕才会执行 Third 和 Fourth，并且 First 和 Second 执行顺序是不确定的，Third 和 Fourth 也是如此。</p>
+<h3 id="Semaphore"><a href="#Semaphore" class="headerlink" title="Semaphore"></a>Semaphore</h3><p>信号量，是锁机制。</p>
+<blockquote>
+<p>DispatchSemaphore 是传统计数信号量的封装，用来控制资源被多任务访问的情况。</p>
+</blockquote>
+<p>举个例子，一共有两个停车位，现在 A、B、C 都需要停车，A 和 B 先挺的情况下，C 过来了，这时 C 就要等待 A 或 B 其中有一个出来，才会继续停进去。</p>
+<p><strong>注意：在串行队列上使用信号量要注意死锁的问题。</strong></p>
+<p>模拟停车操作：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> semaphore = <span class="type">DispatchSemaphore</span>(value: <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// semaphore 在串行队列需要注意死锁问题</span></span><br><span class="line"><span class="keyword">let</span> queue = <span class="type">DispatchQueue</span>(label: <span class="string">"com.demo.Concurrent4"</span>, qos: .<span class="keyword">default</span>, attributes: .concurrent)</span><br><span class="line"></span><br><span class="line">queue.async &#123;</span><br><span class="line">    semaphore.wait()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"First car in."</span>)</span><br><span class="line">    sleep(<span class="number">2</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"First car out."</span>)</span><br><span class="line">    semaphore.signal()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">queue.async &#123;</span><br><span class="line">    semaphore.wait()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Second car in."</span>)</span><br><span class="line">    sleep(<span class="number">3</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Second car out."</span>)</span><br><span class="line">    semaphore.signal()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">queue.async &#123;</span><br><span class="line">    semaphore.wait()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Third car in."</span>)</span><br><span class="line">    sleep(<span class="number">4</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Third car out."</span>)</span><br><span class="line">    semaphore.signal()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>控制台输出：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/GCDSemaphore.png" alt="GCDSemaphore"></p>
+<p>由此可见，第一辆车出来了，第三辆车才能进去。</p>
+<h2 id="本文-Demo"><a href="#本文-Demo" class="headerlink" title="本文 Demo"></a>本文 Demo</h2><p><a href="https://github.com/Oniityann/SwiftMultiThreadDemo" target="_blank" rel="noopener">本文 Demo 已更新到 Swift 4.2</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Multi-thread/" rel="tag"># Multi-thread</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/21/WebView-长按识别二维码和点击查看大图/" rel="next" title="WebView 长按识别二维码和点击查看大图">
+                <i class="fa fa-chevron-left"></i> WebView 长按识别二维码和点击查看大图
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/20/数据结构与算法基础/" rel="prev" title="数据结构与算法基础">
+                数据结构与算法基础 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程基础"><span class="nav-number">2.</span> <span class="nav-text">多线程基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是线程"><span class="nav-number">2.1.</span> <span class="nav-text">什么是线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程调度优先级"><span class="nav-number">2.2.</span> <span class="nav-text">线程调度优先级</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程安全"><span class="nav-number">3.</span> <span class="nav-text">线程安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据竞争"><span class="nav-number">3.1.</span> <span class="nav-text">数据竞争</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步和锁"><span class="nav-number">3.2.</span> <span class="nav-text">同步和锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#信号量（Semaphore）"><span class="nav-number">3.2.1.</span> <span class="nav-text">信号量（Semaphore）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#互斥量（Mutex）"><span class="nav-number">3.2.2.</span> <span class="nav-text">互斥量（Mutex）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#读写锁（Read-Write-Lock）"><span class="nav-number">3.2.3.</span> <span class="nav-text">读写锁（Read-Write Lock）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#条件变量（Condition-Variable）"><span class="nav-number">3.2.4.</span> <span class="nav-text">条件变量（Condition Variable）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自旋锁（Spin-lock）"><span class="nav-number">3.2.5.</span> <span class="nav-text">自旋锁（Spin lock）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Thread"><span class="nav-number">4.</span> <span class="nav-text">Thread</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建"><span class="nav-number">4.1.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程安全-1"><span class="nav-number">4.2.</span> <span class="nav-text">线程安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程间通信"><span class="nav-number">4.3.</span> <span class="nav-text">线程间通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Operation"><span class="nav-number">5.</span> <span class="nav-text">Operation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Operation-和-OperationQueue"><span class="nav-number">5.1.</span> <span class="nav-text">Operation 和 OperationQueue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建-1"><span class="nav-number">5.2.</span> <span class="nav-text">创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OperationQueue"><span class="nav-number">5.3.</span> <span class="nav-text">OperationQueue</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-addOperation-方法把-Operation-添加到队列"><span class="nav-number">5.3.1.</span> <span class="nav-text">使用 addOperation(_:) 方法把 Operation 添加到队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-addOperation-方法添加-Operation"><span class="nav-number">5.3.2.</span> <span class="nav-text">使用 addOperation {} 方法添加 Operation</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OperationQueue-线程间通信"><span class="nav-number">5.4.</span> <span class="nav-text">OperationQueue 线程间通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#控制-OperationQueue-最大并发数"><span class="nav-number">5.5.</span> <span class="nav-text">控制 OperationQueue 最大并发数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖和完成监听"><span class="nav-number">5.6.</span> <span class="nav-text">依赖和完成监听</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#取消-Operation"><span class="nav-number">5.7.</span> <span class="nav-text">取消 Operation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GCD"><span class="nav-number">6.</span> <span class="nav-text">GCD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#任务和队列"><span class="nav-number">6.1.</span> <span class="nav-text">任务和队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建队列"><span class="nav-number">6.2.</span> <span class="nav-text">创建队列</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建串行队列"><span class="nav-number">6.2.1.</span> <span class="nav-text">创建串行队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建并发队列"><span class="nav-number">6.2.2.</span> <span class="nav-text">创建并发队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建主队列和全局队列"><span class="nav-number">6.2.3.</span> <span class="nav-text">创建主队列和全局队列</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QoS"><span class="nav-number">6.3.</span> <span class="nav-text">QoS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#After-延迟"><span class="nav-number">6.4.</span> <span class="nav-text">After 延迟</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程间通信-1"><span class="nav-number">6.5.</span> <span class="nav-text">线程间通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DispatchGroup"><span class="nav-number">6.6.</span> <span class="nav-text">DispatchGroup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DispatchBarrier"><span class="nav-number">6.7.</span> <span class="nav-text">DispatchBarrier</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Semaphore"><span class="nav-number">6.8.</span> <span class="nav-text">Semaphore</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本文-Demo"><span class="nav-number">7.</span> <span class="nav-text">本文 Demo</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
