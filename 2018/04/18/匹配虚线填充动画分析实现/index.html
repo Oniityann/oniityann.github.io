@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Animation,CALayer,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="设计师给了一个交互动画需要实现，是项目房间模块匹配中的一个交互动效：圆球随着实线转，实线填充虚线，圆球转到顶端开始减速，越过顶端开始加速，如图：   一开始会想如何去让一个圆球绕着圆心去转，难道是需要套什么数学公式么？思考了下，iOS 动画库中并没有这种操作，然后思考了一下上面的部件层级。 部件层级 一个外环圆，很好实现 外环圆包着内环虚线 一个做圆环动效的实线 一个固定的圆球 一个随圆环滚动的圆">
+<meta name="keywords" content="Animation,CALayer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="匹配虚线填充动画分析实现">
+<meta property="og:url" content="http://yoursite.com/2018/04/18/匹配虚线填充动画分析实现/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="设计师给了一个交互动画需要实现，是项目房间模块匹配中的一个交互动效：圆球随着实线转，实线填充虚线，圆球转到顶端开始减速，越过顶端开始加速，如图：   一开始会想如何去让一个圆球绕着圆心去转，难道是需要套什么数学公式么？思考了下，iOS 动画库中并没有这种操作，然后思考了一下上面的部件层级。 部件层级 一个外环圆，很好实现 外环圆包着内环虚线 一个做圆环动效的实线 一个固定的圆球 一个随圆环滚动的圆">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/circle1.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/circle2.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/circleLevel.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/CircleLevel2.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/CircleLevel3.png">
+<meta property="og:updated_time" content="2018-10-23T07:11:26.780Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="匹配虚线填充动画分析实现">
+<meta name="twitter:description" content="设计师给了一个交互动画需要实现，是项目房间模块匹配中的一个交互动效：圆球随着实线转，实线填充虚线，圆球转到顶端开始减速，越过顶端开始加速，如图：   一开始会想如何去让一个圆球绕着圆心去转，难道是需要套什么数学公式么？思考了下，iOS 动画库中并没有这种操作，然后思考了一下上面的部件层级。 部件层级 一个外环圆，很好实现 外环圆包着内环虚线 一个做圆环动效的实线 一个固定的圆球 一个随圆环滚动的圆">
+<meta name="twitter:image" content="http://oupcsiea7.bkt.clouddn.com/circle1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/18/匹配虚线填充动画分析实现/">
+
+
+
+
+
+  <title>匹配虚线填充动画分析实现 | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/18/匹配虚线填充动画分析实现/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">匹配虚线填充动画分析实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-18T14:16:05+08:00">
+                2018-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Core-Animation/" itemprop="url" rel="index">
+                    <span itemprop="name">Core Animation</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>设计师给了一个交互动画需要实现，是项目房间模块匹配中的一个交互动效：圆球随着实线转，实线填充虚线，圆球转到顶端开始减速，越过顶端开始加速，如图：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/circle1.png" alt="circle1"></p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/circle2.png" alt="circle2"></p>
+<p>一开始会想如何去让一个圆球绕着圆心去转，难道是需要套什么数学公式么？思考了下，iOS 动画库中并没有这种操作，然后思考了一下上面的部件层级。</p>
+<h2 id="部件层级"><a href="#部件层级" class="headerlink" title="部件层级"></a>部件层级</h2><ol>
+<li>一个外环圆，很好实现</li>
+<li>外环圆包着内环虚线</li>
+<li>一个做圆环动效的实线</li>
+<li>一个固定的圆球</li>
+<li>一个随圆环滚动的圆球</li>
+</ol>
+<h2 id="过程拆分"><a href="#过程拆分" class="headerlink" title="过程拆分"></a>过程拆分</h2><p>外环圆和内环虚线都非常好实现，第一反应就是 <code>CAShapeLayer</code> 去画各种图形，并且 ShapeLayer 在性能上是优化的。</p>
+<p>查了很久没看见有圆球绕着锚点做圆周运动的 API，于是我拿 Sketch 尝试分解了一下，如图所示：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/circleLevel.png" alt="circleLevel"></p>
+<p>如图所示，换了个思路，虽然没有圆球绕着锚点做圆周运动的 API，但是可以把它放在父 layer 上，然父 layer 围绕自己的圆心自转，那么这个圆球也就绕着圆心运动了。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>首先从最简单的开始</p>
+<h3 id="外圈大圆和内圈虚线圆环"><a href="#外圈大圆和内圈虚线圆环" class="headerlink" title="外圈大圆和内圈虚线圆环"></a>外圈大圆和内圈虚线圆环</h3><p>确定它们的贝塞尔曲线 path 直接绘制：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CGFloat</span> bigLayerWidth = <span class="keyword">self</span>.bounds.size.width;</span><br><span class="line"><span class="built_in">CGFloat</span> bigLayerHeight = <span class="keyword">self</span>.bounds.size.height;</span><br><span class="line"></span><br><span class="line"><span class="built_in">CGPoint</span> position = <span class="built_in">CGPointMake</span>(<span class="keyword">self</span>.bounds.size.width/<span class="number">2</span>, <span class="keyword">self</span>.bounds.size.height/<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">UIBezierPath</span> *bigLayerPath = [<span class="built_in">UIBezierPath</span> bezierPathWithOvalInRect:<span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, bigLayerWidth, bigLayerHeight)];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">_bigLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_bigLayer.frame = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, bigLayerWidth, bigLayerHeight);</span><br><span class="line">_bigLayer.path = bigLayerPath.CGPath;</span><br><span class="line">_bigLayer.lineWidth = <span class="number">1.</span>f;</span><br><span class="line">_bigLayer.strokeColor = Color(whiteColor).CGColor;</span><br><span class="line">_bigLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_bigLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_bigLayer];</span><br><span class="line"></span><br><span class="line"><span class="built_in">CGFloat</span> contentLayerWidth = bigLayerWidth - <span class="number">32</span>;</span><br><span class="line"><span class="built_in">CGFloat</span> contentLayerHeight = bigLayerHeight - <span class="number">32</span>;</span><br><span class="line"><span class="built_in">CGRect</span> contentLayerRect = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, contentLayerWidth, contentLayerHeight);</span><br><span class="line"></span><br><span class="line"><span class="built_in">UIBezierPath</span> *centralCirclePath = [<span class="built_in">UIBezierPath</span> bezierPathWithOvalInRect:contentLayerRect];</span><br><span class="line"></span><br><span class="line">_dashCircleLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dashCircleLayer.bounds = contentLayerRect;</span><br><span class="line">_dashCircleLayer.path = centralCirclePath.CGPath;</span><br><span class="line">_dashCircleLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_dashCircleLayer.strokeColor =Color(whiteColor).CGColor;</span><br><span class="line">_dashCircleLayer.lineDashPattern = @[@<span class="number">1</span>, @<span class="number">1</span>];</span><br><span class="line">_dashCircleLayer.lineWidth = <span class="number">0.5</span>f;</span><br><span class="line">_dashCircleLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_dashCircleLayer];</span><br></pre></td></tr></table></figure>
+<p>此时的效果如图所示：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/CircleLevel2.png" alt="CircleLevel2"></p>
+<h3 id="内圈动画层的绘制"><a href="#内圈动画层的绘制" class="headerlink" title="内圈动画层的绘制"></a>内圈动画层的绘制</h3><p>要画的有三个部分：</p>
+<ul>
+<li>需要旋转的圆环</li>
+<li>需要旋转的圆球父 layer</li>
+<li>需要旋转的圆球</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 要做动画的圆环</span></span><br><span class="line">_dynamicCircleLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dynamicCircleLayer.bounds = contentLayerRect;</span><br><span class="line">_dynamicCircleLayer.path = centralCirclePath.CGPath;</span><br><span class="line">_dynamicCircleLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_dynamicCircleLayer.lineWidth = <span class="number">1.0</span>f;</span><br><span class="line">_dynamicCircleLayer.strokeColor = Color(whiteColor).CGColor;</span><br><span class="line">_dynamicCircleLayer.strokeStart = <span class="number">0</span>;</span><br><span class="line">_dynamicCircleLayer.strokeEnd = <span class="number">1</span>;</span><br><span class="line">_dynamicCircleLayer.affineTransform = <span class="built_in">CGAffineTransformMakeRotation</span>(M_PI + M_PI_2);</span><br><span class="line">_dynamicCircleLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_dynamicCircleLayer];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 要做动画的父 layer</span></span><br><span class="line"><span class="built_in">UIBezierPath</span> *rectPath = [<span class="built_in">UIBezierPath</span> bezierPathWithRect:contentLayerRect];</span><br><span class="line">_dynamicContentLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dynamicContentLayer.bounds = contentLayerRect;</span><br><span class="line">_dynamicContentLayer.path = rectPath.CGPath;</span><br><span class="line">_dynamicContentLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_dynamicContentLayer.strokeColor= Color(redColor).CGColor;</span><br><span class="line">_dynamicContentLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_dynamicContentLayer];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父 layer 上的圆球</span></span><br><span class="line"><span class="built_in">CGFloat</span> ballLayerRadius = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">_dynamicBallLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dynamicBallLayer.frame = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span> * ballLayerRadius, <span class="number">2</span> * ballLayerRadius);</span><br><span class="line">_dynamicBallLayer.cornerRadius = ballLayerRadius;</span><br><span class="line">_dynamicBallLayer.backgroundColor = Color(whiteColor).CGColor;</span><br><span class="line">_dynamicBallLayer.position = <span class="built_in">CGPointMake</span>(contentLayerWidth / <span class="number">2.0</span>, <span class="number">0</span>);</span><br><span class="line">[_dynamicContentLayer addSublayer:_dynamicBallLayer];</span><br></pre></td></tr></table></figure>
+<p>此时效果如图所示：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/CircleLevel3.png" alt="CircleLevel3"></p>
+<h3 id="不动圆球的绘制"><a href="#不动圆球的绘制" class="headerlink" title="不动圆球的绘制"></a>不动圆球的绘制</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">_staticContentLayer = [<span class="type">CAShapeLayer</span> layer];</span><br><span class="line">_staticContentLayer.bounds = contentLayerRect;</span><br><span class="line">_staticContentLayer.fillColor = <span class="type">Color</span>(clearColor).<span class="type">CGColor</span>;</span><br><span class="line">_staticContentLayer.strokeColor= <span class="type">Color</span>(whiteColor).<span class="type">CGColor</span>;</span><br><span class="line">_staticContentLayer.position = position;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_staticContentLayer];</span><br><span class="line"></span><br><span class="line">_staticBallLayer = [<span class="type">CAShapeLayer</span> layer];</span><br><span class="line">_staticBallLayer.frame = <span class="type">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span> * ballLayerRadius, <span class="number">2</span> * ballLayerRadius);</span><br><span class="line">_staticBallLayer.cornerRadius = ballLayerRadius;</span><br><span class="line">_staticBallLayer.backgroundColor = <span class="type">Color</span>(whiteColor).<span class="type">CGColor</span>;</span><br><span class="line">_staticBallLayer.position = <span class="type">CGPointMake</span>(contentLayerWidth / <span class="number">2.0</span>, <span class="number">0</span>);</span><br><span class="line">[_staticContentLayer addSublayer:_staticBallLayer];</span><br></pre></td></tr></table></figure>
+<h3 id="隐藏圆球父试图开始动画"><a href="#隐藏圆球父试图开始动画" class="headerlink" title="隐藏圆球父试图开始动画"></a>隐藏圆球父试图开始动画</h3><p>重力加速度动画，如果使用系统的 dynamic 感应系统就太麻烦了，我选择用动画选项淡入淡出模拟：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)makeLayersAnimated &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 圆环动画</span></span><br><span class="line">    <span class="built_in">CABasicAnimation</span> *pathAnimation = [<span class="built_in">CABasicAnimation</span> animationWithKeyPath:<span class="string">@"strokeEnd"</span>];</span><br><span class="line">    pathAnimation.duration = <span class="number">3.0</span>f;</span><br><span class="line">    <span class="comment">// 模拟重力加速度动画</span></span><br><span class="line">    pathAnimation.timingFunction = [<span class="built_in">CAMediaTimingFunction</span> functionWithName:kCAMediaTimingFunctionEaseInEaseOut];</span><br><span class="line">    pathAnimation.fromValue = [<span class="built_in">NSNumber</span> numberWithFloat:<span class="number">0.00</span>f];</span><br><span class="line">    pathAnimation.toValue = [<span class="built_in">NSNumber</span> numberWithFloat:<span class="number">1.0</span>f];</span><br><span class="line">    pathAnimation.fillMode = kCAFillModeForwards;</span><br><span class="line">    pathAnimation.removedOnCompletion = <span class="literal">NO</span>;</span><br><span class="line">    pathAnimation.repeatCount = INFINITY;</span><br><span class="line">    [_dynamicCircleLayer addAnimation:pathAnimation forKey:<span class="string">@"strokeEndAnimation"</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 圆球动画</span></span><br><span class="line">    <span class="built_in">CABasicAnimation</span> *animation = [<span class="built_in">CABasicAnimation</span> animation];</span><br><span class="line">    animation.keyPath = <span class="string">@"transform.rotation"</span>;</span><br><span class="line">    animation.duration = <span class="number">3.0</span>f;</span><br><span class="line">    animation.repeatCount = INFINITY;</span><br><span class="line">    animation.byValue = @(M_PI * <span class="number">2</span>);</span><br><span class="line">    animation.timingFunction = [<span class="built_in">CAMediaTimingFunction</span> functionWithName:kCAMediaTimingFunctionEaseInEaseOut];;</span><br><span class="line">    [_dynamicContentLayer addAnimation:animation forKey:animation.keyPath];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后在父控制器的 View 上添加这个 matching view：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">CPMatchingView</span> *matchingView = [[<span class="type">CPMatchingView</span> alloc] initWithFrame:<span class="type">CGRectMake</span>(<span class="number">100</span>, <span class="number">100</span>, <span class="number">200</span>, <span class="number">200</span>)];</span><br><span class="line">[<span class="keyword">self</span>.view addSubview:matchingView];</span><br></pre></td></tr></table></figure>
+<h2 id="本文-Demo"><a href="#本文-Demo" class="headerlink" title="本文 Demo"></a>本文 Demo</h2><p><a href="https://github.com/Oniityann/iOS-Core-Animation-Demo" target="_blank" rel="noopener">Demo 地址</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Animation/" rel="tag"># Animation</a>
+          
+            <a href="/tags/CALayer/" rel="tag"># CALayer</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/浅谈-iOS-多线程/" rel="next" title="浅谈 iOS 多线程">
+                <i class="fa fa-chevron-left"></i> 浅谈 iOS 多线程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/20/数据结构与算法基础/" rel="prev" title="数据结构与算法基础">
+                数据结构与算法基础 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#部件层级"><span class="nav-number">1.</span> <span class="nav-text">部件层级</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过程拆分"><span class="nav-number">2.</span> <span class="nav-text">过程拆分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现"><span class="nav-number">3.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#外圈大圆和内圈虚线圆环"><span class="nav-number">3.1.</span> <span class="nav-text">外圈大圆和内圈虚线圆环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内圈动画层的绘制"><span class="nav-number">3.2.</span> <span class="nav-text">内圈动画层的绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不动圆球的绘制"><span class="nav-number">3.3.</span> <span class="nav-text">不动圆球的绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#隐藏圆球父试图开始动画"><span class="nav-number">3.4.</span> <span class="nav-text">隐藏圆球父试图开始动画</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本文-Demo"><span class="nav-number">4.</span> <span class="nav-text">本文 Demo</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

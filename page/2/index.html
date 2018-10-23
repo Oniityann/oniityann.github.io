@@ -249,6 +249,176 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/25/iOS-动态字体的实现/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/05/25/iOS-动态字体的实现/" itemprop="url">iOS 动态字体的实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-25T17:59:31+08:00">
+                2016-05-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/小技巧/" itemprop="url" rel="index">
+                    <span itemprop="name">小技巧</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h2><p>最近项目要求字体大小不能固定, 要追随系统设置, 先上效果图. 第一张, 系统最小字体, 第二张, 苹果最大字体.(注: 真机测试)<br><img src="http://oupcsiea7.bkt.clouddn.com/IMG_1169.png" alt="IMG_1169"><br><img src="http://oupcsiea7.bkt.clouddn.com/IMG_1170.png" alt="IMG_1170"></p>
+<hr>
+<h2 id="普通界面实现"><a href="#普通界面实现" class="headerlink" title="普通界面实现"></a>普通界面实现</h2><h3 id="preferredFontForTextStyle-方法"><a href="#preferredFontForTextStyle-方法" class="headerlink" title="preferredFontForTextStyle: 方法"></a>preferredFontForTextStyle: 方法</h3><blockquote>
+<p><code>preferredFontForTextStyle:</code>方法会根据用户首选字体和传入的文本样式返回对应的<code>UIFont</code>对象</p>
+</blockquote>
+<p>添加方法:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)setUpFonts &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// preferredFontForTextStyle 方法会根据用户首选字体和传入的文本样式返回对应的 UIFont 对象</span></span><br><span class="line">    <span class="built_in">UIFont</span> *font = [<span class="built_in">UIFont</span> preferredFontForTextStyle:<span class="built_in">UIFontTextStyleBody</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.nameLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.phoneLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.sexLabel.font = font;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.nameField.font = font;</span><br><span class="line">    <span class="keyword">self</span>.phoneField.font = font;</span><br><span class="line">    <span class="keyword">self</span>.sexField.font = font;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果是用 xib 拖的控件, 不要限定死控件的宽高, 然它们在 pin 菜单等宽即可. 如果限定死宽高, 文本会显示不全, 如图:</li>
+</ul>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2016-05-25 下午2.08.39.png" alt="屏幕快照 2016-05-25 下午2.08.39"></p>
+<p>然后在视图加载方法中调用此方法:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewWillAppear:(<span class="built_in">BOOL</span>)animated &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewWillAppear:animated];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpViewData];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpFonts];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时按下HOME键, 在通用-&gt;辅助功能-&gt;更大字体中改变系统显示字体大小. 切回程序, 发现这个视图里需要改变字体大小的控件的字体并没有改变, 这是因为程序并不知道系统更改字体, 我们需要注册一个监听事件告诉程序字体改变了.<br>注册监听:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注册观察者, 监听字体改变</span></span><br><span class="line">        [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></span><br><span class="line">                                                 selector:<span class="keyword">@selector</span>(setUpFonts)</span><br><span class="line">                                                     name:<span class="built_in">UIContentSizeCategoryDidChangeNotification</span></span><br><span class="line">                                                   object:<span class="literal">nil</span>];</span><br></pre></td></tr></table></figure>
+<p>其中<code>UIContentSizeCategoryDidChangeNotification</code>可以监听内容尺寸的变化<br>在<code>dealloc</code>方法中销毁观察者</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)dealloc &#123;</span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此, 重新运行程序, 重复上面的设置字体大小步骤, 字体发生效果图上的改变.</p>
+<hr>
+<h2 id="tableView-上改变字体"><a href="#tableView-上改变字体" class="headerlink" title="tableView 上改变字体"></a>tableView 上改变字体</h2><p>tableView上设置动态字体需要注意 rowHeight 也要动态随字体改变.</p>
+<h3 id="效果图-1"><a href="#效果图-1" class="headerlink" title="效果图"></a>效果图</h3><p>系统最小字体和最大字体<img src="http://oupcsiea7.bkt.clouddn.com/IMG_1173.png" alt="IMG_1173"></p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/IMG_1172.png" alt="IMG_1172"></p>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>首先, 我们需要更改cell内字体的显示<br>和普通界面方法一样, 直接上代码</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)dealloc &#123;</span><br><span class="line">    </span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setUpCellFont &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UIFont</span> *font = [<span class="built_in">UIFont</span> preferredFontForTextStyle:<span class="built_in">UIFontTextStyleBody</span>];</span><br><span class="line">    <span class="keyword">self</span>.nameLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.phoneLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.sexLabel.font = font;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</span><br><span class="line">    [<span class="keyword">super</span> awakeFromNib];</span><br><span class="line">    <span class="comment">// Initialization code</span></span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpCellFont];</span><br><span class="line">    </span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></span><br><span class="line">                                             selector:<span class="keyword">@selector</span>(setUpCellFont)</span><br><span class="line">                                                 name:<span class="built_in">UIContentSizeCategoryDidChangeNotification</span></span><br><span class="line">                                               object:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来, 我们需要根据字体来设置 rowHeight 属性</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)setUpTableViewFont &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">NSDictionary</span> *cellHeight;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!cellHeight) &#123;</span><br><span class="line">        </span><br><span class="line">        cellHeight = @&#123;<span class="built_in">UIContentSizeCategoryExtraSmall</span>: @<span class="number">44</span>,<span class="comment">// 没有 Accessibility 是普通字体的大小</span></span><br><span class="line">                       <span class="built_in">UIContentSizeCategorySmall</span>: @<span class="number">44</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryMedium</span>: @<span class="number">44</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryLarge</span>: @<span class="number">44</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryExtraLarge</span>: @<span class="number">55</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryExtraExtraLarge</span>: @<span class="number">65</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryExtraExtraExtraLarge</span>: @<span class="number">75</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityMedium</span>: @<span class="number">75</span>, <span class="comment">// 注意这个是更大字体的方法</span></span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityLarge</span>: @<span class="number">85</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityExtraLarge</span>: @<span class="number">95</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityExtraExtraLarge</span>: @<span class="number">105</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityExtraExtraExtraLarge</span>: @<span class="number">115</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Application 单例自带方法判断内容尺寸</span></span><br><span class="line">    <span class="built_in">NSString</span> *tableViewSize = [[<span class="built_in">UIApplication</span> sharedApplication] preferredContentSizeCategory];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 根据尺寸在 cellHeight 字典中选择相应的行高</span></span><br><span class="line">    <span class="built_in">NSNumber</span> *tableViewRowHeight = cellHeight[tableViewSize];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.tableView.rowHeight = tableViewRowHeight.floatValue;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span>.tableView reloadData];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>方法调用, 注册观察者, 销毁观察者:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)dealloc &#123;</span><br><span class="line">    </span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithStyle:(<span class="built_in">UITableViewStyle</span>)style &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithStyle:<span class="built_in">UITableViewStylePlain</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        </span><br><span class="line">        [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></span><br><span class="line">                                                 selector:<span class="keyword">@selector</span>(setUpTableViewFont)</span><br><span class="line">                                                     name:<span class="built_in">UIContentSizeCategoryDidChangeNotification</span></span><br><span class="line">                                                   object:<span class="literal">nil</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewWillAppear:(<span class="built_in">BOOL</span>)animated &#123;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">super</span> viewWillAppear:animated];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpTableViewFont];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>OK, 真机上运行程序, 调整字体大小<br>别的情况以此类推即可.</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/Core-Graphics-基本绘制操作/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -948,7 +1118,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -959,7 +1129,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -970,7 +1140,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

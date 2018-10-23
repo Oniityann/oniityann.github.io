@@ -1261,6 +1261,182 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/18/匹配虚线填充动画分析实现/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/18/匹配虚线填充动画分析实现/" itemprop="url">匹配虚线填充动画分析实现</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-18T14:16:05+08:00">
+                2018-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Core-Animation/" itemprop="url" rel="index">
+                    <span itemprop="name">Core Animation</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>设计师给了一个交互动画需要实现，是项目房间模块匹配中的一个交互动效：圆球随着实线转，实线填充虚线，圆球转到顶端开始减速，越过顶端开始加速，如图：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/circle1.png" alt="circle1"></p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/circle2.png" alt="circle2"></p>
+<p>一开始会想如何去让一个圆球绕着圆心去转，难道是需要套什么数学公式么？思考了下，iOS 动画库中并没有这种操作，然后思考了一下上面的部件层级。</p>
+<h2 id="部件层级"><a href="#部件层级" class="headerlink" title="部件层级"></a>部件层级</h2><ol>
+<li>一个外环圆，很好实现</li>
+<li>外环圆包着内环虚线</li>
+<li>一个做圆环动效的实线</li>
+<li>一个固定的圆球</li>
+<li>一个随圆环滚动的圆球</li>
+</ol>
+<h2 id="过程拆分"><a href="#过程拆分" class="headerlink" title="过程拆分"></a>过程拆分</h2><p>外环圆和内环虚线都非常好实现，第一反应就是 <code>CAShapeLayer</code> 去画各种图形，并且 ShapeLayer 在性能上是优化的。</p>
+<p>查了很久没看见有圆球绕着锚点做圆周运动的 API，于是我拿 Sketch 尝试分解了一下，如图所示：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/circleLevel.png" alt="circleLevel"></p>
+<p>如图所示，换了个思路，虽然没有圆球绕着锚点做圆周运动的 API，但是可以把它放在父 layer 上，然父 layer 围绕自己的圆心自转，那么这个圆球也就绕着圆心运动了。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><p>首先从最简单的开始</p>
+<h3 id="外圈大圆和内圈虚线圆环"><a href="#外圈大圆和内圈虚线圆环" class="headerlink" title="外圈大圆和内圈虚线圆环"></a>外圈大圆和内圈虚线圆环</h3><p>确定它们的贝塞尔曲线 path 直接绘制：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CGFloat</span> bigLayerWidth = <span class="keyword">self</span>.bounds.size.width;</span><br><span class="line"><span class="built_in">CGFloat</span> bigLayerHeight = <span class="keyword">self</span>.bounds.size.height;</span><br><span class="line"></span><br><span class="line"><span class="built_in">CGPoint</span> position = <span class="built_in">CGPointMake</span>(<span class="keyword">self</span>.bounds.size.width/<span class="number">2</span>, <span class="keyword">self</span>.bounds.size.height/<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">UIBezierPath</span> *bigLayerPath = [<span class="built_in">UIBezierPath</span> bezierPathWithOvalInRect:<span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, bigLayerWidth, bigLayerHeight)];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">_bigLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_bigLayer.frame = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, bigLayerWidth, bigLayerHeight);</span><br><span class="line">_bigLayer.path = bigLayerPath.CGPath;</span><br><span class="line">_bigLayer.lineWidth = <span class="number">1.</span>f;</span><br><span class="line">_bigLayer.strokeColor = Color(whiteColor).CGColor;</span><br><span class="line">_bigLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_bigLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_bigLayer];</span><br><span class="line"></span><br><span class="line"><span class="built_in">CGFloat</span> contentLayerWidth = bigLayerWidth - <span class="number">32</span>;</span><br><span class="line"><span class="built_in">CGFloat</span> contentLayerHeight = bigLayerHeight - <span class="number">32</span>;</span><br><span class="line"><span class="built_in">CGRect</span> contentLayerRect = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, contentLayerWidth, contentLayerHeight);</span><br><span class="line"></span><br><span class="line"><span class="built_in">UIBezierPath</span> *centralCirclePath = [<span class="built_in">UIBezierPath</span> bezierPathWithOvalInRect:contentLayerRect];</span><br><span class="line"></span><br><span class="line">_dashCircleLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dashCircleLayer.bounds = contentLayerRect;</span><br><span class="line">_dashCircleLayer.path = centralCirclePath.CGPath;</span><br><span class="line">_dashCircleLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_dashCircleLayer.strokeColor =Color(whiteColor).CGColor;</span><br><span class="line">_dashCircleLayer.lineDashPattern = @[@<span class="number">1</span>, @<span class="number">1</span>];</span><br><span class="line">_dashCircleLayer.lineWidth = <span class="number">0.5</span>f;</span><br><span class="line">_dashCircleLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_dashCircleLayer];</span><br></pre></td></tr></table></figure>
+<p>此时的效果如图所示：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/CircleLevel2.png" alt="CircleLevel2"></p>
+<h3 id="内圈动画层的绘制"><a href="#内圈动画层的绘制" class="headerlink" title="内圈动画层的绘制"></a>内圈动画层的绘制</h3><p>要画的有三个部分：</p>
+<ul>
+<li>需要旋转的圆环</li>
+<li>需要旋转的圆球父 layer</li>
+<li>需要旋转的圆球</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 要做动画的圆环</span></span><br><span class="line">_dynamicCircleLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dynamicCircleLayer.bounds = contentLayerRect;</span><br><span class="line">_dynamicCircleLayer.path = centralCirclePath.CGPath;</span><br><span class="line">_dynamicCircleLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_dynamicCircleLayer.lineWidth = <span class="number">1.0</span>f;</span><br><span class="line">_dynamicCircleLayer.strokeColor = Color(whiteColor).CGColor;</span><br><span class="line">_dynamicCircleLayer.strokeStart = <span class="number">0</span>;</span><br><span class="line">_dynamicCircleLayer.strokeEnd = <span class="number">1</span>;</span><br><span class="line">_dynamicCircleLayer.affineTransform = <span class="built_in">CGAffineTransformMakeRotation</span>(M_PI + M_PI_2);</span><br><span class="line">_dynamicCircleLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_dynamicCircleLayer];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 要做动画的父 layer</span></span><br><span class="line"><span class="built_in">UIBezierPath</span> *rectPath = [<span class="built_in">UIBezierPath</span> bezierPathWithRect:contentLayerRect];</span><br><span class="line">_dynamicContentLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dynamicContentLayer.bounds = contentLayerRect;</span><br><span class="line">_dynamicContentLayer.path = rectPath.CGPath;</span><br><span class="line">_dynamicContentLayer.fillColor = Color(clearColor).CGColor;</span><br><span class="line">_dynamicContentLayer.strokeColor= Color(redColor).CGColor;</span><br><span class="line">_dynamicContentLayer.position = position;</span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_dynamicContentLayer];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 父 layer 上的圆球</span></span><br><span class="line"><span class="built_in">CGFloat</span> ballLayerRadius = <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line">_dynamicBallLayer = [<span class="built_in">CAShapeLayer</span> layer];</span><br><span class="line">_dynamicBallLayer.frame = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span> * ballLayerRadius, <span class="number">2</span> * ballLayerRadius);</span><br><span class="line">_dynamicBallLayer.cornerRadius = ballLayerRadius;</span><br><span class="line">_dynamicBallLayer.backgroundColor = Color(whiteColor).CGColor;</span><br><span class="line">_dynamicBallLayer.position = <span class="built_in">CGPointMake</span>(contentLayerWidth / <span class="number">2.0</span>, <span class="number">0</span>);</span><br><span class="line">[_dynamicContentLayer addSublayer:_dynamicBallLayer];</span><br></pre></td></tr></table></figure>
+<p>此时效果如图所示：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/CircleLevel3.png" alt="CircleLevel3"></p>
+<h3 id="不动圆球的绘制"><a href="#不动圆球的绘制" class="headerlink" title="不动圆球的绘制"></a>不动圆球的绘制</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">_staticContentLayer = [<span class="type">CAShapeLayer</span> layer];</span><br><span class="line">_staticContentLayer.bounds = contentLayerRect;</span><br><span class="line">_staticContentLayer.fillColor = <span class="type">Color</span>(clearColor).<span class="type">CGColor</span>;</span><br><span class="line">_staticContentLayer.strokeColor= <span class="type">Color</span>(whiteColor).<span class="type">CGColor</span>;</span><br><span class="line">_staticContentLayer.position = position;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[<span class="keyword">self</span>.layer addSublayer:_staticContentLayer];</span><br><span class="line"></span><br><span class="line">_staticBallLayer = [<span class="type">CAShapeLayer</span> layer];</span><br><span class="line">_staticBallLayer.frame = <span class="type">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span> * ballLayerRadius, <span class="number">2</span> * ballLayerRadius);</span><br><span class="line">_staticBallLayer.cornerRadius = ballLayerRadius;</span><br><span class="line">_staticBallLayer.backgroundColor = <span class="type">Color</span>(whiteColor).<span class="type">CGColor</span>;</span><br><span class="line">_staticBallLayer.position = <span class="type">CGPointMake</span>(contentLayerWidth / <span class="number">2.0</span>, <span class="number">0</span>);</span><br><span class="line">[_staticContentLayer addSublayer:_staticBallLayer];</span><br></pre></td></tr></table></figure>
+<h3 id="隐藏圆球父试图开始动画"><a href="#隐藏圆球父试图开始动画" class="headerlink" title="隐藏圆球父试图开始动画"></a>隐藏圆球父试图开始动画</h3><p>重力加速度动画，如果使用系统的 dynamic 感应系统就太麻烦了，我选择用动画选项淡入淡出模拟：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)makeLayersAnimated &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 圆环动画</span></span><br><span class="line">    <span class="built_in">CABasicAnimation</span> *pathAnimation = [<span class="built_in">CABasicAnimation</span> animationWithKeyPath:<span class="string">@"strokeEnd"</span>];</span><br><span class="line">    pathAnimation.duration = <span class="number">3.0</span>f;</span><br><span class="line">    <span class="comment">// 模拟重力加速度动画</span></span><br><span class="line">    pathAnimation.timingFunction = [<span class="built_in">CAMediaTimingFunction</span> functionWithName:kCAMediaTimingFunctionEaseInEaseOut];</span><br><span class="line">    pathAnimation.fromValue = [<span class="built_in">NSNumber</span> numberWithFloat:<span class="number">0.00</span>f];</span><br><span class="line">    pathAnimation.toValue = [<span class="built_in">NSNumber</span> numberWithFloat:<span class="number">1.0</span>f];</span><br><span class="line">    pathAnimation.fillMode = kCAFillModeForwards;</span><br><span class="line">    pathAnimation.removedOnCompletion = <span class="literal">NO</span>;</span><br><span class="line">    pathAnimation.repeatCount = INFINITY;</span><br><span class="line">    [_dynamicCircleLayer addAnimation:pathAnimation forKey:<span class="string">@"strokeEndAnimation"</span>];</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 圆球动画</span></span><br><span class="line">    <span class="built_in">CABasicAnimation</span> *animation = [<span class="built_in">CABasicAnimation</span> animation];</span><br><span class="line">    animation.keyPath = <span class="string">@"transform.rotation"</span>;</span><br><span class="line">    animation.duration = <span class="number">3.0</span>f;</span><br><span class="line">    animation.repeatCount = INFINITY;</span><br><span class="line">    animation.byValue = @(M_PI * <span class="number">2</span>);</span><br><span class="line">    animation.timingFunction = [<span class="built_in">CAMediaTimingFunction</span> functionWithName:kCAMediaTimingFunctionEaseInEaseOut];;</span><br><span class="line">    [_dynamicContentLayer addAnimation:animation forKey:animation.keyPath];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后在父控制器的 View 上添加这个 matching view：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">CPMatchingView</span> *matchingView = [[<span class="type">CPMatchingView</span> alloc] initWithFrame:<span class="type">CGRectMake</span>(<span class="number">100</span>, <span class="number">100</span>, <span class="number">200</span>, <span class="number">200</span>)];</span><br><span class="line">[<span class="keyword">self</span>.view addSubview:matchingView];</span><br></pre></td></tr></table></figure>
+<h2 id="本文-Demo"><a href="#本文-Demo" class="headerlink" title="本文 Demo"></a>本文 Demo</h2><p><a href="https://github.com/Oniityann/iOS-Core-Animation-Demo" target="_blank" rel="noopener">Demo 地址</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/浅谈-iOS-多线程/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2455,176 +2631,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/25/iOS-动态字体的实现/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Yinan Zheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Oniityann">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/05/25/iOS-动态字体的实现/" itemprop="url">iOS 动态字体的实现</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-25T17:59:31+08:00">
-                2016-05-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/小技巧/" itemprop="url" rel="index">
-                    <span itemprop="name">小技巧</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h2><p>最近项目要求字体大小不能固定, 要追随系统设置, 先上效果图. 第一张, 系统最小字体, 第二张, 苹果最大字体.(注: 真机测试)<br><img src="http://oupcsiea7.bkt.clouddn.com/IMG_1169.png" alt="IMG_1169"><br><img src="http://oupcsiea7.bkt.clouddn.com/IMG_1170.png" alt="IMG_1170"></p>
-<hr>
-<h2 id="普通界面实现"><a href="#普通界面实现" class="headerlink" title="普通界面实现"></a>普通界面实现</h2><h3 id="preferredFontForTextStyle-方法"><a href="#preferredFontForTextStyle-方法" class="headerlink" title="preferredFontForTextStyle: 方法"></a>preferredFontForTextStyle: 方法</h3><blockquote>
-<p><code>preferredFontForTextStyle:</code>方法会根据用户首选字体和传入的文本样式返回对应的<code>UIFont</code>对象</p>
-</blockquote>
-<p>添加方法:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)setUpFonts &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// preferredFontForTextStyle 方法会根据用户首选字体和传入的文本样式返回对应的 UIFont 对象</span></span><br><span class="line">    <span class="built_in">UIFont</span> *font = [<span class="built_in">UIFont</span> preferredFontForTextStyle:<span class="built_in">UIFontTextStyleBody</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.nameLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.phoneLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.sexLabel.font = font;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.nameField.font = font;</span><br><span class="line">    <span class="keyword">self</span>.phoneField.font = font;</span><br><span class="line">    <span class="keyword">self</span>.sexField.font = font;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>如果是用 xib 拖的控件, 不要限定死控件的宽高, 然它们在 pin 菜单等宽即可. 如果限定死宽高, 文本会显示不全, 如图:</li>
-</ul>
-<p><img src="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2016-05-25 下午2.08.39.png" alt="屏幕快照 2016-05-25 下午2.08.39"></p>
-<p>然后在视图加载方法中调用此方法:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)viewWillAppear:(<span class="built_in">BOOL</span>)animated &#123;</span><br><span class="line">    [<span class="keyword">super</span> viewWillAppear:animated];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpViewData];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpFonts];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>此时按下HOME键, 在通用-&gt;辅助功能-&gt;更大字体中改变系统显示字体大小. 切回程序, 发现这个视图里需要改变字体大小的控件的字体并没有改变, 这是因为程序并不知道系统更改字体, 我们需要注册一个监听事件告诉程序字体改变了.<br>注册监听:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 注册观察者, 监听字体改变</span></span><br><span class="line">        [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></span><br><span class="line">                                                 selector:<span class="keyword">@selector</span>(setUpFonts)</span><br><span class="line">                                                     name:<span class="built_in">UIContentSizeCategoryDidChangeNotification</span></span><br><span class="line">                                                   object:<span class="literal">nil</span>];</span><br></pre></td></tr></table></figure>
-<p>其中<code>UIContentSizeCategoryDidChangeNotification</code>可以监听内容尺寸的变化<br>在<code>dealloc</code>方法中销毁观察者</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)dealloc &#123;</span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>至此, 重新运行程序, 重复上面的设置字体大小步骤, 字体发生效果图上的改变.</p>
-<hr>
-<h2 id="tableView-上改变字体"><a href="#tableView-上改变字体" class="headerlink" title="tableView 上改变字体"></a>tableView 上改变字体</h2><p>tableView上设置动态字体需要注意 rowHeight 也要动态随字体改变.</p>
-<h3 id="效果图-1"><a href="#效果图-1" class="headerlink" title="效果图"></a>效果图</h3><p>系统最小字体和最大字体<img src="http://oupcsiea7.bkt.clouddn.com/IMG_1173.png" alt="IMG_1173"></p>
-<p><img src="http://oupcsiea7.bkt.clouddn.com/IMG_1172.png" alt="IMG_1172"></p>
-<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>首先, 我们需要更改cell内字体的显示<br>和普通界面方法一样, 直接上代码</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)dealloc &#123;</span><br><span class="line">    </span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setUpCellFont &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UIFont</span> *font = [<span class="built_in">UIFont</span> preferredFontForTextStyle:<span class="built_in">UIFontTextStyleBody</span>];</span><br><span class="line">    <span class="keyword">self</span>.nameLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.phoneLabel.font = font;</span><br><span class="line">    <span class="keyword">self</span>.sexLabel.font = font;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)awakeFromNib &#123;</span><br><span class="line">    [<span class="keyword">super</span> awakeFromNib];</span><br><span class="line">    <span class="comment">// Initialization code</span></span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpCellFont];</span><br><span class="line">    </span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></span><br><span class="line">                                             selector:<span class="keyword">@selector</span>(setUpCellFont)</span><br><span class="line">                                                 name:<span class="built_in">UIContentSizeCategoryDidChangeNotification</span></span><br><span class="line">                                               object:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接下来, 我们需要根据字体来设置 rowHeight 属性</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)setUpTableViewFont &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">NSDictionary</span> *cellHeight;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!cellHeight) &#123;</span><br><span class="line">        </span><br><span class="line">        cellHeight = @&#123;<span class="built_in">UIContentSizeCategoryExtraSmall</span>: @<span class="number">44</span>,<span class="comment">// 没有 Accessibility 是普通字体的大小</span></span><br><span class="line">                       <span class="built_in">UIContentSizeCategorySmall</span>: @<span class="number">44</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryMedium</span>: @<span class="number">44</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryLarge</span>: @<span class="number">44</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryExtraLarge</span>: @<span class="number">55</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryExtraExtraLarge</span>: @<span class="number">65</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryExtraExtraExtraLarge</span>: @<span class="number">75</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityMedium</span>: @<span class="number">75</span>, <span class="comment">// 注意这个是更大字体的方法</span></span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityLarge</span>: @<span class="number">85</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityExtraLarge</span>: @<span class="number">95</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityExtraExtraLarge</span>: @<span class="number">105</span>,</span><br><span class="line">                       <span class="built_in">UIContentSizeCategoryAccessibilityExtraExtraExtraLarge</span>: @<span class="number">115</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Application 单例自带方法判断内容尺寸</span></span><br><span class="line">    <span class="built_in">NSString</span> *tableViewSize = [[<span class="built_in">UIApplication</span> sharedApplication] preferredContentSizeCategory];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 根据尺寸在 cellHeight 字典中选择相应的行高</span></span><br><span class="line">    <span class="built_in">NSNumber</span> *tableViewRowHeight = cellHeight[tableViewSize];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span>.tableView.rowHeight = tableViewRowHeight.floatValue;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span>.tableView reloadData];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>方法调用, 注册观察者, 销毁观察者:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)dealloc &#123;</span><br><span class="line">    </span><br><span class="line">    [[<span class="built_in">NSNotificationCenter</span> defaultCenter] removeObserver:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithStyle:(<span class="built_in">UITableViewStyle</span>)style &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithStyle:<span class="built_in">UITableViewStylePlain</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        </span><br><span class="line">        [[<span class="built_in">NSNotificationCenter</span> defaultCenter] addObserver:<span class="keyword">self</span></span><br><span class="line">                                                 selector:<span class="keyword">@selector</span>(setUpTableViewFont)</span><br><span class="line">                                                     name:<span class="built_in">UIContentSizeCategoryDidChangeNotification</span></span><br><span class="line">                                                   object:<span class="literal">nil</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)viewWillAppear:(<span class="built_in">BOOL</span>)animated &#123;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">super</span> viewWillAppear:animated];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> setUpTableViewFont];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>OK, 真机上运行程序, 调整字体大小<br>别的情况以此类推即可.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2675,7 +2681,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2686,7 +2692,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2697,7 +2703,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
