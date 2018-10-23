@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="WWDC,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Mach-OMach-O 文件是运行时可执行文件类型，包括：  可执行文件。Executable — Main binary for application. Dylib — Dynamic library.（aka DSO or DLL） Bundle — Dylib that can not be linked. 只能在运行时用 dlopen() 函数打开。 Images — Any exec">
+<meta name="keywords" content="WWDC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WWDC2016-Optimizing App Startup Time">
+<meta property="og:url" content="http://yoursite.com/2017/09/23/WWDC2016-Optimizing-App-Startup-Time/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="Mach-OMach-O 文件是运行时可执行文件类型，包括：  可执行文件。Executable — Main binary for application. Dylib — Dynamic library.（aka DSO or DLL） Bundle — Dylib that can not be linked. 只能在运行时用 dlopen() 函数打开。 Images — Any exec">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/wwdc2016-406_p_3.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/wwdc2016-406_p_5.png">
+<meta property="og:image" content="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2018-10-23 下午12.47.17.png">
+<meta property="og:updated_time" content="2018-10-23T05:34:24.585Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WWDC2016-Optimizing App Startup Time">
+<meta name="twitter:description" content="Mach-OMach-O 文件是运行时可执行文件类型，包括：  可执行文件。Executable — Main binary for application. Dylib — Dynamic library.（aka DSO or DLL） Bundle — Dylib that can not be linked. 只能在运行时用 dlopen() 函数打开。 Images — Any exec">
+<meta name="twitter:image" content="http://oupcsiea7.bkt.clouddn.com/wwdc2016-406_p_3.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/23/WWDC2016-Optimizing-App-Startup-Time/">
+
+
+
+
+
+  <title>WWDC2016-Optimizing App Startup Time | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/23/WWDC2016-Optimizing-App-Startup-Time/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WWDC2016-Optimizing App Startup Time</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-23T12:27:20+08:00">
+                2017-09-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Performance-Optimization/" itemprop="url" rel="index">
+                    <span itemprop="name">Performance Optimization</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Mach-O"><a href="#Mach-O" class="headerlink" title="Mach-O"></a>Mach-O</h2><p>Mach-O 文件是运行时可执行文件类型，包括：</p>
+<ul>
+<li>可执行文件。Executable — Main binary for application.</li>
+<li>Dylib — Dynamic library.（aka DSO or DLL）</li>
+<li>Bundle — Dylib that can not be linked. 只能在运行时用 <code>dlopen()</code> 函数打开。</li>
+<li>Images — Any executable dylib or bundle.</li>
+<li>Framework — Dylib with directory for resources and headers.</li>
+<li>图像格式：分成3段，每一段都是页面大小的倍数。</li>
+</ul>
+<p>页面大小由硬件决定，arm64处理器页面大小是16K，其他的是4K。</p>
+<ul>
+<li>通用文件：Universal Files</li>
+</ul>
+<p>假设你有一个Mach-O文件运行在64位(arm64)处理器的设备上，如果你想把它运行在32位(armv7s)的设备上，Xcode里会发生什么变化？</p>
+<p>答案是：会生成另一个单独的Mach-O文件。然后这两个文件合并生成第三个文件，这个文件就是通用文件。通用文件会有一个头文件，占一页大小。    </p>
+<h2 id="虚拟内存：Virtual-Memory"><a href="#虚拟内存：Virtual-Memory" class="headerlink" title="虚拟内存：Virtual Memory"></a>虚拟内存：Virtual Memory</h2><p>虚拟内存是间接层。当所有的进程存在时，OS 会使用间接层来管理物理内存。每一个进程都是一个逻辑地址空间，它们被映射到 RAM 的某个物理页面。</p>
+<ol>
+<li><code>Page fault</code>：如果一个虚拟内存不映射到任何物理内存，那么访问这个进程 时，就会产生页面错误，内核会停止该进程，并试图找出解决方案。</li>
+<li>多个进程可以共享同一块物理内存，进程共享。</li>
+<li><code>File backed pages</code>：基于文件的映射：不用把整个文件读入 RAM，而是调用 <code>mmap()</code> 函数告诉虚拟内存系统，我想把这个文件映射到进程里的这段地址。</li>
+<li><code>Copy-On-Write (COW)</code>：写入时复制。写入时复制所做的就是它积极地在所有进程里共享DATA页面，只要进程只读有共享内容的全局变量，但是一旦有进程想要写入其DATA页面，写入时复制开始。内核会把该页面复制，放入另一个物理RAM并重定向映射，所以该进程有了该页面的副本。</li>
+<li><code>Dirty vs. clean Pages</code>：脏页面和干净页面。上面的副本被认为是脏页面。脏页面是指含有进程特定信息。干净页面是指内核可以按照需要重新建立的页面，比如重新读取磁盘的时候。脏页面比干净页面昂贵得多。</li>
+</ol>
+<h2 id="exec-—-gt-main-的过程"><a href="#exec-—-gt-main-的过程" class="headerlink" title="exec() —&gt; main() 的过程"></a>exec() —&gt; main() 的过程</h2><ul>
+<li>exec() 是一个系统调用。当你进入一个内核，说：我想把这个进程换成这个新程序。然后内核会抹去整个地址来映射这个新的可执行程序。ASLR 会给它分配一个随机地址。下一步是从该随机地址回溯到 0 地址，把整个地址标记为不可访问：</li>
+</ul>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/wwdc2016-406_p_3.png" alt="wwdc2016-406_p_1"></p>
+<ul>
+<li>Kernal loads helper program</li>
+<li>Dyld (Dynamic loader)</li>
+<li>Executions starts in Dyld (aka LD.SO)</li>
+</ul>
+<p>当内核完成内存映射之后，就把指针指向Dyld，让Dyld来完成进程的启动。它的工作是加载所有依赖的Dylib，让它们准备好开始运行。其加载过程如下：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/wwdc2016-406_p_5.png" alt="wwdc2016-406_p_2"></p>
+<ul>
+<li><p>Load dylibs</p>
+<ul>
+<li>读取所有依赖的 Dylib。首先从内核中读取已经加载好的主可执行文件。在这个主可执行文件的 Header 中有所有依赖库的列表。然后打开和运行这些Dylib，验证它是不是一个 Mach-O 文件，找到它的编码签名，在内核里对它进行注册，在该 Dylib 的每一段调用 <code>mmap()</code> 函数。</li>
+<li>在加载每个 Dylib时，每个 Dylib 可能还依赖于另一个 Dylib，所以需要递归式的把它们一个一个找出来加载到内存。</li>
+</ul>
+</li>
+<li><p>DATA修复</p>
+<ul>
+<li>重设基址（Rebase）：遍历所有内部数据指针，然后为它们添加一个滑动值。这些指针在段里的位置都编码在__LINKEDIT段里。I/O比较多。</li>
+<li>绑定（Bind）：针对那些指向Dylib范围外的指针而言的。其计算复杂度比Rebase要高得多。</li>
+<li>ObjC：经过前两步之后，在ObjC运行时还需要一些额外的操作。在ObjC运行时，必须要维护一张表格，包含所有名称及其映射的类。每次加载的名称都将定义一个类，名称需要登记在一个全局表格里</li>
+</ul>
+</li>
+<li><p>Initializer</p>
+</li>
+<li>跳转到main()函数</li>
+</ul>
+<h2 id="启动时间优化"><a href="#启动时间优化" class="headerlink" title="启动时间优化"></a>启动时间优化</h2><p>经过上面的总结：<br>理论上 App 的启动时间是由 main() 函数之前的加载时间（t1）和 main() 函数之后的加载时间（t2）。</p>
+<h3 id="t1-时间优化"><a href="#t1-时间优化" class="headerlink" title="t1 时间优化"></a>t1 时间优化</h3><h4 id="加入-DYLD-PRINT-STATISTICS-分析-App-启动日志"><a href="#加入-DYLD-PRINT-STATISTICS-分析-App-启动日志" class="headerlink" title="加入 DYLD_PRINT_STATISTICS 分析 App 启动日志"></a>加入 DYLD_PRINT_STATISTICS 分析 App 启动日志</h4><p><img src="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2018-10-23 下午12.47.17.png" alt="屏幕快照 2018-10-23 下午12.47.17"></p>
+<p>在环境变量中添加 <code>DYLD_PRINT_STATISTICS</code> 就可以在控制台看见自己 App 的启动时间输出。</p>
+<h4 id="优化方向"><a href="#优化方向" class="headerlink" title="优化方向"></a>优化方向</h4><ol>
+<li><p>根据上文的总结，首先就是需要减少动态库的加载，构建OS时，会预计算大量的dylib数据，但是始终无法全部预算。</p>
+</li>
+<li><p>减少 rebase/binding time。时间都花费在修复__DATA里的指针。所以方法就是减少需要修复的指针。</p>
+</li>
+<li><p>减少ObjC类对象和ivars的数量。</p>
+</li>
+<li><p>使用Swift语言 ：Swift 通常用的数据要少一些。而且 Swift 更为内联，可以更好地使用 code-gen 减少消耗。</p>
+</li>
+<li><p>使用 initialize 方法替换 load 方法。</p>
+<ul>
+<li>显示的初始化器：<code>ObjC +load()</code> 方法。如果你是用的话最好换成 <code>+initialize()</code> 方法，但是这种显示的初始化器最好换成点初始化器：dispatch_once() 或者 pthread_once() 或者 std::once()。</li>
+<li>隐式初始化器：大部分来自 C++ 的全局变量，带有非默认的初始化器，非默认的构造函数。这里可以用前面提到的点初始化器替代，或者把全局的换成非全局的结构或者指针，指向想要初始化的对象。或者 Only set simple values (PODs)。或者用 Swift 重新编写，Swift 的全局变量可以在使用前确保被初始化，其本质还是在后台调用了点初始化器。</li>
+</ul>
+</li>
+</ol>
+<h3 id="t2-时间优化"><a href="#t2-时间优化" class="headerlink" title="t2 时间优化"></a>t2 时间优化</h3><p>在 <code>main()</code> 被调用过后，App 主要所做的是一些初始化工作和首页显示。</p>
+<p>首先的显示主要包含四个方面：</p>
+<ul>
+<li>图片的解码</li>
+<li>控件的布局</li>
+<li>控件的绘制</li>
+<li>网络请求</li>
+</ul>
+<p>初始化主要是：</p>
+<ul>
+<li>加载 UserDefault 产生的 plist 文件</li>
+<li><code>didFinishLaunching</code> 中的配置代码</li>
+</ul>
+<h4 id="优化方向-1"><a href="#优化方向-1" class="headerlink" title="优化方向"></a>优化方向</h4><ol>
+<li>使用纯代码代替 nib 加载首页视图</li>
+<li>在控件布局周期中打点观察，特别是 <code>viewDidLoad</code> 和 <code>viewWillAppear</code> 这两个操作</li>
+<li>减少 Log</li>
+<li>梳理启动的网络请求，评估是否可以在</li>
+<li>延迟加载 <code>didFinishLaunching</code> 中的某些配置代码</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/WWDC/" rel="tag"># WWDC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/21/WebView-长按识别二维码和点击查看大图/" rel="next" title="WebView 长按识别二维码和点击查看大图">
+                <i class="fa fa-chevron-left"></i> WebView 长按识别二维码和点击查看大图
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/21/浅谈-iOS-多线程/" rel="prev" title="浅谈 iOS 多线程">
+                浅谈 iOS 多线程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mach-O"><span class="nav-number">1.</span> <span class="nav-text">Mach-O</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#虚拟内存：Virtual-Memory"><span class="nav-number">2.</span> <span class="nav-text">虚拟内存：Virtual Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#exec-—-gt-main-的过程"><span class="nav-number">3.</span> <span class="nav-text">exec() —&gt; main() 的过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启动时间优化"><span class="nav-number">4.</span> <span class="nav-text">启动时间优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#t1-时间优化"><span class="nav-number">4.1.</span> <span class="nav-text">t1 时间优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#加入-DYLD-PRINT-STATISTICS-分析-App-启动日志"><span class="nav-number">4.1.1.</span> <span class="nav-text">加入 DYLD_PRINT_STATISTICS 分析 App 启动日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#优化方向"><span class="nav-number">4.1.2.</span> <span class="nav-text">优化方向</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#t2-时间优化"><span class="nav-number">4.2.</span> <span class="nav-text">t2 时间优化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#优化方向-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">优化方向</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

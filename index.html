@@ -1563,6 +1563,238 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/23/WWDC2016-Optimizing-App-Startup-Time/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/09/23/WWDC2016-Optimizing-App-Startup-Time/" itemprop="url">WWDC2016-Optimizing App Startup Time</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-23T12:27:20+08:00">
+                2017-09-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Performance-Optimization/" itemprop="url" rel="index">
+                    <span itemprop="name">Performance Optimization</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Mach-O"><a href="#Mach-O" class="headerlink" title="Mach-O"></a>Mach-O</h2><p>Mach-O 文件是运行时可执行文件类型，包括：</p>
+<ul>
+<li>可执行文件。Executable — Main binary for application.</li>
+<li>Dylib — Dynamic library.（aka DSO or DLL）</li>
+<li>Bundle — Dylib that can not be linked. 只能在运行时用 <code>dlopen()</code> 函数打开。</li>
+<li>Images — Any executable dylib or bundle.</li>
+<li>Framework — Dylib with directory for resources and headers.</li>
+<li>图像格式：分成3段，每一段都是页面大小的倍数。</li>
+</ul>
+<p>页面大小由硬件决定，arm64处理器页面大小是16K，其他的是4K。</p>
+<ul>
+<li>通用文件：Universal Files</li>
+</ul>
+<p>假设你有一个Mach-O文件运行在64位(arm64)处理器的设备上，如果你想把它运行在32位(armv7s)的设备上，Xcode里会发生什么变化？</p>
+<p>答案是：会生成另一个单独的Mach-O文件。然后这两个文件合并生成第三个文件，这个文件就是通用文件。通用文件会有一个头文件，占一页大小。    </p>
+<h2 id="虚拟内存：Virtual-Memory"><a href="#虚拟内存：Virtual-Memory" class="headerlink" title="虚拟内存：Virtual Memory"></a>虚拟内存：Virtual Memory</h2><p>虚拟内存是间接层。当所有的进程存在时，OS 会使用间接层来管理物理内存。每一个进程都是一个逻辑地址空间，它们被映射到 RAM 的某个物理页面。</p>
+<ol>
+<li><code>Page fault</code>：如果一个虚拟内存不映射到任何物理内存，那么访问这个进程 时，就会产生页面错误，内核会停止该进程，并试图找出解决方案。</li>
+<li>多个进程可以共享同一块物理内存，进程共享。</li>
+<li><code>File backed pages</code>：基于文件的映射：不用把整个文件读入 RAM，而是调用 <code>mmap()</code> 函数告诉虚拟内存系统，我想把这个文件映射到进程里的这段地址。</li>
+<li><code>Copy-On-Write (COW)</code>：写入时复制。写入时复制所做的就是它积极地在所有进程里共享DATA页面，只要进程只读有共享内容的全局变量，但是一旦有进程想要写入其DATA页面，写入时复制开始。内核会把该页面复制，放入另一个物理RAM并重定向映射，所以该进程有了该页面的副本。</li>
+<li><code>Dirty vs. clean Pages</code>：脏页面和干净页面。上面的副本被认为是脏页面。脏页面是指含有进程特定信息。干净页面是指内核可以按照需要重新建立的页面，比如重新读取磁盘的时候。脏页面比干净页面昂贵得多。</li>
+</ol>
+<h2 id="exec-—-gt-main-的过程"><a href="#exec-—-gt-main-的过程" class="headerlink" title="exec() —&gt; main() 的过程"></a>exec() —&gt; main() 的过程</h2><ul>
+<li>exec() 是一个系统调用。当你进入一个内核，说：我想把这个进程换成这个新程序。然后内核会抹去整个地址来映射这个新的可执行程序。ASLR 会给它分配一个随机地址。下一步是从该随机地址回溯到 0 地址，把整个地址标记为不可访问：</li>
+</ul>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/wwdc2016-406_p_3.png" alt="wwdc2016-406_p_1"></p>
+<ul>
+<li>Kernal loads helper program</li>
+<li>Dyld (Dynamic loader)</li>
+<li>Executions starts in Dyld (aka LD.SO)</li>
+</ul>
+<p>当内核完成内存映射之后，就把指针指向Dyld，让Dyld来完成进程的启动。它的工作是加载所有依赖的Dylib，让它们准备好开始运行。其加载过程如下：</p>
+<p><img src="http://oupcsiea7.bkt.clouddn.com/wwdc2016-406_p_5.png" alt="wwdc2016-406_p_2"></p>
+<ul>
+<li><p>Load dylibs</p>
+<ul>
+<li>读取所有依赖的 Dylib。首先从内核中读取已经加载好的主可执行文件。在这个主可执行文件的 Header 中有所有依赖库的列表。然后打开和运行这些Dylib，验证它是不是一个 Mach-O 文件，找到它的编码签名，在内核里对它进行注册，在该 Dylib 的每一段调用 <code>mmap()</code> 函数。</li>
+<li>在加载每个 Dylib时，每个 Dylib 可能还依赖于另一个 Dylib，所以需要递归式的把它们一个一个找出来加载到内存。</li>
+</ul>
+</li>
+<li><p>DATA修复</p>
+<ul>
+<li>重设基址（Rebase）：遍历所有内部数据指针，然后为它们添加一个滑动值。这些指针在段里的位置都编码在__LINKEDIT段里。I/O比较多。</li>
+<li>绑定（Bind）：针对那些指向Dylib范围外的指针而言的。其计算复杂度比Rebase要高得多。</li>
+<li>ObjC：经过前两步之后，在ObjC运行时还需要一些额外的操作。在ObjC运行时，必须要维护一张表格，包含所有名称及其映射的类。每次加载的名称都将定义一个类，名称需要登记在一个全局表格里</li>
+</ul>
+</li>
+<li><p>Initializer</p>
+</li>
+<li>跳转到main()函数</li>
+</ul>
+<h2 id="启动时间优化"><a href="#启动时间优化" class="headerlink" title="启动时间优化"></a>启动时间优化</h2><p>经过上面的总结：<br>理论上 App 的启动时间是由 main() 函数之前的加载时间（t1）和 main() 函数之后的加载时间（t2）。</p>
+<h3 id="t1-时间优化"><a href="#t1-时间优化" class="headerlink" title="t1 时间优化"></a>t1 时间优化</h3><h4 id="加入-DYLD-PRINT-STATISTICS-分析-App-启动日志"><a href="#加入-DYLD-PRINT-STATISTICS-分析-App-启动日志" class="headerlink" title="加入 DYLD_PRINT_STATISTICS 分析 App 启动日志"></a>加入 DYLD_PRINT_STATISTICS 分析 App 启动日志</h4><p><img src="http://oupcsiea7.bkt.clouddn.com/屏幕快照 2018-10-23 下午12.47.17.png" alt="屏幕快照 2018-10-23 下午12.47.17"></p>
+<p>在环境变量中添加 <code>DYLD_PRINT_STATISTICS</code> 就可以在控制台看见自己 App 的启动时间输出。</p>
+<h4 id="优化方向"><a href="#优化方向" class="headerlink" title="优化方向"></a>优化方向</h4><ol>
+<li><p>根据上文的总结，首先就是需要减少动态库的加载，构建OS时，会预计算大量的dylib数据，但是始终无法全部预算。</p>
+</li>
+<li><p>减少 rebase/binding time。时间都花费在修复__DATA里的指针。所以方法就是减少需要修复的指针。</p>
+</li>
+<li><p>减少ObjC类对象和ivars的数量。</p>
+</li>
+<li><p>使用Swift语言 ：Swift 通常用的数据要少一些。而且 Swift 更为内联，可以更好地使用 code-gen 减少消耗。</p>
+</li>
+<li><p>使用 initialize 方法替换 load 方法。</p>
+<ul>
+<li>显示的初始化器：<code>ObjC +load()</code> 方法。如果你是用的话最好换成 <code>+initialize()</code> 方法，但是这种显示的初始化器最好换成点初始化器：dispatch_once() 或者 pthread_once() 或者 std::once()。</li>
+<li>隐式初始化器：大部分来自 C++ 的全局变量，带有非默认的初始化器，非默认的构造函数。这里可以用前面提到的点初始化器替代，或者把全局的换成非全局的结构或者指针，指向想要初始化的对象。或者 Only set simple values (PODs)。或者用 Swift 重新编写，Swift 的全局变量可以在使用前确保被初始化，其本质还是在后台调用了点初始化器。</li>
+</ul>
+</li>
+</ol>
+<h3 id="t2-时间优化"><a href="#t2-时间优化" class="headerlink" title="t2 时间优化"></a>t2 时间优化</h3><p>在 <code>main()</code> 被调用过后，App 主要所做的是一些初始化工作和首页显示。</p>
+<p>首先的显示主要包含四个方面：</p>
+<ul>
+<li>图片的解码</li>
+<li>控件的布局</li>
+<li>控件的绘制</li>
+<li>网络请求</li>
+</ul>
+<p>初始化主要是：</p>
+<ul>
+<li>加载 UserDefault 产生的 plist 文件</li>
+<li><code>didFinishLaunching</code> 中的配置代码</li>
+</ul>
+<h4 id="优化方向-1"><a href="#优化方向-1" class="headerlink" title="优化方向"></a>优化方向</h4><ol>
+<li>使用纯代码代替 nib 加载首页视图</li>
+<li>在控件布局周期中打点观察，特别是 <code>viewDidLoad</code> 和 <code>viewWillAppear</code> 这两个操作</li>
+<li>减少 Log</li>
+<li>梳理启动的网络请求，评估是否可以在</li>
+<li>延迟加载 <code>didFinishLaunching</code> 中的某些配置代码</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/21/WebView-长按识别二维码和点击查看大图/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -2393,195 +2625,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/Core-Graphics-基本绘制操作/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Yinan Zheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Oniityann">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/05/21/Core-Graphics-基本绘制操作/" itemprop="url">Core Graphics 基本绘制操作</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-21T12:29:02+08:00">
-                2016-05-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Core-Graphics/" itemprop="url" rel="index">
-                    <span itemprop="name">Core Graphics</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Core-Graphics-vs-UIKit"><a href="#Core-Graphics-vs-UIKit" class="headerlink" title="Core Graphics vs. UIKit"></a>Core Graphics vs. UIKit</h2><table>
-<thead>
-<tr>
-<th>Core Graphics</th>
-<th>UIKit</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>基于 C 的 API</td>
-<td>UIBezierPath 类</td>
-</tr>
-<tr>
-<td>面向过程</td>
-<td>面向对象</td>
-</tr>
-<tr>
-<td>UIKit 绘制的基石</td>
-<td>构建在 Core Graphics 之上</td>
-</tr>
-<tr>
-<td>可以通过参数接收 Context 绘制</td>
-<td>只能基于当前 Context 绘制</td>
-</tr>
-</tbody>
-</table>
-<h2 id="坐标系"><a href="#坐标系" class="headerlink" title="坐标系"></a>坐标系</h2><blockquote>
-<p>UIKit 坐标系和数学坐标系相反<br>Core Graphics 默认坐标系和数学坐标系一样<br>一般基于 UIKit 坐标系进行绘制</p>
-</blockquote>
-<p>坐标系转换:</p>
-<p>Swift:</p>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">context?.translateBy(x: <span class="number">0</span>, y: bounds.height)</span><br><span class="line">context?.scaleBy(x: <span class="number">1.0</span>, y: -<span class="number">1.0</span>)</span><br></pre></td></tr></table></figure>
-<p>OC:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CGContextTranslateCTM</span>(context, <span class="number">0</span>, bounds.size.height)</span><br><span class="line"><span class="built_in">CGContextScaleCTM</span>(context, <span class="number">1.0</span>, <span class="number">-1.0</span>)</span><br></pre></td></tr></table></figure>
-<h2 id="绘制过程"><a href="#绘制过程" class="headerlink" title="绘制过程"></a>绘制过程</h2><blockquote>
-<ol>
-<li>获取上下文</li>
-<li>设置区域</li>
-<li>绘制所需图形</li>
-<li>设置填充或线条颜色</li>
-<li>填充或绘制线条</li>
-</ol>
-</blockquote>
-<h2 id="绘制代码"><a href="#绘制代码" class="headerlink" title="绘制代码"></a>绘制代码</h2><h3 id="椭圆形"><a href="#椭圆形" class="headerlink" title="椭圆形"></a>椭圆形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeEllipse</span><span class="params">(<span class="number">_</span> context: CGContext?, <span class="number">_</span> rect: CGRect)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 获取图形上下文</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> rectangle = <span class="type">CGRect</span>(x: <span class="number">20</span>, y: <span class="number">30</span>, width: <span class="number">280</span>, height: <span class="number">260</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加椭圆</span></span><br><span class="line">    context?.addEllipse(<span class="keyword">in</span>: rectangle)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置填充颜色</span></span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.orange.cgColor)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 填充路径</span></span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="圆形和空心圆"><a href="#圆形和空心圆" class="headerlink" title="圆形和空心圆"></a>圆形和空心圆</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawCircle</span><span class="params">(<span class="number">_</span> context: CGContext?, at point: CGPoint)</span></span> &#123;</span><br><span class="line">    <span class="keyword">let</span> context = <span class="type">UIGraphicsGetCurrentContext</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> radius: <span class="type">CGFloat</span> = <span class="number">20.0</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制圆</span></span><br><span class="line">    context?.addArc(center: point, radius: radius, startAngle: <span class="number">0</span>, endAngle: <span class="type">CGFloat</span>(<span class="type">Double</span>.pi * <span class="number">2</span>), clockwise: <span class="literal">true</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置线条宽度颜色</span></span><br><span class="line">    context?.setStrokeColor(<span class="type">UIColor</span>.blue.cgColor)</span><br><span class="line">    context?.setLineWidth(<span class="number">3.0</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制空心圆</span></span><br><span class="line">    context?.strokePath()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制小圆形</span></span><br><span class="line">    context?.addArc(center: point, radius: radius/<span class="number">2</span>, startAngle: <span class="number">0</span>, endAngle: <span class="type">CGFloat</span>(<span class="type">Double</span>.pi * <span class="number">2</span>), clockwise: <span class="literal">false</span>)</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.blue.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="三角形"><a href="#三角形" class="headerlink" title="三角形"></a>三角形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawTriangle</span><span class="params">(<span class="number">_</span> context: CGContext?)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 创建一个新的路径</span></span><br><span class="line">    context?.beginPath()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加起始点</span></span><br><span class="line">    context?.move(to: <span class="type">CGPoint</span>(x: <span class="number">160</span>, y: <span class="number">140</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加线条</span></span><br><span class="line">    context?.addLine(to: <span class="type">CGPoint</span>(x: <span class="number">190</span>, y: <span class="number">190</span>))</span><br><span class="line">    context?.addLine(to: <span class="type">CGPoint</span>(x: <span class="number">130</span>, y: <span class="number">190</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 关闭并终止当前路径的子路径</span></span><br><span class="line">    context?.closePath()</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.brown.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="矩形"><a href="#矩形" class="headerlink" title="矩形"></a>矩形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawRectangle</span><span class="params">(<span class="number">_</span> context: CGContext?)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> rectangle = <span class="type">CGRect</span>(x: <span class="number">100</span>, y: <span class="number">225</span>, width: <span class="number">120</span>, height: <span class="number">15</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加矩形路径</span></span><br><span class="line">    context?.addRect(rectangle)</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.red.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong><a href="https://zh.wikipedia.org/wiki/%E8%B2%9D%E8%8C%B2%E6%9B%B2%E7%B7%9A" target="_blank" rel="noopener">贝塞尔曲线参考</a></strong></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2632,7 +2675,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2643,7 +2686,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -2654,7 +2697,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

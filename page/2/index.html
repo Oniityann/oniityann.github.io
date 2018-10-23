@@ -249,6 +249,195 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/21/Core-Graphics-基本绘制操作/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/05/21/Core-Graphics-基本绘制操作/" itemprop="url">Core Graphics 基本绘制操作</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-21T12:29:02+08:00">
+                2016-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Core-Graphics/" itemprop="url" rel="index">
+                    <span itemprop="name">Core Graphics</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Core-Graphics-vs-UIKit"><a href="#Core-Graphics-vs-UIKit" class="headerlink" title="Core Graphics vs. UIKit"></a>Core Graphics vs. UIKit</h2><table>
+<thead>
+<tr>
+<th>Core Graphics</th>
+<th>UIKit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基于 C 的 API</td>
+<td>UIBezierPath 类</td>
+</tr>
+<tr>
+<td>面向过程</td>
+<td>面向对象</td>
+</tr>
+<tr>
+<td>UIKit 绘制的基石</td>
+<td>构建在 Core Graphics 之上</td>
+</tr>
+<tr>
+<td>可以通过参数接收 Context 绘制</td>
+<td>只能基于当前 Context 绘制</td>
+</tr>
+</tbody>
+</table>
+<h2 id="坐标系"><a href="#坐标系" class="headerlink" title="坐标系"></a>坐标系</h2><blockquote>
+<p>UIKit 坐标系和数学坐标系相反<br>Core Graphics 默认坐标系和数学坐标系一样<br>一般基于 UIKit 坐标系进行绘制</p>
+</blockquote>
+<p>坐标系转换:</p>
+<p>Swift:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">context?.translateBy(x: <span class="number">0</span>, y: bounds.height)</span><br><span class="line">context?.scaleBy(x: <span class="number">1.0</span>, y: -<span class="number">1.0</span>)</span><br></pre></td></tr></table></figure>
+<p>OC:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CGContextTranslateCTM</span>(context, <span class="number">0</span>, bounds.size.height)</span><br><span class="line"><span class="built_in">CGContextScaleCTM</span>(context, <span class="number">1.0</span>, <span class="number">-1.0</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="绘制过程"><a href="#绘制过程" class="headerlink" title="绘制过程"></a>绘制过程</h2><blockquote>
+<ol>
+<li>获取上下文</li>
+<li>设置区域</li>
+<li>绘制所需图形</li>
+<li>设置填充或线条颜色</li>
+<li>填充或绘制线条</li>
+</ol>
+</blockquote>
+<h2 id="绘制代码"><a href="#绘制代码" class="headerlink" title="绘制代码"></a>绘制代码</h2><h3 id="椭圆形"><a href="#椭圆形" class="headerlink" title="椭圆形"></a>椭圆形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makeEllipse</span><span class="params">(<span class="number">_</span> context: CGContext?, <span class="number">_</span> rect: CGRect)</span></span> &#123;</span><br><span class="line">    <span class="comment">// 获取图形上下文</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> rectangle = <span class="type">CGRect</span>(x: <span class="number">20</span>, y: <span class="number">30</span>, width: <span class="number">280</span>, height: <span class="number">260</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加椭圆</span></span><br><span class="line">    context?.addEllipse(<span class="keyword">in</span>: rectangle)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置填充颜色</span></span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.orange.cgColor)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 填充路径</span></span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="圆形和空心圆"><a href="#圆形和空心圆" class="headerlink" title="圆形和空心圆"></a>圆形和空心圆</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawCircle</span><span class="params">(<span class="number">_</span> context: CGContext?, at point: CGPoint)</span></span> &#123;</span><br><span class="line">    <span class="keyword">let</span> context = <span class="type">UIGraphicsGetCurrentContext</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> radius: <span class="type">CGFloat</span> = <span class="number">20.0</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制圆</span></span><br><span class="line">    context?.addArc(center: point, radius: radius, startAngle: <span class="number">0</span>, endAngle: <span class="type">CGFloat</span>(<span class="type">Double</span>.pi * <span class="number">2</span>), clockwise: <span class="literal">true</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 设置线条宽度颜色</span></span><br><span class="line">    context?.setStrokeColor(<span class="type">UIColor</span>.blue.cgColor)</span><br><span class="line">    context?.setLineWidth(<span class="number">3.0</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制空心圆</span></span><br><span class="line">    context?.strokePath()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 绘制小圆形</span></span><br><span class="line">    context?.addArc(center: point, radius: radius/<span class="number">2</span>, startAngle: <span class="number">0</span>, endAngle: <span class="type">CGFloat</span>(<span class="type">Double</span>.pi * <span class="number">2</span>), clockwise: <span class="literal">false</span>)</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.blue.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="三角形"><a href="#三角形" class="headerlink" title="三角形"></a>三角形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawTriangle</span><span class="params">(<span class="number">_</span> context: CGContext?)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 创建一个新的路径</span></span><br><span class="line">    context?.beginPath()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加起始点</span></span><br><span class="line">    context?.move(to: <span class="type">CGPoint</span>(x: <span class="number">160</span>, y: <span class="number">140</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加线条</span></span><br><span class="line">    context?.addLine(to: <span class="type">CGPoint</span>(x: <span class="number">190</span>, y: <span class="number">190</span>))</span><br><span class="line">    context?.addLine(to: <span class="type">CGPoint</span>(x: <span class="number">130</span>, y: <span class="number">190</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 关闭并终止当前路径的子路径</span></span><br><span class="line">    context?.closePath()</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.brown.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="矩形"><a href="#矩形" class="headerlink" title="矩形"></a>矩形</h3><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawRectangle</span><span class="params">(<span class="number">_</span> context: CGContext?)</span></span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> rectangle = <span class="type">CGRect</span>(x: <span class="number">100</span>, y: <span class="number">225</span>, width: <span class="number">120</span>, height: <span class="number">15</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 添加矩形路径</span></span><br><span class="line">    context?.addRect(rectangle)</span><br><span class="line">    </span><br><span class="line">    context?.setFillColor(<span class="type">UIColor</span>.red.cgColor)</span><br><span class="line">    </span><br><span class="line">    context?.fillPath()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong><a href="https://zh.wikipedia.org/wiki/%E8%B2%9D%E8%8C%B2%E6%9B%B2%E7%B7%9A" target="_blank" rel="noopener">贝塞尔曲线参考</a></strong></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/03/14/用-NSCalendar-处理类似微博发帖时间并封装/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -759,7 +948,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -770,7 +959,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -781,7 +970,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
