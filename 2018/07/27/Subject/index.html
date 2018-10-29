@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ReactiveX,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="什么是 SubjectsSubjects 的行为看起来就像一个 Observable 和一个 Observer。它可以接受事件并且也可以被订阅。Subject 接受 .next 事件并且每当它接受一个事件，他就会发送这个事件给它的订阅者。 RxSwift 中有四种事件：  PublishSubject：以 empty 的形式创建并且只发给 subscriber 新元素。 BehaviorSubje">
+<meta name="keywords" content="ReactiveX">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Subject">
+<meta property="og:url" content="http://yoursite.com/2018/07/27/Subject/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="什么是 SubjectsSubjects 的行为看起来就像一个 Observable 和一个 Observer。它可以接受事件并且也可以被订阅。Subject 接受 .next 事件并且每当它接受一个事件，他就会发送这个事件给它的订阅者。 RxSwift 中有四种事件：  PublishSubject：以 empty 的形式创建并且只发给 subscriber 新元素。 BehaviorSubje">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-29T18:13:04.062Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Subject">
+<meta name="twitter:description" content="什么是 SubjectsSubjects 的行为看起来就像一个 Observable 和一个 Observer。它可以接受事件并且也可以被订阅。Subject 接受 .next 事件并且每当它接受一个事件，他就会发送这个事件给它的订阅者。 RxSwift 中有四种事件：  PublishSubject：以 empty 的形式创建并且只发给 subscriber 新元素。 BehaviorSubje">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/27/Subject/">
+
+
+
+
+
+  <title>Subject | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/27/Subject/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Subject</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-27T00:09:01+08:00">
+                2018-07-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/RxSwift/" itemprop="url" rel="index">
+                    <span itemprop="name">RxSwift</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="什么是-Subjects"><a href="#什么是-Subjects" class="headerlink" title="什么是 Subjects"></a>什么是 Subjects</h2><p>Subjects 的行为看起来就像一个 Observable 和一个 Observer。它可以接受事件并且也可以被订阅。Subject 接受 .next 事件并且每当它接受一个事件，他就会发送这个事件给它的订阅者。</p>
+<p>RxSwift 中有四种事件：</p>
+<ul>
+<li><code>PublishSubject</code>：以 empty 的形式创建并且只发给 subscriber 新元素。</li>
+<li><code>BehaviorSubject</code>：以初始值的方式创建，重播或发出最新的元素给它的 subscriber。</li>
+<li><code>ReplaySubject</code>：以一个缓存尺寸创建并且会确保元素以缓存尺寸进入缓存区，并且重播给它的 subscriber。</li>
+<li><code>Variable</code>：封装了一个 BehaviorSubject，保护当前值作为状态，仅仅给订阅者重播最新或者初始化的值。</li>
+</ul>
+<p>下面以例子分析每种 Subject 的使用。</p>
+<h2 id="PublishSubject"><a href="#PublishSubject" class="headerlink" title="PublishSubject"></a>PublishSubject</h2><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> subject = <span class="type">PublishSubject</span>&lt;<span class="type">String</span>&gt;()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"Test"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> subscription1 = subject.subscribe(onNext: &#123; (string) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(string)</span><br><span class="line">&#125;, onError: <span class="literal">nil</span>, onCompleted: <span class="literal">nil</span>, onDisposed: <span class="literal">nil</span>)</span><br></pre></td></tr></table></figure>
+<p>此时，控制台并不会输出任何值。在上面的代码中加上以下代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">subject.on(.next(<span class="string">"1"</span>))</span><br><span class="line">subject.on(.next(<span class="string">"2"</span>))</span><br></pre></td></tr></table></figure>
+<p>此时控制台输出：<br><code>1 2</code></p>
+<p>由此可见，在 PublishSubject 被订阅之前，subject 发出的 <code>.onNext(&quot;Test&quot;)</code> 事件并没有被订阅。</p>
+<p>把代码修改成这样：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> subject = <span class="type">PublishSubject</span>&lt;<span class="type">String</span>&gt;()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"Test"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> subscription1 = subject.subscribe(onNext: &#123; (string) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(string)</span><br><span class="line">&#125;, onError: <span class="literal">nil</span>, onCompleted: <span class="literal">nil</span>, onDisposed: <span class="literal">nil</span>)</span><br><span class="line"></span><br><span class="line">subject.on(.next(<span class="string">"1"</span>))</span><br><span class="line">subject.on(.next(<span class="string">"2"</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> subscription2 = subject.subscribe(&#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription 2: "</span>, event.element ?? event)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">subject.on(.next(<span class="string">"3"</span>))</span><br><span class="line"></span><br><span class="line">subscription1.dispose()</span><br><span class="line"></span><br><span class="line">subject.on(.next(<span class="string">"4"</span>))</span><br></pre></td></tr></table></figure>
+<p>运行后控制台会输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">Subscription 2: 3</span><br><span class="line">Subscription 2: 4</span><br></pre></td></tr></table></figure>
+<p>由此可知，当一个订阅被 dispose 之后，它就不会在处理 subject 发出的新值。</p>
+<p>当一个 PublishSubject 收到 .completed 或者 .error 事件后，它将会给自己的新订阅者发送停止事件，并且不会再发送 .next 事件。然而，它会重新发送它的停止事件给未来的订阅者：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">subject.onCompleted()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"5"</span>)</span><br><span class="line"></span><br><span class="line">subscription2.dispose()</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"><span class="keyword">let</span> subscription3 = subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"subscription 3:"</span>, $<span class="number">0</span>.element ?? $<span class="number">0</span>)</span><br><span class="line">&#125;)</span><br><span class="line">    .disposed(by: disposeBag)</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"6"</span>)</span><br></pre></td></tr></table></figure>
+<p>控制台输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Subscription 2: completed</span><br><span class="line">subscription 3: completed</span><br></pre></td></tr></table></figure>
+<p>在收到 .completed 事件后，控制台并没有打印 5 和 6，但是打印了 <code>subscription 3: completed</code>。在收到停止事件后，重新给自己未来的订阅者 subscription3 发送了完成事件。</p>
+<p><strong>实际上，每种类型的 subject 在停止时，都会重新发送它的停止事件给未来的订阅者。</strong></p>
+<h2 id="BehaviorSubject"><a href="#BehaviorSubject" class="headerlink" title="BehaviorSubject"></a>BehaviorSubject</h2><p>BehaviorSubject 的工作原理和 PublishSubject 比较相似，他们的区别在于，BehaviorSubject 会重播最新的 .next 事件给它的订阅者：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 提供一个初始值</span></span><br><span class="line"><span class="keyword">let</span> subject = <span class="type">BehaviorSubject</span>(value: <span class="string">"Init"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"1"</span>)</span><br><span class="line"></span><br><span class="line">subject.subscribe(&#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription1:"</span>, (event.element ?? event.error ?? event) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>控制台会输出：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Subscription1</span>: <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>subject 重播了最新的值 1 给它的订阅者。</p>
+<p>在上面的代码后面添加以下代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">MyError</span>: <span class="title">Error</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> anError</span><br><span class="line">    <span class="keyword">case</span> anotherError</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">subject.onError(<span class="type">MyError</span>.anError)</span><br><span class="line">    subject.subscribe(&#123; (event) <span class="keyword">in</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Subscription2:"</span>, (event.element ?? event.error ?? event) ?? <span class="string">""</span>)</span><br><span class="line">    &#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Subscription1</span>: anError</span><br><span class="line"><span class="type">Subscription2</span>: anError</span><br></pre></td></tr></table></figure>
+<p>最新值分别发送给了 subscription 1 和 2，anError。</p>
+<p>BehaviorSubject 在空状态占位上很有用，例如，在一个 user profile 页面中，你可以给控件绑定一个 behaviorSubject。当 app 获取新数据的时候，可以先用最新值来占位。或者，在一个搜索页面，你可以展示最新的五个搜索数据。</p>
+<h2 id="ReplaySubject"><a href="#ReplaySubject" class="headerlink" title="ReplaySubject"></a>ReplaySubject</h2><p>当使用一个 ReplaySubject，它锁创建的缓存是被内存所持有的。如果你为摸个类型的 ReplySubject 设置一个很大的缓存尺寸，每个实例都会占据很大的内存。另一个需要注意的点是，创建一个数组的 ReplaySubject，每次发出的 element 是一个数组，因此，缓存区会缓存许多数组，这会引起内存压力。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> subject = <span class="type">ReplaySubject</span>&lt;<span class="type">String</span>&gt;.create(bufferSize: <span class="number">2</span>)</span><br><span class="line">subject.onNext(<span class="string">"1"</span>)</span><br><span class="line">subject.onNext(<span class="string">"2"</span>)</span><br><span class="line">subject.onNext(<span class="string">"3"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"></span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription1:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br><span class="line"></span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription2:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>控制台会输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 2</span><br><span class="line">Subscription1: 3</span><br><span class="line">Subscription2: 2</span><br><span class="line">Subscription2: 3</span><br></pre></td></tr></table></figure>
+<p>1 没有被发出，而 2、3 被发出了。因为上面代码创建的缓存区大小是 2，2 和 3 挤掉了 1。</p>
+<p>继续添加下面的代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">subject.onNext(<span class="string">"4"</span>)</span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription3:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 4</span><br><span class="line">Subscription2: 4</span><br><span class="line">Subscription3: 3</span><br><span class="line">Subscription3: 4</span><br></pre></td></tr></table></figure>
+<p>因为输出的内容是按缓存区区分的，所以后面添加的第三个订阅者输出了 3 和 4，最新的两个事件。而订阅者 1 和订阅者 2 在上一个 buffer 中已经有了值，所以发出最新值 4。</p>
+<p>下面来测试下 Error 情况，在第三个订阅之前加上：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">subject.onNext(<span class="string">"4"</span>)</span><br><span class="line"><span class="comment">// 新添加</span></span><br><span class="line">subject.onError(<span class="type">MyError</span>.anError)</span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription3:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 4</span><br><span class="line">Subscription2: 4</span><br><span class="line">Subscription1: anError</span><br><span class="line">Subscription2: anError</span><br><span class="line">Subscription3: 3</span><br><span class="line">Subscription3: 4</span><br><span class="line">Subscription3: anError</span><br></pre></td></tr></table></figure>
+<p>这是因为上文提到过：每种类型的 subject 在停止时，都会重新发送它的停止事件给未来的订阅者。</p>
+<p>在 onError 事件后添加：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">subject.onError(<span class="type">MyError</span>.anError)</span><br><span class="line">subject.dispose()</span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription3:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 4</span><br><span class="line">Subscription2: 4</span><br><span class="line">Subscription1: anError</span><br><span class="line">Subscription2: anError</span><br><span class="line">Subscription3: Object `RxSwift.(unknown context at 0x128dcdbc8).ReplayMany&lt;Swift.String&gt;` was already disposed.</span><br></pre></td></tr></table></figure>
+<p>在第三个订阅前手动调用 dipose，第三个订阅只会收到一个错误事件，说，subject 已经被销毁了。</p>
+<p>通常情况下，不需要手动调用 dispose()，如果你给一个 subscription 添加了一个 disposeBag，那么当这个 subject 的持有者被销毁的时候，它也会一并销毁。</p>
+<h2 id="Variables"><a href="#Variables" class="headerlink" title="Variables"></a>Variables</h2><p>上文提到过，Variables 封装了一个 BehaviorSubject 并且存储了当前值。你可以通过 value property 去获取当前值，和其他 subjects 与通常的 observable 不一样的是，你也可以用那个 value property 去给一个 Variable 设置新的元素，换句话说，不用调用 onNext 方法。Variables 特殊的地方在于，它确保了不会发出一个 error 事件，尽管你可以去监听 .error 事件，但你不能手动添加一个 .error 事件给 Variable。Variable 同样会在它要被释放的时候发送 complete 事件，所以不需要手动添加 .completed 事件。</p>
+<p>创建一个 Variable：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> variable = <span class="type">Variable</span>(<span class="string">"Init"</span>)</span><br><span class="line">variable.value = <span class="string">"Re-init"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"></span><br><span class="line">variable.asObservable().subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Subscription: Re-init</span><br></pre></td></tr></table></figure>
+<p>由控制台输出可知，订阅获得了最新值。这点和 BehaviorSubject 没什么区别，但是写法上，Variable 是需要先变成 Observable。</p>
+<p>将刚才 Subscription 改为 Subscription1，继续测试新值：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">variable.value = <span class="string">"1"</span></span><br><span class="line">variable.asObservable().subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription2:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br><span class="line"></span><br><span class="line">variable.value = <span class="string">"2"</span></span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 1</span><br><span class="line">Subscription2: 1</span><br><span class="line">Subscription1: 2</span><br><span class="line">Subscription2: 2</span><br></pre></td></tr></table></figure>
+<p>之前的 subscription1 在 variable 设置新值 1 的时候收到了新值，当 subscription2 被订阅的时候也收到了同样的值，因为在 <code>variable.value = &quot;1&quot;</code> 时，1 就是最新值。然后 value 被更新为 2，同样的，两次订阅都收到最新值。</p>
+<p>Variable 是非常有用的，主要有以下两点：</p>
+<ol>
+<li>和其他的 subject 一样，无论什么时候，一个 next 事件被发出，它都会做出响应。</li>
+<li>它可以提供“一次性”的需求，例如，当你仅仅需要检查当前值而不用去订阅获取更新。</li>
+</ol>
+<p>以上就是四种 Subjects 的主要用法。后续会更新 Observable 和 Operator 的实战内容。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ReactiveX/" rel="tag"># ReactiveX</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/21/Observable/" rel="next" title="Observable">
+                <i class="fa fa-chevron-left"></i> Observable
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/22/基于-WebSocket-的-IM-App-实现/" rel="prev" title="基于 WebSocket 的 IM App 实现">
+                基于 WebSocket 的 IM App 实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是-Subjects"><span class="nav-number">1.</span> <span class="nav-text">什么是 Subjects</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PublishSubject"><span class="nav-number">2.</span> <span class="nav-text">PublishSubject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BehaviorSubject"><span class="nav-number">3.</span> <span class="nav-text">BehaviorSubject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReplaySubject"><span class="nav-number">4.</span> <span class="nav-text">ReplaySubject</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Variables"><span class="nav-number">5.</span> <span class="nav-text">Variables</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

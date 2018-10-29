@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="IM,Multi-Thread,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="公司的 App IM 模块要求用 Realm 做数据库，不可避免的在接收消息和发送消息时，读写数据要放在后台线程去做。这样不会影响聊天页面的 UI 显示。一开始涉及到多线程的时候 Realm 挺多坑的。 Realm 多线程特性 Realm 是基于零拷贝架构，所有对象是鲜活的而且自动更新。如果 Realm 允许对象可在线程间共享，Realm 会无法确保数据的一致性，因为不同的线程会在不确定的什么时间">
+<meta name="keywords" content="IM,Multi-Thread">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Realm 多线程通信">
+<meta property="og:url" content="http://yoursite.com/2018/08/26/Realm-多线程通信/index.html">
+<meta property="og:site_name" content="Oniityann">
+<meta property="og:description" content="公司的 App IM 模块要求用 Realm 做数据库，不可避免的在接收消息和发送消息时，读写数据要放在后台线程去做。这样不会影响聊天页面的 UI 显示。一开始涉及到多线程的时候 Realm 挺多坑的。 Realm 多线程特性 Realm 是基于零拷贝架构，所有对象是鲜活的而且自动更新。如果 Realm 允许对象可在线程间共享，Realm 会无法确保数据的一致性，因为不同的线程会在不确定的什么时间">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-10-26T14:27:10.451Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Realm 多线程通信">
+<meta name="twitter:description" content="公司的 App IM 模块要求用 Realm 做数据库，不可避免的在接收消息和发送消息时，读写数据要放在后台线程去做。这样不会影响聊天页面的 UI 显示。一开始涉及到多线程的时候 Realm 挺多坑的。 Realm 多线程特性 Realm 是基于零拷贝架构，所有对象是鲜活的而且自动更新。如果 Realm 允许对象可在线程间共享，Realm 会无法确保数据的一致性，因为不同的线程会在不确定的什么时间">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/26/Realm-多线程通信/">
+
+
+
+
+
+  <title>Realm 多线程通信 | Oniityann</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Oniityann</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/26/Realm-多线程通信/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Realm 多线程通信</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-26T14:49:15+08:00">
+                2018-08-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Thread/" itemprop="url" rel="index">
+                    <span itemprop="name">Thread</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>公司的 App IM 模块要求用 Realm 做数据库，不可避免的在接收消息和发送消息时，读写数据要放在后台线程去做。这样不会影响聊天页面的 UI 显示。一开始涉及到多线程的时候 Realm 挺多坑的。</p>
+<h2 id="Realm-多线程特性"><a href="#Realm-多线程特性" class="headerlink" title="Realm 多线程特性"></a>Realm 多线程特性</h2><blockquote>
+<p>Realm 是基于零拷贝架构，所有对象是鲜活的而且自动更新。如果 Realm 允许对象可在线程间共享，Realm 会无法确保数据的一致性，因为不同的线程会在不确定的什么时间点同时改变对象的数据。这样数据很快就不一致了。一个线程可能需要写入一个数据而另一个线程也打算读取它，反过来也可能。这很快就会变得有问题了，而且你不能够在相信哪个线程能有正确的数据了。</p>
+<p>Realm 通过确保每个线程始终拥有 Realm 的一个快照，以便让并发运行变得十分轻松。你可以同时有任意数目的线程访问同一个 Realm 文件，并且由于每个线程都有对应的快照，因此线程之间绝不会产生影响。</p>
+<p>您唯一需要注意的一件事情就是不能让多个线程都持有同一个 Realm 对象的实例。如果多个线程需要访问同一个对象，那么它们分别会获取自己所需要的实例（否则在一个线程上发生的更改就会造成其他线程得到不完整或者不一致的数据）。</p>
+<p>RLMObject 的未管理实例（unmanaged) 表现的和正常的 NSObject 子类相同，可以安全地跨线程传递。</p>
+</blockquote>
+<blockquote>
+<p>RLMRealm、RLMObject、RLMResults 或者 RLMArray 受管理实例皆受到线程的限制，这意味着它们只能够在被创建的线程上使用，否则就会抛出异常*。这是 Realm 强制事务版本隔离的一种方法。否则，在不同事务版本中的线程间，通过潜在泛关系图 (potentially extensive relationship graph) 来确定何时传递对象将不可能实现。</p>
+</blockquote>
+<h2 id="在多线程中使用-Realm"><a href="#在多线程中使用-Realm" class="headerlink" title="在多线程中使用 Realm"></a>在多线程中使用 Realm</h2><h3 id="在同一个线程中访问-Realm-实例"><a href="#在同一个线程中访问-Realm-实例" class="headerlink" title="在同一个线程中访问 Realm 实例"></a>在同一个线程中访问 Realm 实例</h3><p>上文说到 RLMRealm、RLMObject、RLMResults 或者 RLMArray 受管理实例皆受到线程的限制。如果在同一个线程中访问这些，那就不需要担心线程带来的数据错乱等问题。在实际操作中，可以开启一个常驻线程来操作数据库。</p>
+<h3 id="在不同的线程中重新获取-Realm-实例"><a href="#在不同的线程中重新获取-Realm-实例" class="headerlink" title="在不同的线程中重新获取 Realm 实例"></a>在不同的线程中重新获取 Realm 实例</h3><p>无论是全局的RLMRealm实例，还是RLMObject，在不同的线程访问时都需要重新获取一个实例（每个线程都有一个 Realm 的快照），否则会报错。</p>
+<p>例如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在线程 1 中写入一个 dog</span></span><br><span class="line">thread1 &#123;</span><br><span class="line">    Dogs *dog = [[Dogs alloc] init];</span><br><span class="line">    dog.name = <span class="string">@"Chubby"</span>;</span><br><span class="line"></span><br><span class="line">    RLMRealm *r = [RLMRealm defaultRealm];</span><br><span class="line">    [r transactionWithBlock:^&#123;</span><br><span class="line">        [Dogs createOr....:dog];</span><br><span class="line">    &#125;]；</span><br><span class="line">    </span><br><span class="line">    thread2 &#123;</span><br><span class="line">        RLMResults *dogs = [Dogs allObjects];</span><br><span class="line">        <span class="comment">// 模拟取出刚才写入的 dog</span></span><br><span class="line">        Dog *dog = dogs.firstObject;</span><br><span class="line">        [[RLMRealm defaultRealm] transactionWithBlock:^&#123;</span><br><span class="line">            <span class="comment">// 修改 dog 的名字</span></span><br><span class="line">            dog.name = <span class="string">@"Chub"</span></span><br><span class="line">        &#125;]；</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在线程 1 中，dog 已经被 managed，同时与当前线程绑定，如果此时想在另一个线程，必须重新在另一个线程中获取 RLMObject 的快照。</p>
+<h3 id="通过-RLMThreadSafeReference-来传递实例"><a href="#通过-RLMThreadSafeReference-来传递实例" class="headerlink" title="通过 RLMThreadSafeReference 来传递实例"></a>通过 <code>RLMThreadSafeReference</code> 来传递实例</h3><ol>
+<li>通过受到线程限制的对象来构造一个 <code>RLMThreadSafeReference</code>；</li>
+<li>将此 <code>RLMThreadSafeReference</code> 传递给目标线程或者队列；</li>
+<li>通过在目标 Realm 上调用 <code>-[RLMRealm resolveThreadSafeReference:]</code> 来解析此引用。</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">thread1 &#123;</span><br><span class="line">    Dog *dog = [Dog new];</span><br><span class="line">    dog.name = <span class="string">@"Chubby"</span>;</span><br><span class="line">    [[RLMRealm defaultRealm] transactionWithBlock:^&#123;</span><br><span class="line">        [[RLMRealm defaultRealm] add:dog];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 这时如果要在线程中传递这只 dog</span></span><br><span class="line">    <span class="comment">// 1. 构造 RLMThreadSafeReference 实例</span></span><br><span class="line">    RLMThreadSafeReference *dogRef = [RLMThreadSafeReference</span><br><span class="line">    referenceWithThreadConfined:dog];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 将此 RLMThreadSafeReference 传递给目标线程或者队列</span></span><br><span class="line">    thread2 &#123;</span><br><span class="line">        <span class="keyword">@autoreleasepool</span> &#123;</span><br><span class="line">            RLMRealm *r = [RLMRealm defaultRealm];</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 3. 通过 resolve 方法来获取 thread 1 中的 dog</span></span><br><span class="line">            Dog *dog = [r resolveThreadSafeReference:dogRef];</span><br><span class="line">            </span><br><span class="line">            [r transactionWithBlock:^ &#123;</span><br><span class="line">                dog.name = <span class="string">@"Chub"</span>;</span><br><span class="line">            &#125;];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>RLMThreadSafeReference</code> 对象最多只能够解析一次。如果 RLMThreadSafeReference 解析失败的话，将会导致 Realm 的原始版本被锁死，直到引用被释放为止。因此，RLMThreadSafeReference 的生命周期应该很短。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/IM/" rel="tag"># IM</a>
+          
+            <a href="/tags/Multi-Thread/" rel="tag"># Multi-Thread</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/22/基于-WebSocket-的-IM-App-实现/" rel="next" title="基于 WebSocket 的 IM App 实现">
+                <i class="fa fa-chevron-left"></i> 基于 WebSocket 的 IM App 实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/22/Metal-初窥/" rel="prev" title="Metal 初窥">
+                Metal 初窥 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Yinan Zheng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Oniityann" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zynfab26@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Realm-多线程特性"><span class="nav-number">1.</span> <span class="nav-text">Realm 多线程特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在多线程中使用-Realm"><span class="nav-number">2.</span> <span class="nav-text">在多线程中使用 Realm</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#在同一个线程中访问-Realm-实例"><span class="nav-number">2.1.</span> <span class="nav-text">在同一个线程中访问 Realm 实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在不同的线程中重新获取-Realm-实例"><span class="nav-number">2.2.</span> <span class="nav-text">在不同的线程中重新获取 Realm 实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过-RLMThreadSafeReference-来传递实例"><span class="nav-number">2.3.</span> <span class="nav-text">通过 RLMThreadSafeReference 来传递实例</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yinan Zheng</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

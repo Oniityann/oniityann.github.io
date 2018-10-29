@@ -425,6 +425,170 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/26/Realm-多线程通信/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/08/26/Realm-多线程通信/" itemprop="url">Realm 多线程通信</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-26T14:49:15+08:00">
+                2018-08-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/Thread/" itemprop="url" rel="index">
+                    <span itemprop="name">Thread</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>公司的 App IM 模块要求用 Realm 做数据库，不可避免的在接收消息和发送消息时，读写数据要放在后台线程去做。这样不会影响聊天页面的 UI 显示。一开始涉及到多线程的时候 Realm 挺多坑的。</p>
+<h2 id="Realm-多线程特性"><a href="#Realm-多线程特性" class="headerlink" title="Realm 多线程特性"></a>Realm 多线程特性</h2><blockquote>
+<p>Realm 是基于零拷贝架构，所有对象是鲜活的而且自动更新。如果 Realm 允许对象可在线程间共享，Realm 会无法确保数据的一致性，因为不同的线程会在不确定的什么时间点同时改变对象的数据。这样数据很快就不一致了。一个线程可能需要写入一个数据而另一个线程也打算读取它，反过来也可能。这很快就会变得有问题了，而且你不能够在相信哪个线程能有正确的数据了。</p>
+<p>Realm 通过确保每个线程始终拥有 Realm 的一个快照，以便让并发运行变得十分轻松。你可以同时有任意数目的线程访问同一个 Realm 文件，并且由于每个线程都有对应的快照，因此线程之间绝不会产生影响。</p>
+<p>您唯一需要注意的一件事情就是不能让多个线程都持有同一个 Realm 对象的实例。如果多个线程需要访问同一个对象，那么它们分别会获取自己所需要的实例（否则在一个线程上发生的更改就会造成其他线程得到不完整或者不一致的数据）。</p>
+<p>RLMObject 的未管理实例（unmanaged) 表现的和正常的 NSObject 子类相同，可以安全地跨线程传递。</p>
+</blockquote>
+<blockquote>
+<p>RLMRealm、RLMObject、RLMResults 或者 RLMArray 受管理实例皆受到线程的限制，这意味着它们只能够在被创建的线程上使用，否则就会抛出异常*。这是 Realm 强制事务版本隔离的一种方法。否则，在不同事务版本中的线程间，通过潜在泛关系图 (potentially extensive relationship graph) 来确定何时传递对象将不可能实现。</p>
+</blockquote>
+<h2 id="在多线程中使用-Realm"><a href="#在多线程中使用-Realm" class="headerlink" title="在多线程中使用 Realm"></a>在多线程中使用 Realm</h2><h3 id="在同一个线程中访问-Realm-实例"><a href="#在同一个线程中访问-Realm-实例" class="headerlink" title="在同一个线程中访问 Realm 实例"></a>在同一个线程中访问 Realm 实例</h3><p>上文说到 RLMRealm、RLMObject、RLMResults 或者 RLMArray 受管理实例皆受到线程的限制。如果在同一个线程中访问这些，那就不需要担心线程带来的数据错乱等问题。在实际操作中，可以开启一个常驻线程来操作数据库。</p>
+<h3 id="在不同的线程中重新获取-Realm-实例"><a href="#在不同的线程中重新获取-Realm-实例" class="headerlink" title="在不同的线程中重新获取 Realm 实例"></a>在不同的线程中重新获取 Realm 实例</h3><p>无论是全局的RLMRealm实例，还是RLMObject，在不同的线程访问时都需要重新获取一个实例（每个线程都有一个 Realm 的快照），否则会报错。</p>
+<p>例如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在线程 1 中写入一个 dog</span></span><br><span class="line">thread1 &#123;</span><br><span class="line">    Dogs *dog = [[Dogs alloc] init];</span><br><span class="line">    dog.name = <span class="string">@"Chubby"</span>;</span><br><span class="line"></span><br><span class="line">    RLMRealm *r = [RLMRealm defaultRealm];</span><br><span class="line">    [r transactionWithBlock:^&#123;</span><br><span class="line">        [Dogs createOr....:dog];</span><br><span class="line">    &#125;]；</span><br><span class="line">    </span><br><span class="line">    thread2 &#123;</span><br><span class="line">        RLMResults *dogs = [Dogs allObjects];</span><br><span class="line">        <span class="comment">// 模拟取出刚才写入的 dog</span></span><br><span class="line">        Dog *dog = dogs.firstObject;</span><br><span class="line">        [[RLMRealm defaultRealm] transactionWithBlock:^&#123;</span><br><span class="line">            <span class="comment">// 修改 dog 的名字</span></span><br><span class="line">            dog.name = <span class="string">@"Chub"</span></span><br><span class="line">        &#125;]；</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在线程 1 中，dog 已经被 managed，同时与当前线程绑定，如果此时想在另一个线程，必须重新在另一个线程中获取 RLMObject 的快照。</p>
+<h3 id="通过-RLMThreadSafeReference-来传递实例"><a href="#通过-RLMThreadSafeReference-来传递实例" class="headerlink" title="通过 RLMThreadSafeReference 来传递实例"></a>通过 <code>RLMThreadSafeReference</code> 来传递实例</h3><ol>
+<li>通过受到线程限制的对象来构造一个 <code>RLMThreadSafeReference</code>；</li>
+<li>将此 <code>RLMThreadSafeReference</code> 传递给目标线程或者队列；</li>
+<li>通过在目标 Realm 上调用 <code>-[RLMRealm resolveThreadSafeReference:]</code> 来解析此引用。</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">thread1 &#123;</span><br><span class="line">    Dog *dog = [Dog new];</span><br><span class="line">    dog.name = <span class="string">@"Chubby"</span>;</span><br><span class="line">    [[RLMRealm defaultRealm] transactionWithBlock:^&#123;</span><br><span class="line">        [[RLMRealm defaultRealm] add:dog];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 这时如果要在线程中传递这只 dog</span></span><br><span class="line">    <span class="comment">// 1. 构造 RLMThreadSafeReference 实例</span></span><br><span class="line">    RLMThreadSafeReference *dogRef = [RLMThreadSafeReference</span><br><span class="line">    referenceWithThreadConfined:dog];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 将此 RLMThreadSafeReference 传递给目标线程或者队列</span></span><br><span class="line">    thread2 &#123;</span><br><span class="line">        <span class="keyword">@autoreleasepool</span> &#123;</span><br><span class="line">            RLMRealm *r = [RLMRealm defaultRealm];</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 3. 通过 resolve 方法来获取 thread 1 中的 dog</span></span><br><span class="line">            Dog *dog = [r resolveThreadSafeReference:dogRef];</span><br><span class="line">            </span><br><span class="line">            [r transactionWithBlock:^ &#123;</span><br><span class="line">                dog.name = <span class="string">@"Chub"</span>;</span><br><span class="line">            &#125;];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>RLMThreadSafeReference</code> 对象最多只能够解析一次。如果 RLMThreadSafeReference 解析失败的话，将会导致 Realm 的原始版本被锁死，直到引用被释放为止。因此，RLMThreadSafeReference 的生命周期应该很短。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/22/基于-WebSocket-的-IM-App-实现/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -523,6 +687,221 @@
 <h2 id="iOS-Socket-编程"><a href="#iOS-Socket-编程" class="headerlink" title="iOS Socket 编程"></a>iOS Socket 编程</h2><p><a href="https://blog.csdn.net/kesalin/article/details/8798039" target="_blank" rel="noopener">深入浅出Cocoa - iOS网络编程之Socket</a></p>
 <h2 id="WebSocket"><a href="#WebSocket" class="headerlink" title="WebSocket"></a>WebSocket</h2><p>在 WebSocket 的处理上，我选择了 Facebook 开源的 SocketRocket，因为它在网上的 demo 是最多的，而且使用起来确实很方便。</p>
 <h2 id="SocketRocket-源码解读"><a href="#SocketRocket-源码解读" class="headerlink" title="SocketRocket 源码解读"></a>SocketRocket 源码解读</h2>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/27/Subject/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Yinan Zheng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Oniityann">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/27/Subject/" itemprop="url">Subject</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-27T00:09:01+08:00">
+                2018-07-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/RxSwift/" itemprop="url" rel="index">
+                    <span itemprop="name">RxSwift</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="什么是-Subjects"><a href="#什么是-Subjects" class="headerlink" title="什么是 Subjects"></a>什么是 Subjects</h2><p>Subjects 的行为看起来就像一个 Observable 和一个 Observer。它可以接受事件并且也可以被订阅。Subject 接受 .next 事件并且每当它接受一个事件，他就会发送这个事件给它的订阅者。</p>
+<p>RxSwift 中有四种事件：</p>
+<ul>
+<li><code>PublishSubject</code>：以 empty 的形式创建并且只发给 subscriber 新元素。</li>
+<li><code>BehaviorSubject</code>：以初始值的方式创建，重播或发出最新的元素给它的 subscriber。</li>
+<li><code>ReplaySubject</code>：以一个缓存尺寸创建并且会确保元素以缓存尺寸进入缓存区，并且重播给它的 subscriber。</li>
+<li><code>Variable</code>：封装了一个 BehaviorSubject，保护当前值作为状态，仅仅给订阅者重播最新或者初始化的值。</li>
+</ul>
+<p>下面以例子分析每种 Subject 的使用。</p>
+<h2 id="PublishSubject"><a href="#PublishSubject" class="headerlink" title="PublishSubject"></a>PublishSubject</h2><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> subject = <span class="type">PublishSubject</span>&lt;<span class="type">String</span>&gt;()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"Test"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> subscription1 = subject.subscribe(onNext: &#123; (string) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(string)</span><br><span class="line">&#125;, onError: <span class="literal">nil</span>, onCompleted: <span class="literal">nil</span>, onDisposed: <span class="literal">nil</span>)</span><br></pre></td></tr></table></figure>
+<p>此时，控制台并不会输出任何值。在上面的代码中加上以下代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">subject.on(.next(<span class="string">"1"</span>))</span><br><span class="line">subject.on(.next(<span class="string">"2"</span>))</span><br></pre></td></tr></table></figure>
+<p>此时控制台输出：<br><code>1 2</code></p>
+<p>由此可见，在 PublishSubject 被订阅之前，subject 发出的 <code>.onNext(&quot;Test&quot;)</code> 事件并没有被订阅。</p>
+<p>把代码修改成这样：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> subject = <span class="type">PublishSubject</span>&lt;<span class="type">String</span>&gt;()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"Test"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> subscription1 = subject.subscribe(onNext: &#123; (string) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(string)</span><br><span class="line">&#125;, onError: <span class="literal">nil</span>, onCompleted: <span class="literal">nil</span>, onDisposed: <span class="literal">nil</span>)</span><br><span class="line"></span><br><span class="line">subject.on(.next(<span class="string">"1"</span>))</span><br><span class="line">subject.on(.next(<span class="string">"2"</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> subscription2 = subject.subscribe(&#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription 2: "</span>, event.element ?? event)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">subject.on(.next(<span class="string">"3"</span>))</span><br><span class="line"></span><br><span class="line">subscription1.dispose()</span><br><span class="line"></span><br><span class="line">subject.on(.next(<span class="string">"4"</span>))</span><br></pre></td></tr></table></figure>
+<p>运行后控制台会输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">Subscription 2: 3</span><br><span class="line">Subscription 2: 4</span><br></pre></td></tr></table></figure>
+<p>由此可知，当一个订阅被 dispose 之后，它就不会在处理 subject 发出的新值。</p>
+<p>当一个 PublishSubject 收到 .completed 或者 .error 事件后，它将会给自己的新订阅者发送停止事件，并且不会再发送 .next 事件。然而，它会重新发送它的停止事件给未来的订阅者：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">subject.onCompleted()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"5"</span>)</span><br><span class="line"></span><br><span class="line">subscription2.dispose()</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"><span class="keyword">let</span> subscription3 = subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"subscription 3:"</span>, $<span class="number">0</span>.element ?? $<span class="number">0</span>)</span><br><span class="line">&#125;)</span><br><span class="line">    .disposed(by: disposeBag)</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"6"</span>)</span><br></pre></td></tr></table></figure>
+<p>控制台输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Subscription 2: completed</span><br><span class="line">subscription 3: completed</span><br></pre></td></tr></table></figure>
+<p>在收到 .completed 事件后，控制台并没有打印 5 和 6，但是打印了 <code>subscription 3: completed</code>。在收到停止事件后，重新给自己未来的订阅者 subscription3 发送了完成事件。</p>
+<p><strong>实际上，每种类型的 subject 在停止时，都会重新发送它的停止事件给未来的订阅者。</strong></p>
+<h2 id="BehaviorSubject"><a href="#BehaviorSubject" class="headerlink" title="BehaviorSubject"></a>BehaviorSubject</h2><p>BehaviorSubject 的工作原理和 PublishSubject 比较相似，他们的区别在于，BehaviorSubject 会重播最新的 .next 事件给它的订阅者：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 提供一个初始值</span></span><br><span class="line"><span class="keyword">let</span> subject = <span class="type">BehaviorSubject</span>(value: <span class="string">"Init"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"></span><br><span class="line">subject.onNext(<span class="string">"1"</span>)</span><br><span class="line"></span><br><span class="line">subject.subscribe(&#123; (event) <span class="keyword">in</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription1:"</span>, (event.element ?? event.error ?? event) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>控制台会输出：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Subscription1</span>: <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>subject 重播了最新的值 1 给它的订阅者。</p>
+<p>在上面的代码后面添加以下代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">enum</span> <span class="title">MyError</span>: <span class="title">Error</span> </span>&#123;</span><br><span class="line">    <span class="keyword">case</span> anError</span><br><span class="line">    <span class="keyword">case</span> anotherError</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">subject.onError(<span class="type">MyError</span>.anError)</span><br><span class="line">    subject.subscribe(&#123; (event) <span class="keyword">in</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"Subscription2:"</span>, (event.element ?? event.error ?? event) ?? <span class="string">""</span>)</span><br><span class="line">    &#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Subscription1</span>: anError</span><br><span class="line"><span class="type">Subscription2</span>: anError</span><br></pre></td></tr></table></figure>
+<p>最新值分别发送给了 subscription 1 和 2，anError。</p>
+<p>BehaviorSubject 在空状态占位上很有用，例如，在一个 user profile 页面中，你可以给控件绑定一个 behaviorSubject。当 app 获取新数据的时候，可以先用最新值来占位。或者，在一个搜索页面，你可以展示最新的五个搜索数据。</p>
+<h2 id="ReplaySubject"><a href="#ReplaySubject" class="headerlink" title="ReplaySubject"></a>ReplaySubject</h2><p>当使用一个 ReplaySubject，它锁创建的缓存是被内存所持有的。如果你为摸个类型的 ReplySubject 设置一个很大的缓存尺寸，每个实例都会占据很大的内存。另一个需要注意的点是，创建一个数组的 ReplaySubject，每次发出的 element 是一个数组，因此，缓存区会缓存许多数组，这会引起内存压力。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> subject = <span class="type">ReplaySubject</span>&lt;<span class="type">String</span>&gt;.create(bufferSize: <span class="number">2</span>)</span><br><span class="line">subject.onNext(<span class="string">"1"</span>)</span><br><span class="line">subject.onNext(<span class="string">"2"</span>)</span><br><span class="line">subject.onNext(<span class="string">"3"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"></span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription1:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br><span class="line"></span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription2:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>控制台会输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 2</span><br><span class="line">Subscription1: 3</span><br><span class="line">Subscription2: 2</span><br><span class="line">Subscription2: 3</span><br></pre></td></tr></table></figure>
+<p>1 没有被发出，而 2、3 被发出了。因为上面代码创建的缓存区大小是 2，2 和 3 挤掉了 1。</p>
+<p>继续添加下面的代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">subject.onNext(<span class="string">"4"</span>)</span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription3:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 4</span><br><span class="line">Subscription2: 4</span><br><span class="line">Subscription3: 3</span><br><span class="line">Subscription3: 4</span><br></pre></td></tr></table></figure>
+<p>因为输出的内容是按缓存区区分的，所以后面添加的第三个订阅者输出了 3 和 4，最新的两个事件。而订阅者 1 和订阅者 2 在上一个 buffer 中已经有了值，所以发出最新值 4。</p>
+<p>下面来测试下 Error 情况，在第三个订阅之前加上：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">subject.onNext(<span class="string">"4"</span>)</span><br><span class="line"><span class="comment">// 新添加</span></span><br><span class="line">subject.onError(<span class="type">MyError</span>.anError)</span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription3:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 4</span><br><span class="line">Subscription2: 4</span><br><span class="line">Subscription1: anError</span><br><span class="line">Subscription2: anError</span><br><span class="line">Subscription3: 3</span><br><span class="line">Subscription3: 4</span><br><span class="line">Subscription3: anError</span><br></pre></td></tr></table></figure>
+<p>这是因为上文提到过：每种类型的 subject 在停止时，都会重新发送它的停止事件给未来的订阅者。</p>
+<p>在 onError 事件后添加：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">subject.onError(<span class="type">MyError</span>.anError)</span><br><span class="line">subject.dispose()</span><br><span class="line">subject.subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription3:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 4</span><br><span class="line">Subscription2: 4</span><br><span class="line">Subscription1: anError</span><br><span class="line">Subscription2: anError</span><br><span class="line">Subscription3: Object `RxSwift.(unknown context at 0x128dcdbc8).ReplayMany&lt;Swift.String&gt;` was already disposed.</span><br></pre></td></tr></table></figure>
+<p>在第三个订阅前手动调用 dipose，第三个订阅只会收到一个错误事件，说，subject 已经被销毁了。</p>
+<p>通常情况下，不需要手动调用 dispose()，如果你给一个 subscription 添加了一个 disposeBag，那么当这个 subject 的持有者被销毁的时候，它也会一并销毁。</p>
+<h2 id="Variables"><a href="#Variables" class="headerlink" title="Variables"></a>Variables</h2><p>上文提到过，Variables 封装了一个 BehaviorSubject 并且存储了当前值。你可以通过 value property 去获取当前值，和其他 subjects 与通常的 observable 不一样的是，你也可以用那个 value property 去给一个 Variable 设置新的元素，换句话说，不用调用 onNext 方法。Variables 特殊的地方在于，它确保了不会发出一个 error 事件，尽管你可以去监听 .error 事件，但你不能手动添加一个 .error 事件给 Variable。Variable 同样会在它要被释放的时候发送 complete 事件，所以不需要手动添加 .completed 事件。</p>
+<p>创建一个 Variable：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> variable = <span class="type">Variable</span>(<span class="string">"Init"</span>)</span><br><span class="line">variable.value = <span class="string">"Re-init"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> disposeBag = <span class="type">DisposeBag</span>()</span><br><span class="line"></span><br><span class="line">variable.asObservable().subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Subscription: Re-init</span><br></pre></td></tr></table></figure>
+<p>由控制台输出可知，订阅获得了最新值。这点和 BehaviorSubject 没什么区别，但是写法上，Variable 是需要先变成 Observable。</p>
+<p>将刚才 Subscription 改为 Subscription1，继续测试新值：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">variable.value = <span class="string">"1"</span></span><br><span class="line">variable.asObservable().subscribe(&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Subscription2:"</span>, ($<span class="number">0</span>.element ?? $<span class="number">0</span>.error ?? $<span class="number">0</span>) ?? <span class="string">""</span>)</span><br><span class="line">&#125;).disposed(by: disposeBag)</span><br><span class="line"></span><br><span class="line">variable.value = <span class="string">"2"</span></span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Subscription1: 1</span><br><span class="line">Subscription2: 1</span><br><span class="line">Subscription1: 2</span><br><span class="line">Subscription2: 2</span><br></pre></td></tr></table></figure>
+<p>之前的 subscription1 在 variable 设置新值 1 的时候收到了新值，当 subscription2 被订阅的时候也收到了同样的值，因为在 <code>variable.value = &quot;1&quot;</code> 时，1 就是最新值。然后 value 被更新为 2，同样的，两次订阅都收到最新值。</p>
+<p>Variable 是非常有用的，主要有以下两点：</p>
+<ol>
+<li>和其他的 subject 一样，无论什么时候，一个 next 事件被发出，它都会做出响应。</li>
+<li>它可以提供“一次性”的需求，例如，当你仅仅需要检查当前值而不用去订阅获取更新。</li>
+</ol>
+<p>以上就是四种 Subjects 的主要用法。后续会更新 Observable 和 Operator 的实战内容。</p>
+
           
         
       
@@ -2157,460 +2536,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/21/WebView-长按识别二维码和点击查看大图/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Yinan Zheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Oniityann">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/06/21/WebView-长按识别二维码和点击查看大图/" itemprop="url">WebView 长按识别二维码和点击查看大图</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-21T12:40:58+08:00">
-                2017-06-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/小技巧/" itemprop="url" rel="index">
-                    <span itemprop="name">小技巧</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="本地识别二维码"><a href="#本地识别二维码" class="headerlink" title="本地识别二维码"></a>本地识别二维码</h2><h3 id="CIDetecor"><a href="#CIDetecor" class="headerlink" title="CIDetecor"></a>CIDetecor</h3><ol>
-<li>首先要识别本地二维码, webView 基本知识几条 js 语句的问题.<br>创建 QRCodeDetector 类:</li>
-</ol>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">"YNQRCodeDetector.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">YNQRCodeDetector</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="built_in">CIQRCodeFeature</span> *)yn_detectQRCodeWithImage:(<span class="built_in">UIImage</span> *)image &#123;</span><br><span class="line">    <span class="comment">// 1. 创建上下文</span></span><br><span class="line">    <span class="built_in">CIContext</span> *context = [[<span class="built_in">CIContext</span> alloc] init];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 创建探测器</span></span><br><span class="line">    <span class="built_in">CIDetector</span> *detector = [<span class="built_in">CIDetector</span> detectorOfType:<span class="built_in">CIDetectorTypeQRCode</span> context:context options:@&#123;<span class="built_in">CIDetectorAccuracy</span>: <span class="built_in">CIDetectorAccuracyLow</span>&#125;];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 识别图片获取图片特征</span></span><br><span class="line">    <span class="built_in">CIImage</span> *imageCI = [[<span class="built_in">CIImage</span> alloc] initWithImage:image];</span><br><span class="line">    <span class="built_in">NSArray</span>&lt;<span class="built_in">CIFeature</span> *&gt; *features = [detector featuresInImage:imageCI];</span><br><span class="line">    <span class="built_in">CIQRCodeFeature</span> *codeF = (<span class="built_in">CIQRCodeFeature</span> *)features.firstObject;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> codeF;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li>在本地 imageView 中添加手势, 处理二维码识别的链接, 有二维码显示保存和识别, 没有只显示保存</li>
-</ol>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)imageLongPress &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UIAlertController</span> *ac = [<span class="built_in">UIAlertController</span> alertControllerWithTitle:<span class="literal">nil</span> message:<span class="literal">nil</span> preferredStyle:<span class="built_in">UIAlertControllerStyleActionSheet</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">CIQRCodeFeature</span> *codeF = [YNQRCodeDetector yn_detectQRCodeWithImage:<span class="keyword">self</span>.imageView.image];</span><br><span class="line">    </span><br><span class="line">    [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"取消"</span> style:<span class="built_in">UIAlertActionStyleCancel</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">        </span><br><span class="line">    &#125;]];</span><br><span class="line">    </span><br><span class="line">    [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"保存图片"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">        [<span class="keyword">self</span> savePicture];</span><br><span class="line">    &#125;]];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (codeF.messageString) &#123;</span><br><span class="line">        </span><br><span class="line">        [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"识别二维码"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">            <span class="comment">// 内置浏览器打开网页</span></span><br><span class="line">            SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[<span class="built_in">NSURL</span> URLWithString:codeF.messageString]];</span><br><span class="line">            [<span class="keyword">self</span> presentViewController:safariVC animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">        &#125;]];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> presentViewController:ac animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol start="3">
-<li>保存图片没什么好说的, 记得 iOS 10 以后手动开启相册权限</li>
-</ol>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)savePicture &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.imageView.image == <span class="literal">nil</span>) &#123;</span><br><span class="line"><span class="comment">//        [SVProgressHUD showErrorWithStatus:@"图片还未加载"];</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">UIImageWriteToSavedPhotosAlbum</span>(<span class="keyword">self</span>.imageView.image, <span class="keyword">self</span>, <span class="keyword">@selector</span>(image:didFinishSavingWithError:contextInfo:), <span class="literal">nil</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)image:(<span class="built_in">UIImage</span> *)image</span><br><span class="line">didFinishSavingWithError:(<span class="built_in">NSError</span> *)error</span><br><span class="line">  contextInfo:(<span class="keyword">void</span> *)contextInfo &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        </span><br><span class="line"><span class="comment">//        [SVProgressHUD showErrorWithStatus:@"保存失败"];</span></span><br><span class="line">        </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        </span><br><span class="line"><span class="comment">//        [SVProgressHUD showSuccessWithStatus:@"保存成功"];</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="WebView上的一些处理"><a href="#WebView上的一些处理" class="headerlink" title="WebView上的一些处理"></a>WebView上的一些处理</h2><h3 id="WebView添加长按手势"><a href="#WebView添加长按手势" class="headerlink" title="WebView添加长按手势"></a>WebView添加长按手势</h3><p>因为项目需求, 需要改的地方太多了, 我直接写在自定义 WebView 里面了, 直接替换 webView 即可. 因为公司需求的 web 没有过于复杂的功能, 直接写在自定义 webView 就行.</p>
-<p>自定义 webView 添加长按手势:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">instancetype</span>)init &#123;</span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> init];</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        [<span class="keyword">self</span> basicConfigure];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithFrame:(<span class="built_in">CGRect</span>)frame &#123;</span><br><span class="line">    <span class="keyword">self</span> = [<span class="keyword">super</span> initWithFrame:frame];</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">        [<span class="keyword">self</span> basicConfigure];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)basicConfigure &#123;</span><br><span class="line">    <span class="keyword">self</span>.delegate = <span class="keyword">self</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">UILongPressGestureRecognizer</span> *longPress = [[<span class="built_in">UILongPressGestureRecognizer</span> alloc] initWithTarget:<span class="keyword">self</span> action:<span class="keyword">@selector</span>(longPressWebPic:)];</span><br><span class="line">    longPress.delegate = <span class="keyword">self</span>;</span><br><span class="line">    [<span class="keyword">self</span> addGestureRecognizer:longPress];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)longPressWebPic:(<span class="built_in">UILongPressGestureRecognizer</span> *)recognizer &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (recognizer.state != <span class="built_in">UIGestureRecognizerStateBegan</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 获取点击区域坐标, 通过坐标得到图片</span></span><br><span class="line">    <span class="built_in">CGPoint</span> touchPoint = [recognizer locationInView:<span class="keyword">self</span>];</span><br><span class="line">    <span class="built_in">NSString</span> *imgURL = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"document.elementFromPoint(%f, %f).src"</span>, touchPoint.x, touchPoint.y];</span><br><span class="line">    <span class="built_in">NSString</span> *urlToSave = [<span class="keyword">self</span> stringByEvaluatingJavaScriptFromString:imgURL];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (urlToSave.length == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"><span class="comment">//    ENLog(@"%@", urlToSave);</span></span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> imageWithUrl:urlToSave];</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="下载图片"><a href="#下载图片" class="headerlink" title="下载图片"></a>下载图片</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 因为做了个 demo 不想引用三方, 可以用 sdImageDownloader 替代</span></span><br><span class="line">- (<span class="keyword">void</span>)imageWithUrl:(<span class="built_in">NSString</span> *)imageUrl &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在子线程中下载图片, 不在子线程中下载图片会造成主线程阻塞, 导致 alertController 需要很久时间才弹出    </span></span><br><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, <span class="number">0</span>), ^&#123;</span><br><span class="line">        <span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:imageUrl];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLSessionConfiguration</span> * configuration = [<span class="built_in">NSURLSessionConfiguration</span> defaultSessionConfiguration];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLSession</span> *session = [<span class="built_in">NSURLSession</span> sessionWithConfiguration:configuration delegate:<span class="keyword">self</span> delegateQueue:[<span class="built_in">NSOperationQueue</span> new]];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLRequest</span> *imgRequest = [<span class="built_in">NSURLRequest</span> requestWithURL:url cachePolicy:<span class="built_in">NSURLRequestReturnCacheDataElseLoad</span> timeoutInterval:<span class="number">30.0</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSURLSessionDownloadTask</span>  *task = [session downloadTaskWithRequest:imgRequest completionHandler:^(<span class="built_in">NSURL</span> * _Nullable location, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">            <span class="keyword">if</span> (error) &#123;</span><br><span class="line">                <span class="keyword">return</span> ;</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">            <span class="built_in">NSData</span> *imageData = [<span class="built_in">NSData</span> dataWithContentsOfURL:location];</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 在主线程中配置 UI 显示相关操作</span></span><br><span class="line">            <span class="built_in">dispatch_async</span>(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">                </span><br><span class="line">                <span class="built_in">UIImage</span> *image = [<span class="built_in">UIImage</span> imageWithData:imageData];</span><br><span class="line">                </span><br><span class="line">                <span class="built_in">UIAlertController</span> *ac = [<span class="built_in">UIAlertController</span> alertControllerWithTitle:<span class="literal">nil</span> message:<span class="literal">nil</span> preferredStyle:<span class="built_in">UIAlertControllerStyleActionSheet</span>];</span><br><span class="line">                </span><br><span class="line">                <span class="built_in">CIQRCodeFeature</span> *codeF = [YNQRCodeDetector yn_detectQRCodeWithImage:image];</span><br><span class="line">                </span><br><span class="line">                [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"取消"</span> style:<span class="built_in">UIAlertActionStyleCancel</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">                    </span><br><span class="line">                &#125;]];</span><br><span class="line">                </span><br><span class="line">                [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"保存图片"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">                    [<span class="keyword">self</span> savePicture:image];</span><br><span class="line">                &#125;]];</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> (codeF.messageString) &#123;</span><br><span class="line">                    </span><br><span class="line">                    [ac addAction:[<span class="built_in">UIAlertAction</span> actionWithTitle:<span class="string">@"识别二维码"</span> style:<span class="built_in">UIAlertActionStyleDefault</span> handler:^(<span class="built_in">UIAlertAction</span> * _Nonnull action) &#123;</span><br><span class="line">                        </span><br><span class="line">                        SFSafariViewController *safariVC = [[SFSafariViewController alloc] initWithURL:[<span class="built_in">NSURL</span> URLWithString:codeF.messageString]];</span><br><span class="line">                        [[<span class="keyword">self</span> currentViewController] presentViewController:safariVC animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">                    &#125;]];</span><br><span class="line">                    </span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 直接用 webView 模态出控制器</span></span><br><span class="line">                [[<span class="keyword">self</span> currentViewController] presentViewController:ac animated:<span class="literal">YES</span> completion:<span class="literal">nil</span>];</span><br><span class="line">            &#125;);   </span><br><span class="line">        &#125;];</span><br><span class="line">        </span><br><span class="line">        [task resume];</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="获取最上层控制器"><a href="#获取最上层控制器" class="headerlink" title="获取最上层控制器"></a>获取最上层控制器</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">UIViewController</span> *)currentViewController &#123;</span><br><span class="line">    <span class="built_in">UIWindow</span> *keyWindow  = [<span class="built_in">UIApplication</span> sharedApplication].keyWindow;</span><br><span class="line">    <span class="built_in">UIViewController</span> *vc = keyWindow.rootViewController;</span><br><span class="line">    <span class="keyword">while</span> (vc.presentedViewController) &#123;</span><br><span class="line">        vc = vc.presentedViewController;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> ([vc isKindOfClass:[<span class="built_in">UINavigationController</span> <span class="keyword">class</span>]]) &#123;</span><br><span class="line">            vc = [(<span class="built_in">UINavigationController</span> *)vc visibleViewController];</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> ([vc isKindOfClass:[<span class="built_in">UITabBarController</span> <span class="keyword">class</span>]]) &#123;</span><br><span class="line">            vc = [(<span class="built_in">UITabBarController</span> *)vc selectedViewController];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> vc;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">UINavigationController</span> *)currentNavigationController &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">self</span> currentViewController].navigationController;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="处理-WebView-代理方法"><a href="#处理-WebView-代理方法" class="headerlink" title="处理 WebView 代理方法"></a>处理 WebView 代理方法</h3><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)webViewDidFinishLoad:(<span class="built_in">UIWebView</span> *)webView &#123;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 屏蔽网页自带操作</span></span><br><span class="line">    [<span class="keyword">self</span> stringByEvaluatingJavaScriptFromString:<span class="string">@"document.documentElement.style.webkitUserSelect='none';"</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSString</span> * jsCallBack = <span class="string">@"window.getSelection().removeAllRanges();"</span>;</span><br><span class="line">    [webView stringByEvaluatingJavaScriptFromString:jsCallBack];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//js方法遍历图片添加点击事件 返回图片个数</span></span><br><span class="line">    <span class="keyword">static</span>  <span class="built_in">NSString</span> * <span class="keyword">const</span> jsGetImages =</span><br><span class="line">    <span class="string">@"function getImages()&#123;\</span></span><br><span class="line"><span class="string">    var objs = document.getElementsByTagName(\"img\");\</span></span><br><span class="line"><span class="string">    for(var i=0;i&lt;objs.length;i++)&#123;\</span></span><br><span class="line"><span class="string">    objs[i].onclick=function()&#123;\</span></span><br><span class="line"><span class="string">    document.location=\"myweb:imageClick:\"+this.src;\</span></span><br><span class="line"><span class="string">    &#125;;\</span></span><br><span class="line"><span class="string">    &#125;;\</span></span><br><span class="line"><span class="string">    return objs.length;\</span></span><br><span class="line"><span class="string">    &#125;;"</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 获取图片链接</span></span><br><span class="line">    [webView stringByEvaluatingJavaScriptFromString:jsGetImages];<span class="comment">//注入js方法</span></span><br><span class="line">    [webView stringByEvaluatingJavaScriptFromString:<span class="string">@"getImages()"</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">BOOL</span>)webView:(<span class="built_in">UIWebView</span> *)webView shouldStartLoadWithRequest:(<span class="built_in">NSURLRequest</span> *)request navigationType:(<span class="built_in">UIWebViewNavigationType</span>)navigationType &#123;</span><br><span class="line">    <span class="comment">// 将url转换为string</span></span><br><span class="line">    <span class="built_in">NSString</span> *requestString = [[request URL] absoluteString];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 判断创建的字符串内容是否以pic:字符开始</span></span><br><span class="line">    <span class="keyword">if</span> ([requestString hasPrefix:<span class="string">@"myweb:imageClick:"</span>]) &#123;</span><br><span class="line">        <span class="built_in">NSString</span> *imageUrl = [requestString substringFromIndex:<span class="string">@"myweb:imageClick:"</span>.length];</span><br><span class="line">        ENLog(<span class="string">@"------%@"</span>, imageUrl);</span><br><span class="line">        <span class="comment">// 点击网页图片查看大图</span></span><br><span class="line">        ShowBigPicController *sb = [[ShowBigPicController alloc] init];</span><br><span class="line">        sb.imageURL = imageUrl;</span><br><span class="line">        [[<span class="keyword">self</span> currentViewController] presentViewController:sb animated:<span class="literal">NO</span> completion:<span class="literal">nil</span>];</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="Demo-地址"><a href="#Demo-地址" class="headerlink" title="Demo 地址"></a>Demo 地址</h2><p><strong><a href="https://github.com/Oniityann/YNQRCodeWebView" target="_blank" rel="noopener">YNQRCodeWebView</a></strong></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/21/ReactiveCocoa-Quick-Search/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Yinan Zheng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Oniityann">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/04/21/ReactiveCocoa-Quick-Search/" itemprop="url">ReactiveCocoa Quick Search</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-21T02:15:07+08:00">
-                2017-04-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/ReactiveCocoa/" itemprop="url" rel="index">
-                    <span itemprop="name">ReactiveCocoa</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="ReactiveCocoa-常用-API"><a href="#ReactiveCocoa-常用-API" class="headerlink" title="ReactiveCocoa 常用 API"></a>ReactiveCocoa 常用 API</h1><h2 id="常见类"><a href="#常见类" class="headerlink" title="常见类"></a>常见类</h2><h3 id="RACSiganl-信号类。"><a href="#RACSiganl-信号类。" class="headerlink" title="RACSiganl 信号类。"></a>RACSiganl 信号类。</h3><ol>
-<li>RACEmptySignal：空信号，用来实现 RACSignal 的 +empty 方法；</li>
-<li>RACReturnSignal：一元信号，用来实现 RACSignal 的 +return: 方法；</li>
-<li>RACDynamicSignal：动态信号，使用一个 block - 来实现订阅行为，我们在使用 RACSignal 的 +createSignal: 方法时创建的就是该类的实例；</li>
-<li>RACErrorSignal：错误信号，用来实现 RACSignal 的 +error: 方法；</li>
-<li>RACChannelTerminal：通道终端，代表 RACChannel 的一个终端，用来实现双向绑定。</li>
-</ol>
-<hr>
-<h3 id="RACSubscriber-订阅者"><a href="#RACSubscriber-订阅者" class="headerlink" title="RACSubscriber 订阅者"></a>RACSubscriber 订阅者</h3><hr>
-<h3 id="RACDisposable-用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。"><a href="#RACDisposable-用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。" class="headerlink" title="RACDisposable 用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。"></a>RACDisposable 用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。</h3><ol>
-<li>RACSerialDisposable：作为 disposable 的容器使用，可以包含一个 disposable 对象，并且允许将这个 disposable 对象通过原子操作交换出来；</li>
-<li>RACKVOTrampoline：代表一次 KVO 观察，并且可以用来停止观察；</li>
-<li>RACCompoundDisposable：它可以包含多个 disposable 对象，并且支持手动添加和移除 disposable 对象。</li>
-<li>RACScopedDisposable：当它被 dealloc 的时候调用本身的 -dispose 方法。</li>
-</ol>
-<hr>
-<h3 id="RACSubject-信号提供者，自己可以充当信号，又能发送信号。"><a href="#RACSubject-信号提供者，自己可以充当信号，又能发送信号。" class="headerlink" title="RACSubject 信号提供者，自己可以充当信号，又能发送信号。"></a>RACSubject 信号提供者，自己可以充当信号，又能发送信号。</h3><ol>
-<li>RACGroupedSignal：分组信号，用来实现 RACSignal 的分组功能。</li>
-<li>RACBehaviorSubject：重演最后值的信号，当被订阅时，会向订阅者发送它最后接收到的值。</li>
-<li>RACReplaySubject：重演信号，保存发送过的值，当被订阅时，会向订阅者重新发送这些值。</li>
-</ol>
-<hr>
-<h3 id="RACTuple-元组类"><a href="#RACTuple-元组类" class="headerlink" title="RACTuple 元组类"></a>RACTuple 元组类</h3><p>类似 NSArray，用来包装值。</p>
-<hr>
-<h3 id="RACSequence"><a href="#RACSequence" class="headerlink" title="RACSequence"></a>RACSequence</h3><p>RAC 中的集合类</p>
-<hr>
-<h3 id="RACCommand"><a href="#RACCommand" class="headerlink" title="RACCommand"></a>RACCommand</h3><p>RAC中用于处理事件的类, 可以把事件如何处理,事件中的数据如何传递，包装到这个类中，他可以很方便的监控事件的执行过程。</p>
-<hr>
-<h3 id="RACMulticastConnection"><a href="#RACMulticastConnection" class="headerlink" title="RACMulticastConnection"></a>RACMulticastConnection</h3><p>用于当一个信号，被多次订阅时，为了保证创建信号时，避免多次调用创建信号中的block，造成副作用，可以使用这个类处理。</p>
-<hr>
-<h3 id="RACScheduler-RAC中的队列，用GCD封装的。"><a href="#RACScheduler-RAC中的队列，用GCD封装的。" class="headerlink" title="RACScheduler RAC中的队列，用GCD封装的。"></a>RACScheduler RAC中的队列，用GCD封装的。</h3><ol>
-<li>RACImmediateScheduler：立即执行调度的任务，这是唯一一个支持同步执行的调度器；</li>
-<li>RACQueueScheduler：一个抽象的队列调度器，在一个 GCD 串行列队中异步调度所有任务；</li>
-<li>RACTargetQueueScheduler：继承自 RACQueueScheduler ，在一个以一个任意的 GCD 队列为 target 的串行队列中异步调度所有任务；</li>
-<li>RACSubscriptionScheduler：一个只用来调度订阅的调度器。</li>
-</ol>
-<hr>
-<h2 id="常见用法"><a href="#常见用法" class="headerlink" title="常见用法"></a>常见用法</h2><ol>
-<li>rac_signalForSelector:fromProtocol：代替代理。</li>
-<li>rac_valuesAndChangesForKeyPath：KVO。</li>
-<li>rac_signalForControlEvents：监听事件。</li>
-<li>rac_addObserverForName：代替通知。</li>
-<li>rac_textSignal：监听文本框文字改变。</li>
-<li>rac_liftSelector:withSignalsFromArray:Signals：当传入的 Signals(信号数组)，每一个 signal 都至少 sendNext 过一次，就会去触发第一个selector参数的方法。</li>
-</ol>
-<hr>
-<h2 id="常见宏"><a href="#常见宏" class="headerlink" title="常见宏"></a>常见宏</h2><ol>
-<li>RAC(TARGET, [KEYPATH, [NIL_VALUE]])：用于给某个对象的某个属性绑定</li>
-<li>RACObserve(self, name)：监听某个对象的某个属性,返回的是信号。</li>
-<li>@weakify(Obj) 和 @strongify(Obj)</li>
-<li>RACTuplePack：把数据包装成RACTuple（元组类）</li>
-<li>RACTupleUnpack：把RACTuple（元组类）解包成对应的数据</li>
-<li>RACChannelTo 用于双向绑定的一个终端</li>
-</ol>
-<hr>
-<h2 id="常用操作方法"><a href="#常用操作方法" class="headerlink" title="常用操作方法"></a>常用操作方法</h2><ol>
-<li>flattenMap map 用于把源信号内容映射成新的内容。</li>
-<li>concat 组合 按一定顺序拼接信号，当多个信号发出的时候，有顺序的接收信号。</li>
-<li>then 用于连接两个信号，当第一个信号完成，才会连接then返回的信号。</li>
-<li>merge 把多个信号合并为一个信号，任何一个信号有新值的时候就会调用。</li>
-<li>zipWith 把两个信号压缩成一个信号，只有当两个信号同时发出信号内容时，并且把两个信号的内容合并成一个元组，才会触发压缩流的next事件。</li>
-<li>combineLatest：将多个信号合并起来，并且拿到各个信号的最新的值,必须每个合并的signal至少都有过一次sendNext，才会触发合并的信号。</li>
-<li>reduce：聚合，用于信号发出的内容是元组，把信号发出元组的值聚合成一个值。</li>
-<li>filter：过滤信号，使用它可以获取满足条件的信号。</li>
-<li>ignore：忽略完某些值的信号。</li>
-<li>distinctUntilChanged：当上一次的值和当前的值有明显的变化就会发出信号，否则会被忽略掉。</li>
-<li>take：从开始一共取N次的信号。</li>
-<li>takeLast：取最后N次的信号，前提条件，订阅者必须调用完成，因为只有完成，就知道总共有多少信号。</li>
-<li>takeUntil：获取信号直到某个信号执行完成。</li>
-<li>skip：跳过几个信号，不接受。</li>
-<li>switchToLatest：用于 signalOfSignals（信号的信号），有时候信号也会发出信号，会在 signalOfSignals 中，获取 signalOfSignals 发送的最新信号。</li>
-<li>doNext: 执行 Next 之前，会先执行这个 Block。</li>
-<li>doCompleted：执行 sendCompleted 之前，会先执行这个 Block。</li>
-<li>timeout：超时，可以让一个信号在一定的时间后，自动报错。</li>
-<li>interval：定时，每隔一段时间发出信号。</li>
-<li>delay：延迟发送 next。</li>
-<li>retry：重试，只要失败，就会重新执行创建信号中的block，直到成功。</li>
-<li>replay：重放，当一个信号被多次订阅,反复播放内容。</li>
-<li>throttle：节流，当某个信号发送比较频繁时，可以使用节流，在某一段时间不发送信号内容，过了一段时间获取信号的最新内容发出。</li>
-</ol>
-<hr>
-<h2 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h2><h3 id="rac-prepareForReuseSignal-需要复用时用、"><a href="#rac-prepareForReuseSignal-需要复用时用、" class="headerlink" title="rac_prepareForReuseSignal - 需要复用时用、"></a>rac_prepareForReuseSignal - 需要复用时用、</h3><p>相关UI：MKAnnotationView、UICollectionReusableView、UITableViewCell、UITableViewHeaderFooterView</p>
-<hr>
-<h3 id="rac-buttonClickedSignal-点击事件触发信号"><a href="#rac-buttonClickedSignal-点击事件触发信号" class="headerlink" title="rac_buttonClickedSignal - 点击事件触发信号"></a>rac_buttonClickedSignal - 点击事件触发信号</h3><p>相关UI：UIActionSheet、UIAlertView</p>
-<hr>
-<h3 id="rac-command-button类、刷新类相关命令替换"><a href="#rac-command-button类、刷新类相关命令替换" class="headerlink" title="rac_command - button类、刷新类相关命令替换"></a>rac_command - button类、刷新类相关命令替换</h3><p>相关UI：UIBarButtonItem、UIButton、UIRefreshControl</p>
-<hr>
-<h3 id="rac-signalForControlEvents-control-event-触发"><a href="#rac-signalForControlEvents-control-event-触发" class="headerlink" title="rac_signalForControlEvents - control event 触发"></a>rac_signalForControlEvents - control event 触发</h3><p>相关UI：UIControl</p>
-<hr>
-<h3 id="rac-gestureSignal-UIGestureRecognizer-事件处理信号"><a href="#rac-gestureSignal-UIGestureRecognizer-事件处理信号" class="headerlink" title="rac_gestureSignal - UIGestureRecognizer 事件处理信号"></a>rac_gestureSignal - UIGestureRecognizer 事件处理信号</h3><p>相关UI：UIGestureRecognizer</p>
-<hr>
-<h3 id="rac-imageSelectedSignal-选择图片的信号"><a href="#rac-imageSelectedSignal-选择图片的信号" class="headerlink" title="rac_imageSelectedSignal - 选择图片的信号"></a>rac_imageSelectedSignal - 选择图片的信号</h3><p>相关UI：UIImagePickerController</p>
-<hr>
-<h3 id="rac-textSignal"><a href="#rac-textSignal" class="headerlink" title="rac_textSignal"></a>rac_textSignal</h3><p>相关UI：UITextField、UITextView</p>
-<hr>
-<h3 id="可实现双向绑定的相关API"><a href="#可实现双向绑定的相关API" class="headerlink" title="可实现双向绑定的相关API"></a>可实现双向绑定的相关API</h3><h4 id="rac-channelForControlEvents-key-nilValue"><a href="#rac-channelForControlEvents-key-nilValue" class="headerlink" title="rac_channelForControlEvents: key: nilValue:"></a>rac_channelForControlEvents: key: nilValue:</h4><p>相关UI：UIControl类</p>
-<h4 id="rac-newDateChannelWithNilValue"><a href="#rac-newDateChannelWithNilValue" class="headerlink" title="rac_newDateChannelWithNilValue:"></a>rac_newDateChannelWithNilValue:</h4><p>相关UI：UIDatePicker</p>
-<h4 id="rac-newSelectedSegmentIndexChannelWithNilValue"><a href="#rac-newSelectedSegmentIndexChannelWithNilValue" class="headerlink" title="rac_newSelectedSegmentIndexChannelWithNilValue:"></a>rac_newSelectedSegmentIndexChannelWithNilValue:</h4><p>相关UI：UISegmentedControl</p>
-<h4 id="rac-newValueChannelWithNilValue"><a href="#rac-newValueChannelWithNilValue" class="headerlink" title="rac_newValueChannelWithNilValue:"></a>rac_newValueChannelWithNilValue:</h4><p>相关UI：UISlider、UIStepper</p>
-<h4 id="rac-newOnChannel"><a href="#rac-newOnChannel" class="headerlink" title="rac_newOnChannel"></a>rac_newOnChannel</h4><p>相关UI：UISwitch</p>
-<h4 id="rac-newTextChannel"><a href="#rac-newTextChannel" class="headerlink" title="rac_newTextChannel"></a>rac_newTextChannel</h4><p>相关UI：UITextField</p>
-<hr>
-<h2 id="Foundation-Category-（常用汇总）"><a href="#Foundation-Category-（常用汇总）" class="headerlink" title="Foundation - Category （常用汇总）"></a>Foundation - Category （常用汇总）</h2><h3 id="NSArray"><a href="#NSArray" class="headerlink" title="NSArray:"></a>NSArray:</h3><p>rac_sequence：信号集合</p>
-<hr>
-<h3 id="NSData"><a href="#NSData" class="headerlink" title="NSData:"></a>NSData:</h3><p>rac_readContentsOfURL: options: scheduler：比 OC 多出线程设置</p>
-<hr>
-<h3 id="NSDictionary"><a href="#NSDictionary" class="headerlink" title="NSDictionary:"></a>NSDictionary:</h3><ol>
-<li>rac_sequence</li>
-<li>rac_keySequence：key 集合</li>
-<li><p>rac_valueSequence：value 集合</p>
-<hr>
-<h3 id="NSEnumerator"><a href="#NSEnumerator" class="headerlink" title="NSEnumerator:"></a>NSEnumerator:</h3></li>
-</ol>
-<p>rac_sequence</p>
-<hr>
-<h3 id="NSFileHandle"><a href="#NSFileHandle" class="headerlink" title="NSFileHandle:"></a>NSFileHandle:</h3><p>rac_readInBackground</p>
-<hr>
-<h3 id="NSIndexSet"><a href="#NSIndexSet" class="headerlink" title="NSIndexSet:"></a>NSIndexSet:</h3><p>rac_sequence</p>
-<hr>
-<h3 id="NSInvocation"><a href="#NSInvocation" class="headerlink" title="NSInvocation:"></a>NSInvocation:</h3><ol>
-<li>rac_setArgument:atIndex：设置参数</li>
-<li>rac_argumentAtIndex：取某个参数</li>
-<li>rac_returnValue：所关联方法的返回值</li>
-</ol>
-<hr>
-<h3 id="NSNotificationCenter"><a href="#NSNotificationCenter" class="headerlink" title="NSNotificationCenter:"></a>NSNotificationCenter:</h3><p>rac_addObserverForName:object：注册通知</p>
-<hr>
-<h3 id="NSObject"><a href="#NSObject" class="headerlink" title="NSObject:"></a>NSObject:</h3><ol>
-<li>rac_willDeallocSignal：对象销毁时发动的信号</li>
-<li>rac_description：debug用</li>
-<li>rac_observeKeyPath:options:observer:block：监听某个事件</li>
-<li>rac_liftSelector:withSignals：全部信号都 next 在执行</li>
-<li>rac_signalForSelector：代替某个方法</li>
-<li>rac_signalForSelector:fromProtocol：代替代理</li>
-</ol>
-<hr>
-<h3 id="NSOrderedSet"><a href="#NSOrderedSet" class="headerlink" title="NSOrderedSet:"></a>NSOrderedSet:</h3><p>rac_sequence</p>
-<hr>
-<h3 id="NSSet"><a href="#NSSet" class="headerlink" title="NSSet:"></a>NSSet:</h3><p>rac_sequence</p>
-<hr>
-<h3 id="NSString"><a href="#NSString" class="headerlink" title="NSString:"></a>NSString:</h3><ol>
-<li>rac_keyPathComponents：获取一个路径所有的部分。</li>
-<li>rac_keyPathByDeletingLastKeyPathComponent：删除路径最后一部分。</li>
-<li>rac_keyPathByDeletingFirstKeyPathComponent：删除路径第一部分。</li>
-<li>rac_sequence：character。</li>
-<li>rac_readContentsOfURL:usedEncoding:scheduler：多线程调用。</li>
-</ol>
-<hr>
-<h3 id="NSURLConnection"><a href="#NSURLConnection" class="headerlink" title="NSURLConnection:"></a>NSURLConnection:</h3><p>rac_sendAsynchronousRequest：发起异步请求。</p>
-<hr>
-<h3 id="NSUserDefaults"><a href="#NSUserDefaults" class="headerlink" title="NSUserDefaults:"></a>NSUserDefaults:</h3><p>rac_channelTerminalForKey：用于双向绑定。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2661,7 +2586,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -2683,7 +2608,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">14</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
