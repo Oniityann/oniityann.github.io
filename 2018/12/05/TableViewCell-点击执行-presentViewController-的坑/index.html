@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="IM,">
+  <meta name="keywords" content="Bugs,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="前言三月份入职了一家做社交的公司，进公司以后，让我负责 IM 模块的开发，当时问为什么不用第三方，第一是因为价格问题，第二是因为前一批人没做好，技术主管一怒之下就说自己做了，使用 WebSocket 实现。这也得以让我有机会去研究一下如何去做一个 IM app。 移动端 IM/ 推送协议选型在 www.52im.net 上有一篇帖子很好，直接贴出来。链接：移动端IM/推送系统的协议选型：UDP还是">
-<meta name="keywords" content="IM">
+<meta name="description" content="场景在开发中遇到了一个点击 TableViewCell 自定义模态出另一个控制器的坑：  尝试普通模态一个控制器，偶尔会有延迟显示。 自定义模态动画，必定会延迟显示，或者根本就不显示，必须二次点击视图才会显示出来。  解决一开始以为是自定义模态动画出了问题，打断点发现都是即时执行的，流程也没有问题，就是会延迟 N 秒以上才模态出目标控制器。然后用 Time Profiler 跑了一下，发现有以下两">
+<meta name="keywords" content="Bugs">
 <meta property="og:type" content="article">
-<meta property="og:title" content="基于 WebSocket 的 IM App 实现">
-<meta property="og:url" content="http://yoursite.com/2018/08/22/基于-WebSocket-的-IM-App-实现/index.html">
+<meta property="og:title" content="TableViewCell 点击执行 presentViewController 的坑">
+<meta property="og:url" content="http://yoursite.com/2018/12/05/TableViewCell-点击执行-presentViewController-的坑/index.html">
 <meta property="og:site_name" content="Oniityann">
-<meta property="og:description" content="前言三月份入职了一家做社交的公司，进公司以后，让我负责 IM 模块的开发，当时问为什么不用第三方，第一是因为价格问题，第二是因为前一批人没做好，技术主管一怒之下就说自己做了，使用 WebSocket 实现。这也得以让我有机会去研究一下如何去做一个 IM app。 移动端 IM/ 推送协议选型在 www.52im.net 上有一篇帖子很好，直接贴出来。链接：移动端IM/推送系统的协议选型：UDP还是">
+<meta property="og:description" content="场景在开发中遇到了一个点击 TableViewCell 自定义模态出另一个控制器的坑：  尝试普通模态一个控制器，偶尔会有延迟显示。 自定义模态动画，必定会延迟显示，或者根本就不显示，必须二次点击视图才会显示出来。  解决一开始以为是自定义模态动画出了问题，打断点发现都是即时执行的，流程也没有问题，就是会延迟 N 秒以上才模态出目标控制器。然后用 Time Profiler 跑了一下，发现有以下两">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-10-21T16:32:26.064Z">
+<meta property="og:updated_time" content="2018-12-04T17:13:05.726Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="基于 WebSocket 的 IM App 实现">
-<meta name="twitter:description" content="前言三月份入职了一家做社交的公司，进公司以后，让我负责 IM 模块的开发，当时问为什么不用第三方，第一是因为价格问题，第二是因为前一批人没做好，技术主管一怒之下就说自己做了，使用 WebSocket 实现。这也得以让我有机会去研究一下如何去做一个 IM app。 移动端 IM/ 推送协议选型在 www.52im.net 上有一篇帖子很好，直接贴出来。链接：移动端IM/推送系统的协议选型：UDP还是">
+<meta name="twitter:title" content="TableViewCell 点击执行 presentViewController 的坑">
+<meta name="twitter:description" content="场景在开发中遇到了一个点击 TableViewCell 自定义模态出另一个控制器的坑：  尝试普通模态一个控制器，偶尔会有延迟显示。 自定义模态动画，必定会延迟显示，或者根本就不显示，必须二次点击视图才会显示出来。  解决一开始以为是自定义模态动画出了问题，打断点发现都是即时执行的，流程也没有问题，就是会延迟 N 秒以上才模态出目标控制器。然后用 Time Profiler 跑了一下，发现有以下两">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/08/22/基于-WebSocket-的-IM-App-实现/">
+  <link rel="canonical" href="http://yoursite.com/2018/12/05/TableViewCell-点击执行-presentViewController-的坑/">
 
 
 
 
 
-  <title>基于 WebSocket 的 IM App 实现 | Oniityann</title>
+  <title>TableViewCell 点击执行 presentViewController 的坑 | Oniityann</title>
   
 
 
@@ -253,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/22/基于-WebSocket-的-IM-App-实现/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/05/TableViewCell-点击执行-presentViewController-的坑/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Yinan Zheng">
@@ -270,7 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">基于 WebSocket 的 IM App 实现</h1>
+          <h1 class="post-title" itemprop="name headline">TableViewCell 点击执行 presentViewController 的坑</h1>
         
 
         <div class="post-meta">
@@ -282,8 +282,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-22T00:12:17+08:00">
-                2018-08-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-05T00:40:58+08:00">
+                2018-12-05
               </time>
             
 
@@ -305,8 +305,8 @@
               
               
                 <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/Socket/" itemprop="url" rel="index">
-                    <span itemprop="name">Socket</span>
+                  <a href="/categories/小技巧/" itemprop="url" rel="index">
+                    <span itemprop="name">小技巧</span>
                   </a>
                 </span>
 
@@ -342,11 +342,29 @@
       
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>三月份入职了一家做社交的公司，进公司以后，让我负责 IM 模块的开发，当时问为什么不用第三方，第一是因为价格问题，第二是因为前一批人没做好，技术主管一怒之下就说自己做了，使用 WebSocket 实现。这也得以让我有机会去研究一下如何去做一个 IM app。</p>
-<h2 id="移动端-IM-推送协议选型"><a href="#移动端-IM-推送协议选型" class="headerlink" title="移动端 IM/ 推送协议选型"></a>移动端 IM/ 推送协议选型</h2><p>在 <a href="www.52im.net">www.52im.net</a> 上有一篇帖子很好，直接贴出来。<br>链接：<a href="http://www.52im.net/thread-33-1-1.html" target="_blank" rel="noopener">移动端IM/推送系统的协议选型：UDP还是TCP？</a></p>
-<h2 id="iOS-Socket-编程"><a href="#iOS-Socket-编程" class="headerlink" title="iOS Socket 编程"></a>iOS Socket 编程</h2><p><a href="https://blog.csdn.net/kesalin/article/details/8798039" target="_blank" rel="noopener">深入浅出Cocoa - iOS网络编程之Socket</a></p>
-<h2 id="WebSocket"><a href="#WebSocket" class="headerlink" title="WebSocket"></a>WebSocket</h2><p>在 WebSocket 的处理上，我选择了 Facebook 开源的 SocketRocket，因为它在网上的 demo 是最多的，而且使用起来确实很方便。</p>
-<h2 id="SocketRocket-源码解读"><a href="#SocketRocket-源码解读" class="headerlink" title="SocketRocket 源码解读"></a>SocketRocket 源码解读</h2>
+        <h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><p>在开发中遇到了一个点击 TableViewCell 自定义模态出另一个控制器的坑：</p>
+<ul>
+<li>尝试普通模态一个控制器，偶尔会有延迟显示。</li>
+<li>自定义模态动画，必定会延迟显示，或者根本就不显示，必须二次点击视图才会显示出来。</li>
+</ul>
+<h2 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h2><p>一开始以为是自定义模态动画出了问题，打断点发现都是即时执行的，流程也没有问题，就是会延迟 N 秒以上才模态出目标控制器。<br>然后用 Time Profiler 跑了一下，发现有以下两种情况：</p>
+<ol>
+<li>延迟执行的时候，RunLoop 会延迟唤醒</li>
+<li>压根不显示的情况，UIEventFetcher 压根就没有显示，Runloop 没有被唤醒</li>
+</ol>
+<p>那既然是 RunLoop 没有被唤醒，那就好解决了，尝试在模态代码前面手动唤醒 RunLoop：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)tableView:(<span class="built_in">UITableView</span> *)tableView didSelectRowAtIndexPath:(<span class="built_in">NSIndexPath</span> *)indexPath &#123;</span><br><span class="line">    <span class="built_in">CFRunLoopWakeUp</span>(<span class="built_in">CFRunLoopGetCurrent</span>());</span><br><span class="line">    ToViewController *to = [[ToViewController alloc] init];</span><br><span class="line">    [<span class="keyword">self</span> presentViewController:to animated:<span class="literal">YES</span> completion:<span class="literal">NULL</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>问题解决。</p>
+<p>然后谷歌了一下为什么 didSelectRow 时存在 runloop 没有唤醒的情况，发现 Stack Overflow，还有一些别的论坛也有遇到这种坑的人，看了下，基本结论就是苹果的 didSelectRow 方法的 bug，其他开发者给出的解决方案是：</p>
+<ul>
+<li>包一层主线程异步：</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dispatch_queue_t</span> mainQueue = dispatch_get_main_queue();</span><br><span class="line"><span class="built_in">dispatch_async</span>(mainQueue, ^&#123;</span><br><span class="line">    ToViewController *to = [[ToViewController alloc] init];</span><br><span class="line">    [<span class="keyword">self</span> presentViewController:to animated:<span class="literal">YES</span> completion:<span class="literal">NULL</span>];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>不唤醒的情况只有在 TableViewCell 的 selectionStyle 为 none 的时候才发生， 这种情况修改 selectionStyle 也可以解决。</li>
+</ul>
+<p>以上就是三个这种 bug 的解决方案。</p>
+
       
     </div>
     
@@ -363,7 +381,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/IM/" rel="tag"># IM</a>
+            <a href="/tags/Bugs/" rel="tag"># Bugs</a>
           
         </div>
       
@@ -376,8 +394,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/27/Subject/" rel="next" title="Subject">
-                <i class="fa fa-chevron-left"></i> Subject
+              <a href="/2018/09/22/Metal-初窥/" rel="next" title="Metal 初窥">
+                <i class="fa fa-chevron-left"></i> Metal 初窥
               </a>
             
           </div>
@@ -385,10 +403,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/08/26/Realm-多线程通信/" rel="prev" title="Realm 多线程通信">
-                Realm 多线程通信 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -536,7 +550,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#移动端-IM-推送协议选型"><span class="nav-number">2.</span> <span class="nav-text">移动端 IM/ 推送协议选型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS-Socket-编程"><span class="nav-number">3.</span> <span class="nav-text">iOS Socket 编程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebSocket"><span class="nav-number">4.</span> <span class="nav-text">WebSocket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SocketRocket-源码解读"><span class="nav-number">5.</span> <span class="nav-text">SocketRocket 源码解读</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#场景"><span class="nav-number">1.</span> <span class="nav-text">场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决"><span class="nav-number">2.</span> <span class="nav-text">解决</span></a></li></ol></div>
             
 
           </div>
